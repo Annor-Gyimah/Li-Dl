@@ -39,8 +39,7 @@ widgets = None
 
 from modules.utils import clipboard_read, clipboard_write
 from modules import config
-from PySide6.QtWidgets import QMainWindow, QApplication
-from PySide6.QtCore import QTimer
+
 class MainWindow(QMainWindow):
     def __init__(self, d_list):
         QMainWindow.__init__(self)
@@ -89,14 +88,9 @@ class MainWindow(QMainWindow):
         # thumbnail
         self.current_thumbnail = None
 
-        
-        # Start the QTimer to poll the queue
-        self.queue_timer = QTimer()
-        self.queue_timer.timeout.connect(self.read_q)
-        self.queue_timer.start(500)  # Check the queue every 500ms
-
         # initial setup
         self.setup()
+        self.read_q()
         ##########################################################################################
 
 
@@ -178,33 +172,8 @@ class MainWindow(QMainWindow):
     # BUTTONS CLICK
     # ///////////////////////////////////////////////////////////////
     def buttonClick(self):
-        # GET BUTTON CLICKED
-        btn = self.sender()
-        btnName = btn.objectName()
-
-        # SHOW HOME PAGE
-        if btnName == "btn_home":
-            widgets.stackedWidget.setCurrentWidget(widgets.home)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
-
-        # SHOW WIDGETS PAGE
-        if btnName == "btn_downloads":
-            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
-
-        # SHOW NEW PAGE
-        if btnName == "btn_settings":
-            widgets.stackedWidget.setCurrentWidget(widgets.new_page) # SET PAGE
-            UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
-
-        if btnName == "btn_save":
-            print("Save BTN clicked!")
-
-        # PRINT BTN NAME
-        print(f'Button "{btnName}" pressed!')
+        
+        pass
 
     # RESIZE EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -232,16 +201,17 @@ class MainWindow(QMainWindow):
             self.d.folder = config.download_folder
 
     def read_q(self):
-        """Read from the queue and update the GUI."""
-        while not config.main_window_q.empty():
+        # read incoming messages from queue
+        for _ in range(config.main_window_q.qsize()):
             k, v = config.main_window_q.get()
-            print(f"Processing queue: {k} -> {v}")
+            print(f"this is k: {k} and v: {v}")
 
             if k == 'url':
-                # Update the QLineEdit with the new URL
-                widgets.home_link_lineEdit.setText(v)
-                print(f"Updated QLineEdit with URL: {v}")
+                widgets.home_link_lineEdit.setPlaceholderText()
                 self.url_text_change()
+
+            # elif k == 'monitor':
+            #     self.window.Element('monitor').Update(v)
 
 
 
@@ -249,19 +219,27 @@ class MainWindow(QMainWindow):
 
    # region General
     def url_text_change(self):
-        """Handle URL changes in the QLineEdit."""
-        url = widgets.home_link_lineEdit.text().strip()
+        url = widgets.home_link_lineEdit.Get().strip()
         if url == self.d.url:
             return
+
+        # # Focus and select main app page in case text changed from script
+        # self.window.BringToFront()
+        # self.select_tab('Main')
 
         self.reset()
         try:
             self.d.eff_url = self.d.url = url
-            print(f"New URL set: {url}")
-            # Here you can trigger any further processing of the URL
-        except Exception as e:
-            print(f"Error in url_text_change: {e}")
 
+            # schedule refresh header func
+            if isinstance(self.url_timer, Timer):
+                self.url_timer.cancel()  # cancel previous timer
+
+            self.url_timer = Timer(0.5, self.refresh_headers, args=[url])
+            self.url_timer.start()  # start new timer
+
+        except:
+            pass
 
     def reset(self):
         # create new download item, the old one will be garbage collected by python interpreter
@@ -323,41 +301,36 @@ def clipboard_listener():
     old_data = ''
     
     while True:
-        # Read from the clipboard
         new_data = clipboard_read()
-        print(f"Clipboard data: {new_data}")
+        print(f"This is new data: {new_data}")
 
-        # Check if a message is received from another instance
-        if new_data == 'any one there?':  
-            clipboard_write('yes')  # Reply to the instance
-            config.main_window_q.put(('visibility', 'show'))  # Request main window visibility
+        if new_data == 'any one there?':  # Message from new instance
+            clipboard_write('yes')  # Exit signal for the second instance
+            config.main_window_q.put(('visibility', 'show'))  # Restore main window if minimized
 
-        # Check if clipboard monitoring is active and the content has changed
         if config.monitor_clipboard and new_data != old_data:
             if new_data.startswith('http') and ' ' not in new_data:
-                # Send the URL to the main window queue
                 config.main_window_q.put(('url', new_data))
-            
-            old_data = new_data
-            print(f"Updated clipboard data: {old_data}")
 
-        # Stop the clipboard listener if needed
+            old_data = new_data
+            print(f"This is old data: {old_data}")
+
+        # Terminate listener if flag is set
         if config.terminate:
             break
 
-        # Sleep briefly to avoid busy-waiting
         time.sleep(0.2)
 
 
 if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    
-    # Create the main window
-    window = MainWindow(config.d_list)
-    window.show()
+   
+    app = QApplication(sys.argv)  # Initialize QApplication
 
-    # Start the clipboard listener in a separate thread
-    Thread(target=clipboard_listener, daemon=True).start()
+    window = MainWindow(config.d_list)  # Create and show the main window
+    if window:
+        Thread(target=clipboard_listener, daemon=True).start()
+        print("Yes Started")
 
-    # Start the event loop
-    sys.exit(app.exec())
+    sys.exit(app.exec())  # Start event loop
+
+   

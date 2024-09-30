@@ -13,6 +13,7 @@ from PySide6.QtGui import *
 from PySide6.QtWidgets import *
 
 from . resources_rc import *
+from .retrans import retranslateUi
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -664,26 +665,26 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.addWidget(self.btn_home)
 
         self.btn_widgets = QPushButton(self.topMenu)
-        self.btn_widgets.setObjectName(u"btn_widgets")
+        self.btn_widgets.setObjectName(u"btn_downloads")
         sizePolicy.setHeightForWidth(self.btn_widgets.sizePolicy().hasHeightForWidth())
         self.btn_widgets.setSizePolicy(sizePolicy)
         self.btn_widgets.setMinimumSize(QSize(0, 45))
         self.btn_widgets.setFont(font)
         self.btn_widgets.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_widgets.setLayoutDirection(Qt.LeftToRight)
-        self.btn_widgets.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-gamepad.png);")
+        self.btn_widgets.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-data-transfer-down.png);")
 
         self.verticalLayout_8.addWidget(self.btn_widgets)
 
         self.btn_new = QPushButton(self.topMenu)
-        self.btn_new.setObjectName(u"btn_new")
+        self.btn_new.setObjectName(u"btn_settings")
         sizePolicy.setHeightForWidth(self.btn_new.sizePolicy().hasHeightForWidth())
         self.btn_new.setSizePolicy(sizePolicy)
         self.btn_new.setMinimumSize(QSize(0, 45))
         self.btn_new.setFont(font)
         self.btn_new.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_new.setLayoutDirection(Qt.LeftToRight)
-        self.btn_new.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-file.png);")
+        self.btn_new.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-settings.png);")
 
         self.verticalLayout_8.addWidget(self.btn_new)
 
@@ -1045,84 +1046,43 @@ class Ui_MainWindow(object):
         self.home_verticalLayout.setAlignment(Qt.AlignTop)
 
         self.home_row_1 = QFrame(self.home)
-        self.home_row_1.setObjectName(u"row_1")
         self.home_row_1.setFrameShape(QFrame.StyledPanel)
         self.home_row_1.setFrameShadow(QFrame.Raised)
-        self.home_verticalLayout_16 = QVBoxLayout(self.home_row_1)
-        self.home_verticalLayout_16.setSpacing(0)
-        self.home_verticalLayout_16.setObjectName(u"verticalLayout_16")
-        self.home_verticalLayout_16.setContentsMargins(0, 0, 0, 0)
-        self.home_frame_div_content_1 = QFrame(self.home_row_1)
-        self.home_frame_div_content_1.setObjectName(u"frame_div_content_1")
-        self.home_frame_div_content_1.setMinimumSize(QSize(0, 110))
-        self.home_frame_div_content_1.setMaximumSize(QSize(16777215, 110))
-        self.home_frame_div_content_1.setFrameShape(QFrame.NoFrame)
-        self.home_frame_div_content_1.setFrameShadow(QFrame.Raised)
-        self.home_verticalLayout_17 = QVBoxLayout(self.home_frame_div_content_1)
-        self.home_verticalLayout_17.setSpacing(0)
-        self.home_verticalLayout_17.setObjectName(u"verticalLayout_17")
-        self.home_verticalLayout_17.setContentsMargins(0, 0, 0, 0)
-        self.home_frame_title_wid_1 = QFrame(self.home_frame_div_content_1)
-        self.home_frame_title_wid_1.setObjectName(u"frame_title_wid_1")
-        self.home_frame_title_wid_1.setMaximumSize(QSize(16777215, 35))
-        self.home_frame_title_wid_1.setFrameShape(QFrame.StyledPanel)
-        self.home_frame_title_wid_1.setFrameShadow(QFrame.Raised)
-        self.home_verticalLayout_18 = QVBoxLayout(self.home_frame_title_wid_1)
-        self.home_verticalLayout_18.setObjectName(u"verticalLayout_18")
-        self.home_labelBoxBlenderInstalation = QLabel(self.home_frame_title_wid_1)
-        self.home_labelBoxBlenderInstalation.setObjectName(u"labelBoxBlenderInstalation")
-        self.home_labelBoxBlenderInstalation.setFont(font)
-        self.home_labelBoxBlenderInstalation.setStyleSheet(u"")
 
-        self.home_verticalLayout_18.addWidget(self.home_labelBoxBlenderInstalation)
+        # Create a vertical layout for the frame
+        self.home_verticalLayout_row_1 = QVBoxLayout(self.home_row_1)
+        self.home_verticalLayout_row_1.setSpacing(15)  # Add spacing between elements
+        self.home_verticalLayout_row_1.setContentsMargins(10, 10, 10, 10)  # Set margins
 
+        # Create title label directly within the layout (no extra frame needed)
+        self.home_link_label = QLabel("LINK",self.home_row_1)
+        self.home_link_label.setFont(font)
+        self.home_verticalLayout_row_1.addWidget(self.home_link_label)
 
-        self.home_verticalLayout_17.addWidget(self.home_frame_title_wid_1)
+        # Create a horizontal layout for QLineEdit and QPushButton
+        self.home_horizontalLayout_row_1 = QHBoxLayout()
+        self.home_horizontalLayout_row_1.setSpacing(10)  # Add spacing between the widgets
 
-        self.home_frame_content_wid_1 = QFrame(self.home_frame_div_content_1)
-        self.home_frame_content_wid_1.setObjectName(u"frame_content_wid_1")
-        self.home_frame_content_wid_1.setFrameShape(QFrame.NoFrame)
-        self.home_frame_content_wid_1.setFrameShadow(QFrame.Raised)
-        self.home_horizontalLayout_9 = QHBoxLayout(self.home_frame_content_wid_1)
-        self.home_horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.home_gridLayout = QGridLayout()
-        self.home_gridLayout.setObjectName(u"gridLayout")
-        self.home_gridLayout.setContentsMargins(-1, -1, -1, 0)
-        self.home_lineEdit = QLineEdit(self.home_frame_content_wid_1)
-        self.home_lineEdit.setObjectName(u"lineEdit")
-        self.home_lineEdit.setMinimumSize(QSize(0, 30))
-        self.home_lineEdit.setStyleSheet(u"background-color: rgb(33, 37, 43);")
+        # Add First QLineEdit with larger size
+        self.home_link_lineEdit = QLineEdit(self.home_row_1)
+        self.home_link_lineEdit.setMinimumSize(QSize(0, 30))  # Increased width to make it larger
+        self.home_link_lineEdit.setPlaceholderText("Place download link here")
+        self.home_link_lineEdit.setStyleSheet(u"background-color: rgb(33, 37, 43);")
+        self.home_horizontalLayout_row_1.addWidget(self.home_link_lineEdit)
 
-        self.home_gridLayout.addWidget(self.home_lineEdit, 0, 0, 1, 1)
+        # Add QPushButton
+        self.home_refresh_pushbutton = QPushButton("Refresh",self.home_row_1)
+        self.home_refresh_pushbutton.setMinimumSize(QSize(150, 30))
+        self.home_refresh_pushbutton.setFont(font)
+        self.home_refresh_pushbutton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.home_refresh_pushbutton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon1 = QIcon()
+        icon1.addFile(u":/icons/images/icons/cil-cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.home_refresh_pushbutton.setIcon(icon1)
+        self.home_horizontalLayout_row_1.addWidget(self.home_refresh_pushbutton)
 
-        self.home_pushButton = QPushButton(self.home_frame_content_wid_1)
-        self.home_pushButton.setObjectName(u"pushButton")
-        self.home_pushButton.setMinimumSize(QSize(150, 30))
-        self.home_pushButton.setFont(font)
-        self.home_pushButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.home_pushButton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
-        icon4 = QIcon()
-        icon4.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.home_pushButton.setIcon(icon4)
-
-        self.home_gridLayout.addWidget(self.home_pushButton, 0, 1, 1, 1)
-
-        self.home_labelVersion_3 = QLabel(self.home_frame_content_wid_1)
-        self.home_labelVersion_3.setObjectName(u"labelVersion_3")
-        self.home_labelVersion_3.setStyleSheet(u"color: rgb(113, 126, 149);")
-        self.home_labelVersion_3.setLineWidth(1)
-        self.home_labelVersion_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
-
-        self.home_gridLayout.addWidget(self.home_labelVersion_3, 1, 0, 1, 2)
-
-
-        self.home_horizontalLayout_9.addLayout(self.home_gridLayout)
-
-
-        self.home_verticalLayout_17.addWidget(self.home_frame_content_wid_1)
-
-
-        self.home_verticalLayout_16.addWidget(self.home_frame_div_content_1)
+        self.home_verticalLayout_row_1.addLayout(self.home_horizontalLayout_row_1)
+        
 
         
 
@@ -1137,23 +1097,30 @@ class Ui_MainWindow(object):
         self.home_row_2.setFrameShadow(QFrame.Raised)
 
         # Create a vertical layout for the frame
-        self.home_verticalLayout_26 = QVBoxLayout(self.home_row_2)
-        self.home_verticalLayout_26.setSpacing(0)
-        self.home_verticalLayout_26.setObjectName(u"verticalLayout_16")
-        self.home_verticalLayout_26.setContentsMargins(0, 0, 0, 0)
+        self.home_verticalLayout_2 = QVBoxLayout(self.home_row_2)
+        self.home_verticalLayout_2.setSpacing(0)
+        self.home_verticalLayout_2.setObjectName(u"verticalLayout_16")
+        self.home_verticalLayout_2.setContentsMargins(0, 0, 0, 0)
 
         # Add other widgets (e.g., labels, buttons) to the layout as needed
         # Example: Adding a label
         self.label_example = QLabel("Example Label", self.home_row_2)
-        self.home_verticalLayout_26.addWidget(self.label_example)
+        self.home_verticalLayout_2.addWidget(self.label_example)
 
+        # Create the progress bar
         self.progressBar = QProgressBar(self.home_row_2)
         self.progressBar.setObjectName("progressBar")
         self.progressBar.setRange(0, 100)  # Set range if needed
         self.progressBar.setValue(50)  # Set the current value (for example, 50%)
 
-        self.home_verticalLayout_26.addWidget(self.progressBar)
+        # Set a fixed width for the progress bar
+        self.progressBar.setFixedWidth(400)  # Set the desired width
 
+        # Add the progress bar to the layout with margins
+        self.home_verticalLayout_2.addWidget(self.progressBar, 0, Qt.AlignHCenter | Qt.AlignTop)
+
+        # Set margins directly on the layout for spacing
+        self.home_verticalLayout_2.setContentsMargins(20, 0, 20, 0)  # Left and right margins set to 20 pixels
 
         # Optional: Style the progress bar
         self.progressBar.setStyleSheet("""
@@ -1169,8 +1136,159 @@ class Ui_MainWindow(object):
         }
         """)
 
+
+        ##################################################################################################
+        
+        # Create the main frame for home_row_3
+        self.home_row_3 = QFrame(self.home)
+        self.home_row_3.setFrameShape(QFrame.StyledPanel)
+        self.home_row_3.setFrameShadow(QFrame.Raised)
+
+        # Create a vertical layout for the frame
+        self.home_verticalLayout_row_3 = QVBoxLayout(self.home_row_3)
+        self.home_verticalLayout_row_3.setSpacing(15)  # Add spacing between elements
+        self.home_verticalLayout_row_3.setContentsMargins(10, 10, 10, 10)  # Set margins
+
+        # Create title label directly within the layout (no extra frame needed)
+        self.home_choose_folder_label = QLabel("CHOOSE FOLDER",self.home_row_3)
+        self.home_choose_folder_label.setFont(font)
+        self.home_verticalLayout_row_3.addWidget(self.home_choose_folder_label)
+
+        # Create a horizontal layout for QLineEdit and QPushButton
+        self.home_horizontalLayout_row_3 = QHBoxLayout()
+        self.home_horizontalLayout_row_3.setSpacing(10)  # Add spacing between the widgets
+
+        # Add First QLineEdit with larger size
+        self.home_folder_path_lineEdit = QLineEdit(self.home_row_3)
+        self.home_folder_path_lineEdit.setMinimumSize(QSize(300, 30))  # Increased width to make it larger
+        self.home_folder_path_lineEdit.setPlaceholderText("Folder Path")
+        self.home_folder_path_lineEdit.setStyleSheet(u"background-color: rgb(33, 37, 43);")
+        self.home_horizontalLayout_row_3.addWidget(self.home_folder_path_lineEdit)
+
+        # Add QPushButton
+        self.home_open_pushButton = QPushButton("Open",self.home_row_3)
+        self.home_open_pushButton.setMinimumSize(QSize(150, 30))
+        self.home_open_pushButton.setFont(font)
+        self.home_open_pushButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.home_open_pushButton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon4 = QIcon()
+        icon4.addFile(u":/icons/images/icons/cil-folder-open.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.home_open_pushButton.setIcon(icon4)
+        self.home_horizontalLayout_row_3.addWidget(self.home_open_pushButton)
+
+
+        
+
+        # Create a horizontal layout for QLineEdit and QPushButton
+        self.home_filename_row = QVBoxLayout()
+        self.home_filename_row.setSpacing(15)  # Add spacing between the widgets
+
+        # Create title label directly within the layout (no extra frame needed)
+        self.home_filename_label = QLabel("FILENAME",self.home_row_3)
+        self.home_filename_label.setFont(font)
+        self.home_filename_row.addWidget(self.home_filename_label)
+
+
+        # Add Second QLineEdit with larger size
+        self.home_filename_lineEdit = QLineEdit(self.home_row_3)
+        self.home_filename_lineEdit.setMinimumSize(QSize(300, 30))  # Increased width to make it larger
+        self.home_filename_lineEdit.setStyleSheet(u"background-color: rgb(33, 37, 43);")
+        self.home_filename_row.addWidget(self.home_filename_lineEdit)
+
+        # Add horizontal layout to the main vertical layout
+        self.home_verticalLayout_row_3.addLayout(self.home_horizontalLayout_row_3)
+        self.home_verticalLayout_row_3.addLayout(self.home_filename_row)
+       
+
+        ###############################################################################################################
+        
+
+        # Create the main frame for home_row_4
+        self.home_row_4 = QFrame(self.home)
+        self.home_row_4.setFrameShape(QFrame.StyledPanel)
+        self.home_row_4.setFrameShadow(QFrame.Raised)
+
+        # Create a horizontal layout for the frame
+        self.home_horizontalLayout_4 = QHBoxLayout(self.home_row_4)
+        self.home_horizontalLayout_4.setObjectName(u"horizontalLayout_11")
+        self.home_horizontalLayout_4.setContentsMargins(60, 80, 60, 60)  # Adjust margins for overall spacing
+        self.home_horizontalLayout_4.setSpacing(20)  # Space between different label-value pairs
+
+        # Function to create a label-value pair and add it to the layout
+        def add_label_value_pair(label_text, value_text, layout):
+                pair_layout = QHBoxLayout()  # Nested layout for label and value
+                pair_layout.setSpacing(1)    # Small spacing between label and its value
+                pair_layout.setContentsMargins(20, 0, 20, 0)
+
+                label = QLabel(label_text, self.home_row_4)
+                value_label = QLabel(value_text, self.home_row_4)
+
+                pair_layout.addWidget(label)
+                pair_layout.addWidget(value_label)
+
+                layout.addLayout(pair_layout)
+
+        # Add the label-value pairs to the horizontal layout
+
+        # Size and Size_value
+        add_label_value_pair("Size:", "Size_value", self.home_horizontalLayout_4)
+
+        # Type and Type_value
+        add_label_value_pair("Type:", "Type_value", self.home_horizontalLayout_4)
+
+        # Protocol and Protocol_value
+        add_label_value_pair("Protocol:", "Protocol_value", self.home_horizontalLayout_4)
+
+        # Resumable and Resumable_value
+        add_label_value_pair("Resumable:", "Resumable_value", self.home_horizontalLayout_4)
+
+
+        ##############################################################################################################
+        # Create the main frame for home_row_4
+        self.home_row_5 = QFrame(self.home)
+        self.home_row_5.setFrameShape(QFrame.StyledPanel)
+        self.home_row_5.setFrameShadow(QFrame.Raised)
+
+
+        # Create a vertical layout for the frame
+        self.home_verticalLayout_5 = QVBoxLayout(self.home_row_5)
+        self.home_verticalLayout_5.setSpacing(0)
+        self.home_verticalLayout_5.setObjectName(u"verticalLayout_16")
+        self.home_verticalLayout_5.setContentsMargins(0, 0, 0, 0)
+
+
+        self.DownloadButton = QPushButton("Download",self.home_row_5)
+        self.DownloadButton.setObjectName(u"DownloadButton")
+        self.DownloadButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.DownloadButton.setStyleSheet(u"")
+        self.DownloadButton.setMinimumSize(QSize(150, 50))
+        icon8 = QIcon()
+        icon8.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.DownloadButton.setIcon(icon8)
+        
+        
+        
+
+
+
+        # Add the progress bar to the layout with margins
+        self.home_verticalLayout_5.addWidget(self.DownloadButton, 0, Qt.AlignHCenter | Qt.AlignTop)
+
+        # Set margins directly on the layout for spacing
+        self.home_verticalLayout_5.setContentsMargins(20, 0, 20, 0)  # Left and right margins set to 20 pixels
+
+
+
+        
+
+
+
+
         self.home_verticalLayout.addWidget(self.home_row_1)
         self.home_verticalLayout.addWidget(self.home_row_2)
+        self.home_verticalLayout.addWidget(self.home_row_3)
+        self.home_verticalLayout.addWidget(self.home_row_4)
+        self.home_verticalLayout.addWidget(self.home_row_5)
 
 
 
@@ -1522,6 +1640,9 @@ class Ui_MainWindow(object):
         self.verticalLayout.addWidget(self.row_3)
 
         self.stackedWidget.addWidget(self.widgets)
+        ###############################################################################################################
+        
+        
         self.new_page = QWidget()
         self.new_page.setObjectName(u"new_page")
         self.verticalLayout_20 = QVBoxLayout(self.new_page)
@@ -1534,89 +1655,253 @@ class Ui_MainWindow(object):
 
         self.stackedWidget.addWidget(self.new_page)
 
+        ##############################################################################################################
+
+
+
+
+
         self.verticalLayout_15.addWidget(self.stackedWidget)
 
 
         self.horizontalLayout_4.addWidget(self.pagesContainer)
 
+        # Start with your existing frame and layout setup
         self.extraRightBox = QFrame(self.content)
         self.extraRightBox.setObjectName(u"extraRightBox")
         self.extraRightBox.setMinimumSize(QSize(0, 0))
         self.extraRightBox.setMaximumSize(QSize(0, 16777215))
         self.extraRightBox.setFrameShape(QFrame.NoFrame)
         self.extraRightBox.setFrameShadow(QFrame.Raised)
+
         self.verticalLayout_7 = QVBoxLayout(self.extraRightBox)
         self.verticalLayout_7.setSpacing(0)
         self.verticalLayout_7.setObjectName(u"verticalLayout_7")
         self.verticalLayout_7.setContentsMargins(0, 0, 0, 0)
-        self.themeSettingsTopDetail = QFrame(self.extraRightBox)
-        self.themeSettingsTopDetail.setObjectName(u"themeSettingsTopDetail")
-        self.themeSettingsTopDetail.setMaximumSize(QSize(16777215, 3))
-        self.themeSettingsTopDetail.setFrameShape(QFrame.NoFrame)
-        self.themeSettingsTopDetail.setFrameShadow(QFrame.Raised)
 
-        self.verticalLayout_7.addWidget(self.themeSettingsTopDetail)
+        # # Add the top detail separator
+        # self.themeSettingsTopDetail = QFrame(self.extraRightBox)
+        # self.themeSettingsTopDetail.setObjectName(u"themeSettingsTopDetail")
+        # self.themeSettingsTopDetail.setMaximumSize(QSize(16777215, 3))
+        # self.themeSettingsTopDetail.setFrameShape(QFrame.NoFrame)
+        # self.themeSettingsTopDetail.setFrameShadow(QFrame.Raised)
 
-        self.contentSettings = QFrame(self.extraRightBox)
-        self.contentSettings.setObjectName(u"contentSettings")
-        self.contentSettings.setFrameShape(QFrame.NoFrame)
-        self.contentSettings.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_13 = QVBoxLayout(self.contentSettings)
-        self.verticalLayout_13.setSpacing(0)
-        self.verticalLayout_13.setObjectName(u"verticalLayout_13")
-        self.verticalLayout_13.setContentsMargins(0, 0, 0, 0)
-        self.topMenus = QFrame(self.contentSettings)
-        self.topMenus.setObjectName(u"topMenus")
-        self.topMenus.setFrameShape(QFrame.NoFrame)
-        self.topMenus.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_14 = QVBoxLayout(self.topMenus)
-        self.verticalLayout_14.setSpacing(0)
-        self.verticalLayout_14.setObjectName(u"verticalLayout_14")
-        self.verticalLayout_14.setContentsMargins(0, 0, 0, 0)
-        self.btn_message = QPushButton(self.topMenus)
-        self.btn_message.setObjectName(u"btn_message")
-        sizePolicy.setHeightForWidth(self.btn_message.sizePolicy().hasHeightForWidth())
-        self.btn_message.setSizePolicy(sizePolicy)
-        self.btn_message.setMinimumSize(QSize(0, 45))
-        self.btn_message.setFont(font)
-        self.btn_message.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_message.setLayoutDirection(Qt.LeftToRight)
-        self.btn_message.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-envelope-open.png);")
+        # self.verticalLayout_7.addWidget(self.themeSettingsTopDetail)
 
-        self.verticalLayout_14.addWidget(self.btn_message)
+        # Clear any existing widgets and layouts in the right sidebar
+        # for i in reversed(range(self.verticalLayout_7.count())): 
+        #         widget = self.verticalLayout_7.itemAt(i).widget()
+        #         if widget is not None: 
+        #                 widget.deleteLater()
 
-        self.btn_print = QPushButton(self.topMenus)
-        self.btn_print.setObjectName(u"btn_print")
-        sizePolicy.setHeightForWidth(self.btn_print.sizePolicy().hasHeightForWidth())
-        self.btn_print.setSizePolicy(sizePolicy)
-        self.btn_print.setMinimumSize(QSize(0, 45))
-        self.btn_print.setFont(font)
-        self.btn_print.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_print.setLayoutDirection(Qt.LeftToRight)
-        self.btn_print.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-print.png);")
+        # FIRST FRAME: General Settings
+        self.generalFrame = QFrame(self.extraRightBox)
+        self.generalFrame.setObjectName(u"generalFrame")
+        self.generalFrame.setFrameShape(QFrame.NoFrame)
+        self.generalFrame.setFrameShadow(QFrame.Raised)
 
-        self.verticalLayout_14.addWidget(self.btn_print)
+        self.generalLayout = QVBoxLayout(self.generalFrame)
+        self.generalLayout.setSpacing(10)
+        self.generalLayout.setContentsMargins(10, 10, 10, 10)
 
-        self.btn_logout = QPushButton(self.topMenus)
-        self.btn_logout.setObjectName(u"btn_logout")
-        sizePolicy.setHeightForWidth(self.btn_logout.sizePolicy().hasHeightForWidth())
-        self.btn_logout.setSizePolicy(sizePolicy)
-        self.btn_logout.setMinimumSize(QSize(0, 45))
-        self.btn_logout.setFont(font)
-        self.btn_logout.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_logout.setLayoutDirection(Qt.LeftToRight)
-        self.btn_logout.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-account-logout.png);")
+        # General Label
+        self.label_general = QLabel(self.generalFrame)
+        self.label_general.setObjectName(u"label_general")
+        self.label_general.setText("General")
+        self.label_general.setFont(QFont("Arial", 12, QFont.Bold))
 
-        self.verticalLayout_14.addWidget(self.btn_logout)
+        self.generalLayout.addWidget(self.label_general)
+
+        # QLabel and QComboBox on one row
+        self.generalSettingsRow = QFrame(self.generalFrame)
+        self.generalSettingsRow.setObjectName(u"generalSettingsRow")
+        self.generalRowLayout = QHBoxLayout(self.generalSettingsRow)
+        self.generalRowLayout.setSpacing(10)
+        self.generalRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Label for combo box
+        self.label_setting = QLabel(self.generalSettingsRow)
+        self.label_setting.setObjectName(u"label_setting")
+        self.label_setting.setText("Choose Setting:")
+
+        # Combo box for settings
+        self.combo_setting = QComboBox(self.generalSettingsRow)
+        self.combo_setting.setObjectName(u"combo_setting")
+        self.combo_setting.addItems(["Option 1", "Option 2", "Option 3"])
+
+        # Add to row layout
+        self.generalRowLayout.addWidget(self.label_setting)
+        self.generalRowLayout.addWidget(self.combo_setting)
+
+        # Add row to general layout
+        self.generalLayout.addWidget(self.generalSettingsRow)
+
+        # Four Checkboxes for general settings
+        self.checkBox1 = QCheckBox("Monitor Copied Urls", self.generalFrame)
+        self.checkBox2 = QCheckBox("Show Download Window", self.generalFrame)
+        self.checkBox3 = QCheckBox("Auto close DL Window", self.generalFrame)
+        self.checkBox4 = QCheckBox("Show Thumbnail", self.generalFrame)
+
+        self.generalLayout.addWidget(self.checkBox1)
+        self.generalLayout.addWidget(self.checkBox2)
+        self.generalLayout.addWidget(self.checkBox3)
+        self.generalLayout.addWidget(self.checkBox4)
 
 
-        self.verticalLayout_13.addWidget(self.topMenus, 0, Qt.AlignTop)
+        # QLabel and QComboBox on one row
+        self.generalSegmentRow = QFrame(self.generalFrame)
+        self.generalSegmentRow.setObjectName(u"generalSegmentRow")
+        self.generalSegRowLayout = QHBoxLayout(self.generalSegmentRow)
+        self.generalSegRowLayout.setSpacing(10)
+        self.generalSegRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Label for combo box
+        self.label_segment = QLabel("Segment",self.generalSegmentRow)
+        self.label_segment.setObjectName(u"label_segment")
+
+        # Combo box for segment settings
+        self.segment_combo_setting = QComboBox(self.generalSegmentRow)
+        self.segment_combo_setting.setObjectName(u"segment_combo_setting")
+        self.segment_combo_setting.addItems(["KB", "MB"])
+
+        # Line edit for segment settings
+        self.lineEdit_segment = QLineEdit(self.generalSegmentRow)
+        self.lineEdit_segment.setPlaceholderText("")
+        self.lineEdit_segment.setMinimumSize(QSize(20, 30))
 
 
-        self.verticalLayout_7.addWidget(self.contentSettings)
+        # Add to row layout
+        self.generalSegRowLayout.addWidget(self.label_segment)
+        self.generalSegRowLayout.addWidget(self.lineEdit_segment)
+        self.generalSegRowLayout.addWidget(self.segment_combo_setting)
+        
+
+        # Add row to general layout
+        self.generalLayout.addWidget(self.generalSegmentRow)
+
+        
+        
+        # Add the first frame to the right sidebar layout
+        self.verticalLayout_7.addWidget(self.generalFrame)
+
+        
+        # SECOND FRAME: Connection and Network Settings
+        self.connectionFrame = QFrame(self.extraRightBox)
+        self.connectionFrame.setObjectName(u"connectionFrame")
+        self.connectionFrame.setFrameShape(QFrame.NoFrame)
+        self.connectionFrame.setFrameShadow(QFrame.Raised)
+
+        self.connectionLayout = QVBoxLayout(self.connectionFrame)
+        self.connectionLayout.setSpacing(10)
+        self.connectionLayout.setContentsMargins(10, 10, 10, 10)
+
+        # Connection and Network Settings Label
+        self.label_connection = QLabel(self.connectionFrame)
+        self.label_connection.setObjectName(u"label_connection")
+        self.label_connection.setText("Connection / Network")
+        self.label_connection.setFont(QFont("Arial", 12, QFont.Bold))
+
+        self.connectionLayout.addWidget(self.label_connection)
+
+        # QCheckBox and QLineEdit on one row (for network settings)
+        self.connectionSettingsRow = QFrame(self.connectionFrame)
+        self.connectionSettingsRow.setObjectName(u"connectionSettingsRow")
+        self.connectionRowLayout = QHBoxLayout(self.connectionSettingsRow)
+        self.connectionRowLayout.setSpacing(10)
+        self.connectionRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Checkbox for network
+        self.checkBox_network = QCheckBox("Speed Limit", self.connectionSettingsRow)
+
+        # QLineEdit for network input
+        self.lineEdit_network = QLineEdit(self.connectionSettingsRow)
+        self.lineEdit_network.setPlaceholderText("e.g., 50k, 10kb, 2m, 2mb")
+        self.lineEdit_network.setMinimumSize(QSize(20, 30))
+
+        # Add to row layout
+        self.connectionRowLayout.addWidget(self.checkBox_network)
+        self.connectionRowLayout.addWidget(self.lineEdit_network)
+
+        # Add row to connection layout
+        self.connectionLayout.addWidget(self.connectionSettingsRow)
+
+        # --- First new row: Max Concurrent Downloads ---
+        self.concurrentDownloadsRow = QFrame(self.connectionFrame)
+        self.concurrentDownloadsRow.setObjectName(u"concurrentDownloadsRow")
+        self.concurrentRowLayout = QHBoxLayout(self.concurrentDownloadsRow)
+        self.concurrentRowLayout.setSpacing(10)
+        self.concurrentRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Label for Max Concurrent Downloads
+        self.label_max_downloads = QLabel(self.concurrentDownloadsRow)
+        self.label_max_downloads.setText("Max Concurrent \n Downloads:")
+
+        # Combo box for Max Concurrent Downloads (1 to 100)
+        self.combo_max_downloads = QComboBox(self.concurrentDownloadsRow)
+        self.combo_max_downloads.addItems([str(i) for i in range(1, 101)])  # Values from 1 to 100
+
+        # Add to row layout
+        self.concurrentRowLayout.addWidget(self.label_max_downloads)
+        self.concurrentRowLayout.addWidget(self.combo_max_downloads)
+
+        # Add row to connection layout
+        self.connectionLayout.addWidget(self.concurrentDownloadsRow)
+
+        # --- Second new row: Max Connection Settings ---
+        self.connectionSettingsRow2 = QFrame(self.connectionFrame)
+        self.connectionSettingsRow2.setObjectName(u"connectionSettingsRow2")
+        self.connectionRowLayout2 = QHBoxLayout(self.connectionSettingsRow2)
+        self.connectionRowLayout2.setSpacing(10)
+        self.connectionRowLayout2.setContentsMargins(0, 0, 0, 0)
+
+        # Label for Max Connection Settings
+        self.label_max_connections = QLabel(self.connectionSettingsRow2)
+        self.label_max_connections.setText("Max Connection \n Settings:")
+
+        # Combo box for Max Connection Settings (1 to 100)
+        self.combo_max_connections = QComboBox(self.connectionSettingsRow2)
+       
+        self.combo_max_connections.addItems([str(i) for i in range(1, 101)])  # Values from 1 to 100
+
+        # Add to row layout
+        self.connectionRowLayout2.addWidget(self.label_max_connections)
+        self.connectionRowLayout2.addWidget(self.combo_max_connections)
+
+        # Add row to connection layout
+        self.connectionLayout.addWidget(self.connectionSettingsRow2)
+
+        # Add the second frame to the right sidebar layout
+        self.verticalLayout_7.addWidget(self.connectionFrame)
 
 
+        # THIRD FRAME: Updates
+        self.updateFrame = QFrame(self.extraRightBox)
+        self.updateFrame.setObjectName(u"updateFrame")
+        self.updateFrame.setFrameShape(QFrame.NoFrame)
+        self.updateFrame.setFrameShadow(QFrame.Raised)
+
+        self.updateLayout = QVBoxLayout(self.updateFrame)
+        self.updateLayout.setSpacing(10)
+        self.updateLayout.setContentsMargins(10, 10, 10, 10)
+
+        # Updates Label
+        self.label_updates = QLabel(self.updateFrame)
+        self.label_updates.setObjectName(u"label_updates")
+        self.label_updates.setText("Updates")
+        self.label_updates.setFont(QFont("Arial", 12, QFont.Bold))
+
+        self.updateLayout.addWidget(self.label_updates)
+
+        # Add the third frame to the right sidebar layout
+        self.verticalLayout_7.addWidget(self.updateFrame)
+
+        # Finally, add the sidebar to the main layout
         self.horizontalLayout_4.addWidget(self.extraRightBox)
+
+
+
+
+        #self.horizontalLayout_4.addWidget(self.extraRightBox)
 
 
         self.verticalLayout_6.addWidget(self.content)
@@ -1680,134 +1965,8 @@ class Ui_MainWindow(object):
         QMetaObject.connectSlotsByName(MainWindow)
     # setupUi
 
+      # Inside your Ui_MainWindow class
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QCoreApplication.translate("MainWindow", u"MainWindow", None))
-        self.titleLeftApp.setText(QCoreApplication.translate("MainWindow", u"PyDracula", None))
-        self.titleLeftDescription.setText(QCoreApplication.translate("MainWindow", u"Modern GUI / Flat Style", None))
-        self.toggleButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
-        self.btn_home.setText(QCoreApplication.translate("MainWindow", u"Home", None))
-        self.btn_widgets.setText(QCoreApplication.translate("MainWindow", u"Widgets", None))
-        self.btn_new.setText(QCoreApplication.translate("MainWindow", u"New", None))
-        self.btn_save.setText(QCoreApplication.translate("MainWindow", u"Save", None))
-        self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
-        self.toggleLeftBox.setText(QCoreApplication.translate("MainWindow", u"Left Box", None))
-        self.extraLabel.setText(QCoreApplication.translate("MainWindow", u"Left Box", None))
-#if QT_CONFIG(tooltip)
-        self.extraCloseColumnBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Close left box", None))
-#endif // QT_CONFIG(tooltip)
-        self.extraCloseColumnBtn.setText("")
-        self.btn_share.setText(QCoreApplication.translate("MainWindow", u"Share", None))
-        self.btn_adjustments.setText(QCoreApplication.translate("MainWindow", u"Adjustments", None))
-        self.btn_more.setText(QCoreApplication.translate("MainWindow", u"More", None))
-        self.textEdit.setHtml(QCoreApplication.translate("MainWindow", u"<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><meta charset=\"utf-8\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Segoe UI'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600; color:#ff79c6;\">PyDracula</span></p>\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#ffffff;\">An interface created using Python and PySide (support for PyQt), and with colors based on the Dracula theme created by Zeno Rocha.</span></p>\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-inde"
-                        "nt:0; text-indent:0px;\"><span style=\" color:#ffffff;\">MIT License</span></p>\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" color:#bd93f9;\">Created by: Wanderson M. Pimenta</span></p>\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600; color:#ff79c6;\">Convert UI</span></p>\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; color:#ffffff;\">pyside6-uic main.ui &gt; ui_main.py</span></p>\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt; font-weight:600; color:#ff79c6;\">Convert QRC</span></p>\n"
-"<p align=\"center\" "
-                        "style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:9pt; color:#ffffff;\">pyside6-rcc resources.qrc -o resources_rc.py</span></p></body></html>", None))
-        self.titleRightInfo.setText(QCoreApplication.translate("MainWindow", u"PyDracula APP - Theme with colors based on Dracula for Python.", None))
-#if QT_CONFIG(tooltip)
-        self.settingsTopBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Settings", None))
-#endif // QT_CONFIG(tooltip)
-        self.settingsTopBtn.setText("")
-#if QT_CONFIG(tooltip)
-        self.minimizeAppBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Minimize", None))
-#endif // QT_CONFIG(tooltip)
-        self.minimizeAppBtn.setText("")
-#if QT_CONFIG(tooltip)
-        self.maximizeRestoreAppBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Maximize", None))
-#endif // QT_CONFIG(tooltip)
-        self.maximizeRestoreAppBtn.setText("")
-#if QT_CONFIG(tooltip)
-        self.closeAppBtn.setToolTip(QCoreApplication.translate("MainWindow", u"Close", None))
-#endif // QT_CONFIG(tooltip)
-        self.closeAppBtn.setText("")
-        self.labelBoxBlenderInstalation.setText(QCoreApplication.translate("MainWindow", u"FILE BOXES", None))
-        
-        self.home_lineEdit.setText("")
-        self.home_lineEdit.setPlaceholderText(QCoreApplication.translate("MainWIndow", u"Type here to complete", None))
-        self.home_pushButton.setText(QCoreApplication.translate("MainWindow", u"Refresh", None))
-        self.home_labelBoxBlenderInstalation.setText(QCoreApplication.translate("MainWindow", u"LINK", None))
-
-
-        self.lineEdit.setText("")
-        self.lineEdit.setPlaceholderText(QCoreApplication.translate("MainWindow", u"Type here", None))
-        self.pushButton.setText(QCoreApplication.translate("MainWindow", u"Open", None))
-        self.labelVersion_3.setText(QCoreApplication.translate("MainWindow", u"Label description", None))
-        self.checkBox.setText(QCoreApplication.translate("MainWindow", u"CheckBox", None))
-        self.radioButton.setText(QCoreApplication.translate("MainWindow", u"RadioButton", None))
-        self.comboBox.setItemText(0, QCoreApplication.translate("MainWindow", u"Test 1", None))
-        self.comboBox.setItemText(1, QCoreApplication.translate("MainWindow", u"Test 2", None))
-        self.comboBox.setItemText(2, QCoreApplication.translate("MainWindow", u"Test 3", None))
-
-        self.commandLinkButton.setText(QCoreApplication.translate("MainWindow", u"Link Button", None))
-        self.commandLinkButton.setDescription(QCoreApplication.translate("MainWindow", u"Link description", None))
-        ___qtablewidgetitem = self.tableWidget.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("MainWindow", u"0", None));
-        ___qtablewidgetitem1 = self.tableWidget.horizontalHeaderItem(1)
-        ___qtablewidgetitem1.setText(QCoreApplication.translate("MainWindow", u"1", None));
-        ___qtablewidgetitem2 = self.tableWidget.horizontalHeaderItem(2)
-        ___qtablewidgetitem2.setText(QCoreApplication.translate("MainWindow", u"2", None));
-        ___qtablewidgetitem3 = self.tableWidget.horizontalHeaderItem(3)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("MainWindow", u"3", None));
-        ___qtablewidgetitem4 = self.tableWidget.verticalHeaderItem(0)
-        ___qtablewidgetitem4.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem5 = self.tableWidget.verticalHeaderItem(1)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem6 = self.tableWidget.verticalHeaderItem(2)
-        ___qtablewidgetitem6.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem7 = self.tableWidget.verticalHeaderItem(3)
-        ___qtablewidgetitem7.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem8 = self.tableWidget.verticalHeaderItem(4)
-        ___qtablewidgetitem8.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem9 = self.tableWidget.verticalHeaderItem(5)
-        ___qtablewidgetitem9.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem10 = self.tableWidget.verticalHeaderItem(6)
-        ___qtablewidgetitem10.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem11 = self.tableWidget.verticalHeaderItem(7)
-        ___qtablewidgetitem11.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem12 = self.tableWidget.verticalHeaderItem(8)
-        ___qtablewidgetitem12.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem13 = self.tableWidget.verticalHeaderItem(9)
-        ___qtablewidgetitem13.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem14 = self.tableWidget.verticalHeaderItem(10)
-        ___qtablewidgetitem14.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem15 = self.tableWidget.verticalHeaderItem(11)
-        ___qtablewidgetitem15.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem16 = self.tableWidget.verticalHeaderItem(12)
-        ___qtablewidgetitem16.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem17 = self.tableWidget.verticalHeaderItem(13)
-        ___qtablewidgetitem17.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem18 = self.tableWidget.verticalHeaderItem(14)
-        ___qtablewidgetitem18.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-        ___qtablewidgetitem19 = self.tableWidget.verticalHeaderItem(15)
-        ___qtablewidgetitem19.setText(QCoreApplication.translate("MainWindow", u"New Row", None));
-
-        __sortingEnabled = self.tableWidget.isSortingEnabled()
-        self.tableWidget.setSortingEnabled(False)
-        ___qtablewidgetitem20 = self.tableWidget.item(0, 0)
-        ___qtablewidgetitem20.setText(QCoreApplication.translate("MainWindow", u"Test", None));
-        ___qtablewidgetitem21 = self.tableWidget.item(0, 1)
-        ___qtablewidgetitem21.setText(QCoreApplication.translate("MainWindow", u"Text", None));
-        ___qtablewidgetitem22 = self.tableWidget.item(0, 2)
-        ___qtablewidgetitem22.setText(QCoreApplication.translate("MainWindow", u"Cell", None));
-        ___qtablewidgetitem23 = self.tableWidget.item(0, 3)
-        ___qtablewidgetitem23.setText(QCoreApplication.translate("MainWindow", u"Line", None));
-        self.tableWidget.setSortingEnabled(__sortingEnabled)
-
-        self.label.setText(QCoreApplication.translate("MainWindow", u"NEW PAGE TEST", None))
-        self.btn_message.setText(QCoreApplication.translate("MainWindow", u"Message", None))
-        self.btn_print.setText(QCoreApplication.translate("MainWindow", u"Print", None))
-        self.btn_logout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))
-        self.creditsLabel.setText(QCoreApplication.translate("MainWindow", u"By: Wanderson M. Pimenta", None))
-        self.version.setText(QCoreApplication.translate("MainWindow", u"v1.0.3", None))
-    # retranslateUi
+        # Simply call the imported method here and pass MainWindow as a parameter
+      retranslateUi(self, MainWindow)
 

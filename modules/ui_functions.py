@@ -17,13 +17,18 @@
 # MAIN FILE
 # ///////////////////////////////////////////////////////////////
 from main import *
+from PySide6.QtCore import *
+from PySide6.QtGui import *
+from PySide6.QtWidgets import *
+
+from PyQt5.QtWidgets import QDesktopWidget
 
 # GLOBALS
 # ///////////////////////////////////////////////////////////////
 GLOBAL_STATE = False
 GLOBAL_TITLE_BAR = True
 
-class UIFunctions(MainWindow):
+class UIFunctions(QMainWindow):
     # MAXIMIZE/RESTORE
     # ///////////////////////////////////////////////////////////////
     def maximize_restore(self):
@@ -52,6 +57,10 @@ class UIFunctions(MainWindow):
             self.right_grip.show()
             self.top_grip.show()
             self.bottom_grip.show()
+            self.resize(500, 750)
+    
+            
+            
 
     # RETURN STATUS
     # ///////////////////////////////////////////////////////////////
@@ -213,7 +222,10 @@ class UIFunctions(MainWindow):
 
     # START - GUI DEFINITIONS
     # ///////////////////////////////////////////////////////////////
+
+    
     def uiDefinitions(self):
+        
         def dobleClickMaximizeRestore(event):
             # IF DOUBLE CLICK CHANGE STATUS
             if event.type() == QEvent.MouseButtonDblClick:
@@ -277,6 +289,8 @@ class UIFunctions(MainWindow):
             self.right_grip.setGeometry(self.width() - 10, 10, 10, self.height())
             self.top_grip.setGeometry(0, 0, self.width(), 10)
             self.bottom_grip.setGeometry(0, self.height() - 10, self.width(), 10)
+            
+            
 
     # ///////////////////////////////////////////////////////////////
     # END - GUI DEFINITIONS
