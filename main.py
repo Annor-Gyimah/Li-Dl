@@ -16,7 +16,7 @@
 
 import sys
 import webbrowser
-import platform
+import requests
 import os
 import re
 import time
@@ -37,7 +37,7 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import clipboard_read, clipboard_write
+from modules.utils import clipboard_read, clipboard_write, size_format
 from modules import config
 from PySide6.QtWidgets import QMainWindow, QApplication
 from PySide6.QtCore import QTimer
@@ -48,6 +48,8 @@ class MainWindow(QMainWindow):
 
         # current download_item
         self.d = DownloadItem()
+
+        
 
         # main window
         self.window = None
@@ -160,7 +162,8 @@ class MainWindow(QMainWindow):
         # SET CUSTOM THEME
         # ///////////////////////////////////////////////////////////////
         useCustomTheme = False
-        themeFile = "themes\\py_dracula_light.qss"
+        themeFile = "themes/py_dracula_light.qss"
+
 
         # SET THEME AND HACKS
         if useCustomTheme:
@@ -235,13 +238,14 @@ class MainWindow(QMainWindow):
         """Read from the queue and update the GUI."""
         while not config.main_window_q.empty():
             k, v = config.main_window_q.get()
-            print(f"Processing queue: {k} -> {v}")
+            #print(f"Processing queue: {k} -> {v}")
 
             if k == 'url':
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
-                print(f"Updated QLineEdit with URL: {v}")
+                #print(f"Updated QLineEdit with URL: {v}")
                 self.url_text_change()
+                self.update_progress_bar()
 
 
 
@@ -258,10 +262,48 @@ class MainWindow(QMainWindow):
         try:
             self.d.eff_url = self.d.url = url
             print(f"New URL set: {url}")
-            # Here you can trigger any further processing of the URL
+            
+            # Update the DownloadItem with the new URL
+            self.d.update(url)
+            
+            # Trigger the progress bar update and GUI refresh
+            self.update_progress_bar()
         except Exception as e:
             print(f"Error in url_text_change: {e}")
 
+    def update_progress_bar(self):
+        """Update the progress bar based on URL processing."""
+        # Start a new thread for the progress updates
+        Thread(target=self.process_url, daemon=True).start()
+
+    
+    def process_url(self):
+        """Simulate processing the URL and update the progress bar."""
+        
+            
+        progress_steps = [10, 50, 100]  # Define the progress steps
+        for step in progress_steps:
+            time.sleep(1)  # Simulate processing time
+            # Update the progress bar in the main thread
+            self.update_progress_bar_value(step)
+            
+            # widgets.stackedWidget.setCurrentWidget(widgets.widgets)
+        #widgets.size_value_label.setText(size_format(self.d.protocol))
+        self.update_gui()
+
+
+    def update_progress_bar_value(self, value):
+        """Update the progress bar value in the GUI."""
+        try:
+            widgets.progressBar.setValue(value)
+            
+        except Exception as e:
+            print(f"Error updating progress bar: {e}")
+
+
+    def retry(self):
+        self.d.url = ''
+        self.url_text_change()
 
     def reset(self):
         # create new download item, the old one will be garbage collected by python interpreter
@@ -272,7 +314,20 @@ class MainWindow(QMainWindow):
         self.playlist = []
         self.video = None
 
-        self.window['status_code']('')
+        # widgets
+        # self.disable()
+        # self.reset_video_controls()
+        # self.window['status_code']('')
+
+    # def change_cursor(self, cursor='default'):
+    #     # todo: check if we can set cursor  for window not individual tabs
+    #     if cursor == 'busy':
+    #         cursor_name = 'watch'
+    #     else:  # default
+    #         cursor_name = 'arrow'
+
+    #     self.window['Main'].set_cursor(cursor_name)
+    #     self.window['Settings'].set_cursor(cursor_name)
 
     def set_status(self, text):
         """update status bar text widget"""
@@ -296,6 +351,7 @@ class MainWindow(QMainWindow):
             # update status code widget
             try:
                 self.window['status_code'](f'status: {self.d.status_code}')
+                #
             except:
                 pass
             # self.set_status(self.d.status_code_description)
@@ -309,8 +365,39 @@ class MainWindow(QMainWindow):
 
         #self.change_cursor('default')
 
+    def update_gui(self):
+        """Update GUI elements with current download information."""
+        try:
+            # Update size label
+            size_text = size_format(self.d.total_size) if self.d.total_size else "Unknown"
+            widgets.size_value_label.setText(size_text)
+
+            # Update the type label
+            type_text = self.d.type
+            widgets.type_value_label.setText(type_text)
+
+            # Update the protocol label
+            protocol_text = self.d.protocol
+            widgets.protocol_value_label.setText(protocol_text)
+
+            # Update the resumable label
+            resumable_text = "Yes" if self.d.resumable else "No"
+            widgets.resumable_value_label.setText(resumable_text)
+            
+            # You can add more GUI updates here as needed
+            
+            print(f"Updated size label to: {size_text}")
+            print(f"Updated type label to: {type_text}")
+            print(f"Updated protocol label to {protocol_text}")
+            print(f"Updated resumable label to :{resumable_text}")
+        except Exception as e:
+            print('MainWindow.update_gui() error:', e)
+        
+    
 
 
+
+    
 
 
 
@@ -325,7 +412,7 @@ def clipboard_listener():
     while True:
         # Read from the clipboard
         new_data = clipboard_read()
-        print(f"Clipboard data: {new_data}")
+        #print(f"Clipboard data: {new_data}")
 
         # Check if a message is received from another instance
         if new_data == 'any one there?':  
@@ -339,7 +426,7 @@ def clipboard_listener():
                 config.main_window_q.put(('url', new_data))
             
             old_data = new_data
-            print(f"Updated clipboard data: {old_data}")
+            #print(f"Updated clipboard data: {old_data}")
 
         # Stop the clipboard listener if needed
         if config.terminate:

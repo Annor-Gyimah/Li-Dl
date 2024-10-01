@@ -153,7 +153,7 @@ class Ui_MainWindow(object):
 "#extraIcon {\n"
 "	background-position: center;\n"
 "	background-repeat: no-repeat;\n"
-"	background-image: url(:/icons/images/icons/icon_settings.png);\n"
+"	background-image: url(:/icons/images/icons/cil-info.png);\n"
 "}\n"
 "\n"
 "/* Label */\n"
@@ -731,7 +731,8 @@ class Ui_MainWindow(object):
         self.toggleLeftBox.setFont(font)
         self.toggleLeftBox.setCursor(QCursor(Qt.PointingHandCursor))
         self.toggleLeftBox.setLayoutDirection(Qt.LeftToRight)
-        self.toggleLeftBox.setStyleSheet(u"background-image: url(:/icons/images/icons/icon_settings.png);")
+        self.toggleLeftBox.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-info.png);")
+        #self.toggleLeftBox.setStyleSheet(u"background-image: url(:/icons/images/icons/intt1.png);")
 
         self.verticalLayout_9.addWidget(self.toggleLeftBox)
 
@@ -1077,7 +1078,7 @@ class Ui_MainWindow(object):
         self.home_refresh_pushbutton.setCursor(QCursor(Qt.PointingHandCursor))
         self.home_refresh_pushbutton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
         icon1 = QIcon()
-        icon1.addFile(u":/icons/images/icons/cil-cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon1.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
         self.home_refresh_pushbutton.setIcon(icon1)
         self.home_horizontalLayout_row_1.addWidget(self.home_refresh_pushbutton)
 
@@ -1107,11 +1108,12 @@ class Ui_MainWindow(object):
         self.label_example = QLabel("Example Label", self.home_row_2)
         self.home_verticalLayout_2.addWidget(self.label_example)
 
+
         # Create the progress bar
         self.progressBar = QProgressBar(self.home_row_2)
         self.progressBar.setObjectName("progressBar")
         self.progressBar.setRange(0, 100)  # Set range if needed
-        self.progressBar.setValue(50)  # Set the current value (for example, 50%)
+        self.progressBar.setValue(0)  # Set the current value (for example, 50%)
 
         # Set a fixed width for the progress bar
         self.progressBar.setFixedWidth(400)  # Set the desired width
@@ -1228,19 +1230,20 @@ class Ui_MainWindow(object):
 
                 layout.addLayout(pair_layout)
 
+                return value_label  # Return the QLabel for the value
+
+
         # Add the label-value pairs to the horizontal layout
 
         # Size and Size_value
-        add_label_value_pair("Size:", "Size_value", self.home_horizontalLayout_4)
-
+        self.size_value_label = add_label_value_pair("Size:", "Size_value", self.home_horizontalLayout_4)
         # Type and Type_value
-        add_label_value_pair("Type:", "Type_value", self.home_horizontalLayout_4)
-
+        self.type_value_label = add_label_value_pair("Type:", "Type_value", self.home_horizontalLayout_4)
         # Protocol and Protocol_value
-        add_label_value_pair("Protocol:", "Protocol_value", self.home_horizontalLayout_4)
-
+        self.protocol_value_label = add_label_value_pair("Protocol:", "Protocol_value", self.home_horizontalLayout_4)
         # Resumable and Resumable_value
-        add_label_value_pair("Resumable:", "Resumable_value", self.home_horizontalLayout_4)
+        self.resumable_value_label = add_label_value_pair("Resumable:", "Resumable_value", self.home_horizontalLayout_4)
+
 
 
         ##############################################################################################################
@@ -1298,348 +1301,191 @@ class Ui_MainWindow(object):
         self.stackedWidget.addWidget(self.home)
 
         
+        # Create new page for the application
+        # Create new page for the application
         self.widgets = QWidget()
         self.widgets.setObjectName(u"widgets")
-        self.widgets.setStyleSheet(u"b")
+        self.widgets.setStyleSheet(u"b")  # Placeholder style (can be customized)
+
+        # Set vertical layout for the page
         self.verticalLayout = QVBoxLayout(self.widgets)
         self.verticalLayout.setSpacing(10)
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.verticalLayout.setContentsMargins(10, 10, 10, 10)
-        self.row_1 = QFrame(self.widgets)
-        self.row_1.setObjectName(u"row_1")
-        self.row_1.setFrameShape(QFrame.StyledPanel)
-        self.row_1.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_16 = QVBoxLayout(self.row_1)
-        self.verticalLayout_16.setSpacing(0)
-        self.verticalLayout_16.setObjectName(u"verticalLayout_16")
-        self.verticalLayout_16.setContentsMargins(0, 0, 0, 0)
-        self.frame_div_content_1 = QFrame(self.row_1)
-        self.frame_div_content_1.setObjectName(u"frame_div_content_1")
-        self.frame_div_content_1.setMinimumSize(QSize(0, 110))
-        self.frame_div_content_1.setMaximumSize(QSize(16777215, 110))
-        self.frame_div_content_1.setFrameShape(QFrame.NoFrame)
-        self.frame_div_content_1.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_17 = QVBoxLayout(self.frame_div_content_1)
-        self.verticalLayout_17.setSpacing(0)
-        self.verticalLayout_17.setObjectName(u"verticalLayout_17")
-        self.verticalLayout_17.setContentsMargins(0, 0, 0, 0)
-        self.frame_title_wid_1 = QFrame(self.frame_div_content_1)
-        self.frame_title_wid_1.setObjectName(u"frame_title_wid_1")
-        self.frame_title_wid_1.setMaximumSize(QSize(16777215, 35))
-        self.frame_title_wid_1.setFrameShape(QFrame.StyledPanel)
-        self.frame_title_wid_1.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_18 = QVBoxLayout(self.frame_title_wid_1)
-        self.verticalLayout_18.setObjectName(u"verticalLayout_18")
-        self.labelBoxBlenderInstalation = QLabel(self.frame_title_wid_1)
-        self.labelBoxBlenderInstalation.setObjectName(u"labelBoxBlenderInstalation")
-        self.labelBoxBlenderInstalation.setFont(font)
-        self.labelBoxBlenderInstalation.setStyleSheet(u"")
 
-        self.verticalLayout_18.addWidget(self.labelBoxBlenderInstalation)
+        # First Frame to hold 10 buttons (5 on each row)
+        self.frame1 = QFrame(self.widgets)
+        self.frame1.setObjectName("frame1")
+        self.frame1.setFrameShape(QFrame.StyledPanel)
 
+        # Vertical layout for buttons (will contain 2 rows of buttons)
+        self.buttonsLayout = QVBoxLayout(self.frame1)
+        self.buttonsLayout.setSpacing(10)
+        self.buttonsLayout.setObjectName("buttonsLayout")
 
-        self.verticalLayout_17.addWidget(self.frame_title_wid_1)
+        # First row (Horizontal layout)
+        self.row1Layout = QHBoxLayout()
+        self.row1Layout.setSpacing(10)
+        self.row1Layout.setObjectName("row1Layout")
 
-        self.frame_content_wid_1 = QFrame(self.frame_div_content_1)
-        self.frame_content_wid_1.setObjectName(u"frame_content_wid_1")
-        self.frame_content_wid_1.setFrameShape(QFrame.NoFrame)
-        self.frame_content_wid_1.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_9 = QHBoxLayout(self.frame_content_wid_1)
-        self.horizontalLayout_9.setObjectName(u"horizontalLayout_9")
-        self.gridLayout = QGridLayout()
-        self.gridLayout.setObjectName(u"gridLayout")
-        self.gridLayout.setContentsMargins(-1, -1, -1, 0)
-        self.lineEdit = QLineEdit(self.frame_content_wid_1)
-        self.lineEdit.setObjectName(u"lineEdit")
-        self.lineEdit.setMinimumSize(QSize(0, 30))
-        self.lineEdit.setStyleSheet(u"background-color: rgb(33, 37, 43);")
+        # First 5 buttons in the first row
+        self.resume = QPushButton("Resume", self.frame1)
+        self.resume.setMinimumSize(QSize(150, 50))
+        self.resume.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon9 = QIcon()
+        icon9.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.resume.setIcon(icon9)
+        ###################################################################################################
+        self.cancel = QPushButton("Cancel", self.frame1)
+        self.cancel.setMinimumSize(QSize(150, 50))
+        self.cancel.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon10 = QIcon()
+        icon10.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.cancel.setIcon(icon10)
+        ###################################################################################################
+        self.refresh = QPushButton("Refresh", self.frame1)
+        self.refresh.setMinimumSize(QSize(150, 50))
+        self.refresh.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon11 = QIcon()
+        icon11.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.refresh.setIcon(icon11)
+        ###################################################################################################
+        self.folder = QPushButton("Folder", self.frame1)
+        self.folder.setMinimumSize(QSize(150, 50))
+        self.folder.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon12 = QIcon()
+        icon12.addFile(u":/icons/images/icons/cil-folder-open.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.folder.setIcon(icon12)
+        ###################################################################################################
+        self.d_window = QPushButton("D. Window", self.frame1)
+        self.d_window.setMinimumSize(QSize(150, 50))
+        self.d_window.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon13 = QIcon()
+        icon13.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.d_window.setIcon(icon8)
+        ####################################################################################################
 
-        self.gridLayout.addWidget(self.lineEdit, 0, 0, 1, 1)
+        # Add first 5 buttons to the first row
+        self.row1Layout.addWidget(self.resume)
+        self.row1Layout.addWidget(self.cancel)
+        self.row1Layout.addWidget(self.refresh)
+        self.row1Layout.addWidget(self.folder)
+        self.row1Layout.addWidget(self.d_window)
 
-        self.pushButton = QPushButton(self.frame_content_wid_1)
-        self.pushButton.setObjectName(u"pushButton")
-        self.pushButton.setMinimumSize(QSize(150, 30))
-        self.pushButton.setFont(font)
-        self.pushButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.pushButton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
-        icon4 = QIcon()
-        icon4.addFile(u":/icons/images/icons/cil-folder-open.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.pushButton.setIcon(icon4)
+        # Second row (Horizontal layout)
+        self.row2Layout = QHBoxLayout()
+        self.row2Layout.setSpacing(10)
+        self.row2Layout.setObjectName("row2Layout")
 
-        self.gridLayout.addWidget(self.pushButton, 0, 1, 1, 1)
+        # Next 5 buttons in the second row
+        self.resume_all = QPushButton("Resume All", self.frame1)
+        self.resume_all.setMinimumSize(QSize(150, 50))
+        self.resume_all.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon14 = QIcon()
+        icon14.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.resume_all.setIcon(icon14)
+        self.stop_all = QPushButton("Stop All", self.frame1)
+        self.stop_all.setMinimumSize(QSize(150, 50))
+        self.stop_all.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon15 = QIcon()
+        icon15.addFile(u":/icons/images/icons/cil-x.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.stop_all.setIcon(icon15)
+        self.schedule_all = QPushButton("Schedule All", self.frame1)
+        self.schedule_all.setMinimumSize(QSize(150, 50))
+        self.schedule_all.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon16 = QIcon()
+        icon16.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.schedule_all.setIcon(icon16)
+        self.delete = QPushButton("Delete", self.frame1)
+        self.delete.setMinimumSize(QSize(150, 50))
+        self.delete.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon17 = QIcon()
+        icon17.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.delete.setIcon(icon17)
+        self.delete_all = QPushButton("Delete All", self.frame1)
+        self.delete_all.setMinimumSize(QSize(150, 50))
+        self.delete_all.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        icon18 = QIcon()
+        icon18.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.delete_all.setIcon(icon18)
 
-        self.labelVersion_3 = QLabel(self.frame_content_wid_1)
-        self.labelVersion_3.setObjectName(u"labelVersion_3")
-        self.labelVersion_3.setStyleSheet(u"color: rgb(113, 126, 149);")
-        self.labelVersion_3.setLineWidth(1)
-        self.labelVersion_3.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        # Add the next 5 buttons to the second row
+        self.row2Layout.addWidget(self.resume_all)
+        self.row2Layout.addWidget(self.stop_all)
+        self.row2Layout.addWidget(self.schedule_all)
+        self.row2Layout.addWidget(self.delete)
+        self.row2Layout.addWidget(self.delete_all)
 
-        self.gridLayout.addWidget(self.labelVersion_3, 1, 0, 1, 2)
+        # Add both rows to the buttons layout
+        self.buttonsLayout.addLayout(self.row1Layout)  # Add first row to the layout
+        self.buttonsLayout.addLayout(self.row2Layout)  # Add second row to the layout
 
+        # Add the first frame (buttons frame) to the main vertical layout
+        self.verticalLayout.addWidget(self.frame1)
 
-        self.horizontalLayout_9.addLayout(self.gridLayout)
+        # Adjusting the frame2 where the table will reside
+        self.frame2 = QFrame(self.widgets)
+        self.frame2.setObjectName(u"frame2")
+        self.frame2.setMinimumSize(QSize(0, 300))  # Adjust as necessary
+        self.frame2.setFrameShape(QFrame.StyledPanel)
+        self.frame2.setFrameShadow(QFrame.Raised)
 
-
-        self.verticalLayout_17.addWidget(self.frame_content_wid_1)
-
-
-        self.verticalLayout_16.addWidget(self.frame_div_content_1)
-
-
-        self.verticalLayout.addWidget(self.row_1)
-
-        self.row_2 = QFrame(self.widgets)
-        self.row_2.setObjectName(u"row_2")
-        self.row_2.setMinimumSize(QSize(0, 150))
-        self.row_2.setFrameShape(QFrame.StyledPanel)
-        self.row_2.setFrameShadow(QFrame.Raised)
-        self.verticalLayout_19 = QVBoxLayout(self.row_2)
-        self.verticalLayout_19.setObjectName(u"verticalLayout_19")
-        self.gridLayout_2 = QGridLayout()
-        self.gridLayout_2.setObjectName(u"gridLayout_2")
-        self.checkBox = QCheckBox(self.row_2)
-        self.checkBox.setObjectName(u"checkBox")
-        self.checkBox.setAutoFillBackground(False)
-        self.checkBox.setStyleSheet(u"")
-
-        self.gridLayout_2.addWidget(self.checkBox, 0, 0, 1, 1)
-
-        self.radioButton = QRadioButton(self.row_2)
-        self.radioButton.setObjectName(u"radioButton")
-        self.radioButton.setStyleSheet(u"")
-
-        self.gridLayout_2.addWidget(self.radioButton, 0, 1, 1, 1)
-
-        self.verticalSlider = QSlider(self.row_2)
-        self.verticalSlider.setObjectName(u"verticalSlider")
-        self.verticalSlider.setStyleSheet(u"")
-        self.verticalSlider.setOrientation(Qt.Vertical)
-
-        self.gridLayout_2.addWidget(self.verticalSlider, 0, 2, 3, 1)
-
-        self.verticalScrollBar = QScrollBar(self.row_2)
-        self.verticalScrollBar.setObjectName(u"verticalScrollBar")
-        self.verticalScrollBar.setStyleSheet(u" QScrollBar:vertical { background: rgb(52, 59, 72); }\n"
-" QScrollBar:horizontal { background: rgb(52, 59, 72); }")
-        self.verticalScrollBar.setOrientation(Qt.Vertical)
-
-        self.gridLayout_2.addWidget(self.verticalScrollBar, 0, 4, 3, 1)
-
-        self.scrollArea = QScrollArea(self.row_2)
-        self.scrollArea.setObjectName(u"scrollArea")
-        self.scrollArea.setStyleSheet(u" QScrollBar:vertical {\n"
-"    background: rgb(52, 59, 72);\n"
-" }\n"
-" QScrollBar:horizontal {\n"
-"    background: rgb(52, 59, 72);\n"
-" }")
-        self.scrollArea.setFrameShape(QFrame.NoFrame)
-        self.scrollArea.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.scrollArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollAreaWidgetContents = QWidget()
-        self.scrollAreaWidgetContents.setObjectName(u"scrollAreaWidgetContents")
-        self.scrollAreaWidgetContents.setGeometry(QRect(0, 0, 218, 218))
-        self.scrollAreaWidgetContents.setStyleSheet(u" QScrollBar:vertical {\n"
-"	border: none;\n"
-"    background: rgb(52, 59, 72);\n"
-"    width: 14px;\n"
-"    margin: 21px 0 21px 0;\n"
-"	border-radius: 0px;\n"
-" }")
-        self.horizontalLayout_11 = QHBoxLayout(self.scrollAreaWidgetContents)
-        self.horizontalLayout_11.setObjectName(u"horizontalLayout_11")
-        self.plainTextEdit = QPlainTextEdit(self.scrollAreaWidgetContents)
-        self.plainTextEdit.setObjectName(u"plainTextEdit")
-        self.plainTextEdit.setMinimumSize(QSize(200, 200))
-        self.plainTextEdit.setStyleSheet(u"background-color: rgb(33, 37, 43);")
-
-        self.horizontalLayout_11.addWidget(self.plainTextEdit)
-
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-
-        self.gridLayout_2.addWidget(self.scrollArea, 0, 5, 3, 1)
-
-        self.comboBox = QComboBox(self.row_2)
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
-        self.comboBox.setObjectName(u"comboBox")
-        self.comboBox.setFont(font)
-        self.comboBox.setAutoFillBackground(False)
-        self.comboBox.setStyleSheet(u"background-color: rgb(33, 37, 43);")
-        self.comboBox.setIconSize(QSize(16, 16))
-        self.comboBox.setFrame(True)
-
-        self.gridLayout_2.addWidget(self.comboBox, 1, 0, 1, 2)
-
-        self.horizontalScrollBar = QScrollBar(self.row_2)
-        self.horizontalScrollBar.setObjectName(u"horizontalScrollBar")
-        sizePolicy.setHeightForWidth(self.horizontalScrollBar.sizePolicy().hasHeightForWidth())
-        self.horizontalScrollBar.setSizePolicy(sizePolicy)
-        self.horizontalScrollBar.setStyleSheet(u" QScrollBar:vertical { background: rgb(52, 59, 72); }\n"
-" QScrollBar:horizontal { background: rgb(52, 59, 72); }")
-        self.horizontalScrollBar.setOrientation(Qt.Horizontal)
-
-        self.gridLayout_2.addWidget(self.horizontalScrollBar, 1, 3, 1, 1)
-
-        self.commandLinkButton = QCommandLinkButton(self.row_2)
-        self.commandLinkButton.setObjectName(u"commandLinkButton")
-        self.commandLinkButton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.commandLinkButton.setStyleSheet(u"")
-        icon5 = QIcon()
-        icon5.addFile(u":/icons/images/icons/cil-link.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.commandLinkButton.setIcon(icon5)
-
-        self.gridLayout_2.addWidget(self.commandLinkButton, 1, 6, 1, 1)
-
-        self.horizontalSlider = QSlider(self.row_2)
-        self.horizontalSlider.setObjectName(u"horizontalSlider")
-        self.horizontalSlider.setStyleSheet(u"")
-        self.horizontalSlider.setOrientation(Qt.Horizontal)
-
-        self.gridLayout_2.addWidget(self.horizontalSlider, 2, 0, 1, 2)
-
-
-        self.verticalLayout_19.addLayout(self.gridLayout_2)
-
-
-        self.verticalLayout.addWidget(self.row_2)
-
-        self.row_3 = QFrame(self.widgets)
-        self.row_3.setObjectName(u"row_3")
-        self.row_3.setMinimumSize(QSize(0, 150))
-        self.row_3.setFrameShape(QFrame.StyledPanel)
-        self.row_3.setFrameShadow(QFrame.Raised)
-        self.horizontalLayout_12 = QHBoxLayout(self.row_3)
+        # Layout for the table widget
+        self.horizontalLayout_12 = QHBoxLayout(self.frame2)
         self.horizontalLayout_12.setSpacing(0)
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
         self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
-        self.tableWidget = QTableWidget(self.row_3)
-        if (self.tableWidget.columnCount() < 4):
-            self.tableWidget.setColumnCount(4)
-        __qtablewidgetitem = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(0, __qtablewidgetitem)
-        __qtablewidgetitem1 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(1, __qtablewidgetitem1)
-        __qtablewidgetitem2 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(2, __qtablewidgetitem2)
-        __qtablewidgetitem3 = QTableWidgetItem()
-        self.tableWidget.setHorizontalHeaderItem(3, __qtablewidgetitem3)
-        if (self.tableWidget.rowCount() < 16):
-            self.tableWidget.setRowCount(16)
-        font4 = QFont()
-        font4.setFamily(u"Segoe UI")
-        __qtablewidgetitem4 = QTableWidgetItem()
-        __qtablewidgetitem4.setFont(font4);
-        self.tableWidget.setVerticalHeaderItem(0, __qtablewidgetitem4)
-        __qtablewidgetitem5 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(1, __qtablewidgetitem5)
-        __qtablewidgetitem6 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(2, __qtablewidgetitem6)
-        __qtablewidgetitem7 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(3, __qtablewidgetitem7)
-        __qtablewidgetitem8 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(4, __qtablewidgetitem8)
-        __qtablewidgetitem9 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(5, __qtablewidgetitem9)
-        __qtablewidgetitem10 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(6, __qtablewidgetitem10)
-        __qtablewidgetitem11 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(7, __qtablewidgetitem11)
-        __qtablewidgetitem12 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(8, __qtablewidgetitem12)
-        __qtablewidgetitem13 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(9, __qtablewidgetitem13)
-        __qtablewidgetitem14 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(10, __qtablewidgetitem14)
-        __qtablewidgetitem15 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(11, __qtablewidgetitem15)
-        __qtablewidgetitem16 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(12, __qtablewidgetitem16)
-        __qtablewidgetitem17 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(13, __qtablewidgetitem17)
-        __qtablewidgetitem18 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(14, __qtablewidgetitem18)
-        __qtablewidgetitem19 = QTableWidgetItem()
-        self.tableWidget.setVerticalHeaderItem(15, __qtablewidgetitem19)
-        __qtablewidgetitem20 = QTableWidgetItem()
-        self.tableWidget.setItem(0, 0, __qtablewidgetitem20)
-        __qtablewidgetitem21 = QTableWidgetItem()
-        self.tableWidget.setItem(0, 1, __qtablewidgetitem21)
-        __qtablewidgetitem22 = QTableWidgetItem()
-        self.tableWidget.setItem(0, 2, __qtablewidgetitem22)
-        __qtablewidgetitem23 = QTableWidgetItem()
-        self.tableWidget.setItem(0, 3, __qtablewidgetitem23)
-        self.tableWidget.setObjectName(u"tableWidget")
-        sizePolicy3 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        sizePolicy3.setHorizontalStretch(0)
-        sizePolicy3.setVerticalStretch(0)
-        sizePolicy3.setHeightForWidth(self.tableWidget.sizePolicy().hasHeightForWidth())
-        self.tableWidget.setSizePolicy(sizePolicy3)
-        palette = QPalette()
-        brush = QBrush(QColor(221, 221, 221, 255))
-        brush.setStyle(Qt.SolidPattern)
-        palette.setBrush(QPalette.Active, QPalette.WindowText, brush)
-        brush1 = QBrush(QColor(0, 0, 0, 0))
-        brush1.setStyle(Qt.SolidPattern)
-        palette.setBrush(QPalette.Active, QPalette.Button, brush1)
-        palette.setBrush(QPalette.Active, QPalette.Text, brush)
-        palette.setBrush(QPalette.Active, QPalette.ButtonText, brush)
-        brush2 = QBrush(QColor(0, 0, 0, 255))
-        brush2.setStyle(Qt.NoBrush)
-        palette.setBrush(QPalette.Active, QPalette.Base, brush2)
-        palette.setBrush(QPalette.Active, QPalette.Window, brush1)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette.Active, QPalette.PlaceholderText, brush)
-#endif
-        palette.setBrush(QPalette.Inactive, QPalette.WindowText, brush)
-        palette.setBrush(QPalette.Inactive, QPalette.Button, brush1)
-        palette.setBrush(QPalette.Inactive, QPalette.Text, brush)
-        palette.setBrush(QPalette.Inactive, QPalette.ButtonText, brush)
-        brush3 = QBrush(QColor(0, 0, 0, 255))
-        brush3.setStyle(Qt.NoBrush)
-        palette.setBrush(QPalette.Inactive, QPalette.Base, brush3)
-        palette.setBrush(QPalette.Inactive, QPalette.Window, brush1)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette.Inactive, QPalette.PlaceholderText, brush)
-#endif
-        palette.setBrush(QPalette.Disabled, QPalette.WindowText, brush)
-        palette.setBrush(QPalette.Disabled, QPalette.Button, brush1)
-        palette.setBrush(QPalette.Disabled, QPalette.Text, brush)
-        palette.setBrush(QPalette.Disabled, QPalette.ButtonText, brush)
-        brush4 = QBrush(QColor(0, 0, 0, 255))
-        brush4.setStyle(Qt.NoBrush)
-        palette.setBrush(QPalette.Disabled, QPalette.Base, brush4)
-        palette.setBrush(QPalette.Disabled, QPalette.Window, brush1)
-#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
-        palette.setBrush(QPalette.Disabled, QPalette.PlaceholderText, brush)
-#endif
-        self.tableWidget.setPalette(palette)
-        self.tableWidget.setFrameShape(QFrame.NoFrame)
-        self.tableWidget.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
-        self.tableWidget.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
-        self.tableWidget.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)
-        self.tableWidget.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.tableWidget.setShowGrid(True)
-        self.tableWidget.setGridStyle(Qt.SolidLine)
-        self.tableWidget.setSortingEnabled(False)
-        self.tableWidget.horizontalHeader().setVisible(False)
-        self.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
-        self.tableWidget.horizontalHeader().setDefaultSectionSize(200)
-        self.tableWidget.horizontalHeader().setStretchLastSection(True)
-        self.tableWidget.verticalHeader().setVisible(False)
-        self.tableWidget.verticalHeader().setCascadingSectionResizes(False)
-        self.tableWidget.verticalHeader().setHighlightSections(False)
-        self.tableWidget.verticalHeader().setStretchLastSection(True)
 
+        # Table widget setup
+        self.tableWidget = QTableWidget(self.frame2)
+        self.tableWidget.setObjectName(u"tableWidget")
+
+        # Set 8 columns and 3 rows
+        self.tableWidget.setColumnCount(8)
+        self.tableWidget.setRowCount(90)
+
+        # Set the horizontal header labels
+        headers = ["ID", "Name", "Progress", "Speed", "Left", "Done", "Size", "Status"]
+        self.tableWidget.setHorizontalHeaderLabels(headers)
+
+        # Example row setup with automatic incremental ID for the first column
+        for row in range(90):
+                # Set incremental ID in the first column
+                id_item = QTableWidgetItem(str(row + 1))  # Incremental ID starting from 1
+                self.tableWidget.setItem(row, 0, id_item)
+                
+                # Fill the remaining columns with sample data (can be dynamically updated later)
+                for col in range(1, 8):  # Starting from column 1, as column 0 is for ID
+                        item = QTableWidgetItem(f"Data {row+1}-{col+1}")
+                        self.tableWidget.setItem(row, col, item)
+
+        # Set the table widget's size policy to expand
+        self.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Make the horizontal header visible and ensure columns resize appropriately
+        self.tableWidget.horizontalHeader().setVisible(True)
+        self.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
+        self.tableWidget.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
+
+        # Vertical header can be hidden (optional)
+        self.tableWidget.verticalHeader().setVisible(False)
+
+        # Add the table widget to the frame's layout
         self.horizontalLayout_12.addWidget(self.tableWidget)
 
+        # Add the second frame (table frame) to the main vertical layout
+        self.verticalLayout.addWidget(self.frame2)
 
-        self.verticalLayout.addWidget(self.row_3)
 
+        # Add the new page to the stacked widget
         self.stackedWidget.addWidget(self.widgets)
+
+
+
+
+
+        
         ###############################################################################################################
         
         
