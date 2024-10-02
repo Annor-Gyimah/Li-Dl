@@ -1072,15 +1072,16 @@ class Ui_MainWindow(object):
         self.home_horizontalLayout_row_1.addWidget(self.home_link_lineEdit)
 
         # Add QPushButton
-        self.home_refresh_pushbutton = QPushButton("Refresh",self.home_row_1)
-        self.home_refresh_pushbutton.setMinimumSize(QSize(150, 30))
-        self.home_refresh_pushbutton.setFont(font)
-        self.home_refresh_pushbutton.setCursor(QCursor(Qt.PointingHandCursor))
-        self.home_refresh_pushbutton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        self.home_retry_pushbutton = QPushButton("Retry",self.home_row_1)
+        self.home_retry_pushbutton.setMinimumSize(QSize(150, 30))
+        self.home_retry_pushbutton.setFont(font)
+        self.home_retry_pushbutton.setObjectName(u"btn_retry")
+        self.home_retry_pushbutton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.home_retry_pushbutton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
         icon1 = QIcon()
         icon1.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.home_refresh_pushbutton.setIcon(icon1)
-        self.home_horizontalLayout_row_1.addWidget(self.home_refresh_pushbutton)
+        self.home_retry_pushbutton.setIcon(icon1)
+        self.home_horizontalLayout_row_1.addWidget(self.home_retry_pushbutton)
 
         self.home_verticalLayout_row_1.addLayout(self.home_horizontalLayout_row_1)
         
@@ -1171,6 +1172,7 @@ class Ui_MainWindow(object):
         self.home_open_pushButton = QPushButton("Open",self.home_row_3)
         self.home_open_pushButton.setMinimumSize(QSize(150, 30))
         self.home_open_pushButton.setFont(font)
+        self.home_open_pushButton.setObjectName(u"btn_browse")
         self.home_open_pushButton.setCursor(QCursor(Qt.PointingHandCursor))
         self.home_open_pushButton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
         icon4 = QIcon()
@@ -1195,6 +1197,7 @@ class Ui_MainWindow(object):
         self.home_filename_lineEdit = QLineEdit(self.home_row_3)
         self.home_filename_lineEdit.setMinimumSize(QSize(300, 30))  # Increased width to make it larger
         self.home_filename_lineEdit.setStyleSheet(u"background-color: rgb(33, 37, 43);")
+        self.home_filename_lineEdit.setPlaceholderText("Filename goes here")
         self.home_filename_row.addWidget(self.home_filename_lineEdit)
 
         # Add horizontal layout to the main vertical layout
@@ -1758,10 +1761,14 @@ class Ui_MainWindow(object):
         self.bottomBar.setMaximumSize(QSize(16777215, 22))
         self.bottomBar.setFrameShape(QFrame.NoFrame)
         self.bottomBar.setFrameShadow(QFrame.Raised)
+
+        # Layout for the bottom bar
         self.horizontalLayout_5 = QHBoxLayout(self.bottomBar)
         self.horizontalLayout_5.setSpacing(0)
         self.horizontalLayout_5.setObjectName(u"horizontalLayout_5")
         self.horizontalLayout_5.setContentsMargins(0, 0, 0, 0)
+
+        # Credits label
         self.creditsLabel = QLabel(self.bottomBar)
         self.creditsLabel.setObjectName(u"creditsLabel")
         self.creditsLabel.setMaximumSize(QSize(16777215, 16))
@@ -1770,34 +1777,74 @@ class Ui_MainWindow(object):
         font5.setBold(False)
         font5.setItalic(False)
         self.creditsLabel.setFont(font5)
-        self.creditsLabel.setAlignment(Qt.AlignLeading|Qt.AlignLeft|Qt.AlignVCenter)
+        self.creditsLabel.setAlignment(Qt.AlignLeading | Qt.AlignLeft | Qt.AlignVCenter)
 
         self.horizontalLayout_5.addWidget(self.creditsLabel)
 
+        # New frame for status code and total speed
+        self.statusSpeedFrame = QFrame(self.bottomBar)
+        self.statusSpeedFrame.setObjectName(u"statusSpeedFrame")
+        self.statusSpeedFrame.setMinimumSize(QSize(0, 22))
+        self.statusSpeedFrame.setMaximumSize(QSize(16777215, 22))
+        self.statusSpeedFrame.setFrameShape(QFrame.NoFrame)
+        self.statusSpeedFrame.setFrameShadow(QFrame.Raised)
+
+        # Horizontal layout for the status code and total speed
+        self.horizontalLayout_statusSpeed = QHBoxLayout(self.statusSpeedFrame)
+        self.horizontalLayout_statusSpeed.setSpacing(10)  # Adjust spacing between labels
+        self.horizontalLayout_statusSpeed.setObjectName(u"horizontalLayout_statusSpeed")
+        self.horizontalLayout_statusSpeed.setContentsMargins(0, 0, 0, 0)
+
+        # Label for Status Code
+        self.statusCodeLabel = QLabel(self.statusSpeedFrame)
+        self.statusCodeLabel.setObjectName(u"statusCodeLabel")
+        self.statusCodeLabel.setText("Status Code:")
+        self.horizontalLayout_statusSpeed.addWidget(self.statusCodeLabel)
+
+        # Value for Status Code
+        self.statusCodeValue = QLabel(self.statusSpeedFrame)
+        self.statusCodeValue.setObjectName(u"statusCodeValue")
+        self.statusCodeValue.setStyleSheet(u"background-color: white;")
+        #self.statusCodeValue.setText("200")  # Default value
+        self.horizontalLayout_statusSpeed.addWidget(self.statusCodeValue)
+
+        # Label for Total Speed
+        self.totalSpeedLabel = QLabel(self.statusSpeedFrame)
+        self.totalSpeedLabel.setObjectName(u"totalSpeedLabel")
+        self.totalSpeedLabel.setText("Total Speed:")
+        self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedLabel)
+
+        # Value for Total Speed
+        self.totalSpeedValue = QLabel(self.statusSpeedFrame)
+        self.totalSpeedValue.setObjectName(u"totalSpeedValue")
+        self.totalSpeedValue.setText("⬇350 bytes/s")  # Default value
+        self.totalSpeedValue.setStyleSheet(u"background-color: white;")
+        self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedValue)
+
+        # Add the statusSpeedFrame to the bottom bar's layout
+        self.horizontalLayout_5.addWidget(self.statusSpeedFrame)
+
+        # Version label
         self.version = QLabel(self.bottomBar)
         self.version.setObjectName(u"version")
-        self.version.setAlignment(Qt.AlignRight|Qt.AlignTrailing|Qt.AlignVCenter)
-
+        self.version.setAlignment(Qt.AlignRight | Qt.AlignTrailing | Qt.AlignVCenter)
         self.horizontalLayout_5.addWidget(self.version)
 
+        # Frame size grip (resize control)
         self.frame_size_grip = QFrame(self.bottomBar)
         self.frame_size_grip.setObjectName(u"frame_size_grip")
         self.frame_size_grip.setMinimumSize(QSize(20, 0))
         self.frame_size_grip.setMaximumSize(QSize(20, 16777215))
         self.frame_size_grip.setFrameShape(QFrame.NoFrame)
         self.frame_size_grip.setFrameShadow(QFrame.Raised)
-
         self.horizontalLayout_5.addWidget(self.frame_size_grip)
 
-
+        # Add the bottom bar to the vertical layout
         self.verticalLayout_6.addWidget(self.bottomBar)
-
 
         self.verticalLayout_2.addWidget(self.contentBottom)
 
-
         self.appLayout.addWidget(self.contentBox)
-
 
         self.appMargins.addWidget(self.bgApp)
 
@@ -1807,8 +1854,8 @@ class Ui_MainWindow(object):
 
         self.stackedWidget.setCurrentIndex(2)
 
-
         QMetaObject.connectSlotsByName(MainWindow)
+
     # setupUi
 
       # Inside your Ui_MainWindow class
