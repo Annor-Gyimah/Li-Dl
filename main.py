@@ -37,9 +37,9 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import clipboard_read, clipboard_write, size_format
+from modules.utils import clipboard_read, clipboard_write, size_format, validate_file_name
 from modules import config
-from PySide6.QtWidgets import QMainWindow, QApplication
+from PySide6.QtWidgets import QMainWindow, QApplication, QFileDialog
 from PySide6.QtCore import QTimer
 class MainWindow(QMainWindow):
     def __init__(self, d_list):
@@ -62,17 +62,7 @@ class MainWindow(QMainWindow):
         self.bad_headers = [0, range(400, 404), range(405, 418), range(500, 506)]  # response codes
 
         # youtube specific
-        self.video = None
-        self.yt_id = 0  # unique id for each youtube thread
-        self.playlist = []
-        self.pl_title = ''
-        self.pl_quality = None
-        self._pl_menu = []
-        self._stream_menu = []
-        self.m_bar_lock = Lock()  # a lock to access a video quality progress bar from threads
-        # self._s_bar = 0  # side progress bar for video quality loading
-        self._m_bar = 0  # main playlist progress par
-        self.stream_menu_selection = ''
+        
 
         # download
         self.pending = deque()
@@ -93,9 +83,9 @@ class MainWindow(QMainWindow):
 
         
         # Start the QTimer to poll the queue
-        self.queue_timer = QTimer()
-        self.queue_timer.timeout.connect(self.read_q)
-        self.queue_timer.start(500)  # Check the queue every 500ms
+        # self.queue_timer = QTimer()
+        # self.queue_timer.timeout.connect(self.read_q)
+        # self.queue_timer.start(500)  # Check the queue every 500ms
 
         # initial setup
         self.setup()
@@ -143,6 +133,7 @@ class MainWindow(QMainWindow):
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
         widgets.btn_save.clicked.connect(self.buttonClick)
+        
 
         # EXTRA LEFT BOX
         def openCloseLeftBox():
@@ -177,6 +168,27 @@ class MainWindow(QMainWindow):
         # ///////////////////////////////////////////////////////////////
         widgets.stackedWidget.setCurrentWidget(widgets.home)
         widgets.btn_home.setStyleSheet(UIFunctions.selectMenu(widgets.btn_home.styleSheet()))
+
+        # self.retry_button = widgets.home_retry_pushbutton  # Assuming this is defined in your UI
+        # self.retry_button.clicked.connect(self.on_retry_clicked)  # Connect to the event handler
+
+        # Initialize the PyQt run loop with a timer (to replace the PySimpleGUI event loop)
+        self.run_timer = QTimer(self)
+        self.run_timer.timeout.connect(self.run)
+        self.run_timer.start(800)  # Runs every 500ms
+
+        # self.retry_button_clicked = False
+        # Flag to indicate if the filename is being updated programmatically
+        self.filename_set_by_program = False
+
+        widgets.home_retry_pushbutton.clicked.connect(self.retry)
+        widgets.home_open_pushButton.clicked.connect(self.open_folder_dialog)
+        widgets.home_folder_path_lineEdit.setText(config.download_folder)
+        widgets.home_filename_lineEdit.textChanged.connect(self.on_filename_changed)
+
+
+       
+
 
     # BUTTONS CLICK
     # ///////////////////////////////////////////////////////////////
@@ -248,8 +260,40 @@ class MainWindow(QMainWindow):
                 self.update_progress_bar()
 
 
+    # def on_retry_clicked(self):
+    #     """Event handler for retry button click."""
+    #     self.retry_button_clicked = True  # Set the flag
+    #     print("Retry button clicked, executing run.")
+
+    def run(self):
+        """Handle the event loop."""
+        try:
+
+            # if self.retry_button_clicked:  # Check if the retry button was clicked
+            #     print("Retry Executed")
+            #     self.retry()  # Call the retry function when the retry event is detected
+            #     self.retry_button_clicked = False  # Reset it back to False after processing
+
+            self.read_q()
+
+            self.update_gui()  # You can also update the GUI components based on certain conditions
+        except Exception as e:
+            print(f"Error in run loop: {e}")
 
 
+    def open_folder_dialog(self):
+        """Open a dialog to select a folder and update the line edit."""
+        # Open a folder selection dialog
+        folder_path = QFileDialog.getExistingDirectory(self, "Select Download Folder")
+
+        # If a folder is selected, update the line edit with the absolute path
+        if folder_path:
+            widgets.home_folder_path_lineEdit.setText(folder_path)
+        else:
+            # If no folder is selected, reset to the default folder (config.download_folder)
+            widgets.home_folder_path_lineEdit.setText(config.download_folder)
+
+    
 
    # region General
     def url_text_change(self):
@@ -319,15 +363,6 @@ class MainWindow(QMainWindow):
         # self.reset_video_controls()
         # self.window['status_code']('')
 
-    # def change_cursor(self, cursor='default'):
-    #     # todo: check if we can set cursor  for window not individual tabs
-    #     if cursor == 'busy':
-    #         cursor_name = 'watch'
-    #     else:  # default
-    #         cursor_name = 'arrow'
-
-    #     self.window['Main'].set_cursor(cursor_name)
-    #     self.window['Settings'].set_cursor(cursor_name)
 
     def set_status(self, text):
         """update status bar text widget"""
@@ -341,20 +376,19 @@ class MainWindow(QMainWindow):
             #self.change_cursor('busy')
             Thread(target=self.get_header, args=[url], daemon=True).start()
 
+    def on_filename_changed(self, text):
+        """Handle manual changes to the filename line edit."""
+        # Only update the download item if the change was made manually
+        if not self.filename_set_by_program:
+            self.d.name = text
+
+
     def get_header(self, url):
         # curl_headers = get_headers(url)
         self.d.update(url)
 
         # update headers only if no other curl thread created with different url
         if url == self.d.url:
-
-            # update status code widget
-            try:
-                self.window['status_code'](f'status: {self.d.status_code}')
-                #
-            except:
-                pass
-            # self.set_status(self.d.status_code_description)
 
             # enable download button
             if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
@@ -368,6 +402,17 @@ class MainWindow(QMainWindow):
     def update_gui(self):
         """Update GUI elements with current download information."""
         try:
+            # Update the filename only if it's different
+            if widgets.home_filename_lineEdit.text() != self.d.name:
+                self.filename_set_by_program = True  # Set the flag
+                widgets.home_filename_lineEdit.setText(self.d.name)
+                self.filename_set_by_program = False
+
+            if self.d.status_code == 200:
+                cod = "ok"
+
+            widgets.statusCodeValue.setText(f"{self.d.status_code} {cod}")
+
             # Update size label
             size_text = size_format(self.d.total_size) if self.d.total_size else "Unknown"
             widgets.size_value_label.setText(size_text)
@@ -383,19 +428,16 @@ class MainWindow(QMainWindow):
             # Update the resumable label
             resumable_text = "Yes" if self.d.resumable else "No"
             widgets.resumable_value_label.setText(resumable_text)
+
             
-            # You can add more GUI updates here as needed
-            
-            print(f"Updated size label to: {size_text}")
-            print(f"Updated type label to: {type_text}")
-            print(f"Updated protocol label to {protocol_text}")
-            print(f"Updated resumable label to :{resumable_text}")
+                
         except Exception as e:
             print('MainWindow.update_gui() error:', e)
+    
         
     
 
-
+    
 
     
 
@@ -442,6 +484,7 @@ if __name__ == "__main__":
     # Create the main window
     window = MainWindow(config.d_list)
     window.show()
+    
 
     # Start the clipboard listener in a separate thread
     Thread(target=clipboard_listener, daemon=True).start()
