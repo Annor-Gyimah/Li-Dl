@@ -37,10 +37,11 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import clipboard_read, clipboard_write, size_format, validate_file_name, log, log_recorder
-from modules import config
-from PySide6.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
-from PySide6.QtCore import QTimer, Qt
+from modules.utils import clipboard_read, clipboard_write, size_format, validate_file_name, log, log_recorder, delete_file, time_format, truncate
+from modules import config, brain
+
+from PySide6.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame
+from PySide6.QtCore import QTimer, Qt, QSize
 class MainWindow(QMainWindow):
     def __init__(self, d_list):
         QMainWindow.__init__(self)
@@ -411,6 +412,7 @@ class MainWindow(QMainWindow):
         # If a folder is selected, update the line edit with the absolute path
         if folder_path:
             widgets.home_folder_path_lineEdit.setText(folder_path)
+            config.download_folder = os.path.abspath(folder_path)
         else:
             # If no folder is selected, reset to the default folder (config.download_folder)
             widgets.home_folder_path_lineEdit.setText(config.download_folder)
@@ -457,10 +459,219 @@ class MainWindow(QMainWindow):
             resumable_text = "Yes" if self.d.resumable else "No"
             widgets.resumable_value_label.setText(resumable_text)
 
+            total_speed = 0
+            for i in self.active_downloads:
+                d = self.d_list[i]
+                total_speed += d.speed
+            
+            if total_speed != 0:
+                widgets.totalSpeedValue.setText((f'⬇ {size_format(total_speed, "/s")}'))
+            else:
+                widgets.totalSpeedValue.setText((f'⬇ 0 bytes'))
+
+
             
                 
         except Exception as e:
-            print('MainWindow.update_gui() error:', e)
+            log('MainWindow.update_gui() error:', e)
+    
+    
+
+        
+
+
+
+    # region Start download
+    @property
+    def active_downloads(self):
+        # update active downloads
+        _active_downloads = set(d.id for d in self.d_list if d.status == config.Status.downloading)
+        config.active_downloads = _active_downloads
+
+        return _active_downloads
+    
+    def start_download(self, d, silent=False, downloader=None):
+        if d is None:
+            return
+        
+
+        folder = d.folder or config.download_folder
+        # validate destination folder for existence and permissions
+        # in case of missing download folder value will fallback to current download folder
+        try:
+            with open(os.path.join(folder, 'test'), 'w') as test_file:
+                test_file.write('0')
+            os.unlink(os.path.join(folder, 'test'))
+
+            # update download item
+            d.folder = folder
+        except FileNotFoundError:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle('Folder Error')
+            msg.setText(f'destination folder {folder} does not exist')
+            msg.setInformativeText('Please enter a valid folder name')
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            return
+        except PermissionError:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle('Folder Error')
+            msg.setText(f"you don't have enough permission for destination folder {folder}")
+            msg.setInformativeText(f'Check if you have permission for the destination folder {folder}')
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            return
+        except Exception as e:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle('Folder Error')
+            msg.setText(f'problem in destination folder {repr(e)}')
+            #msg.setInformativeText('Please enter a valid folder name')
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            return
+        
+        # validate file name
+        if d.name == '':
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle('Download Error')
+            msg.setText('File name is invalid')
+            msg.setInformativeText('Please enter a valid filename')
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            return
+        
+        # check if file with the same name exist in destination
+        if os.path.isfile(d.target_file):
+            #  show dialogue
+            msg = QMessageBox.question(self, 'File with the same name already exist in ' + d.folder + '\n Do you want to overwrite file?', "File Overwrite", QMessageBox.Yes | QMessageBox.No)
+
+            msg = 'File with the same name already exist in ' + d.folder + '\n Do you want to overwrite file?'
+
+            if msg != 'Yes':
+                log('Download cancelled by user')
+                return 'cancelled'
+            else:
+                delete_file(d.target_file)
+    
+
+        # ------------------------------------------------------------------
+        # search current list for previous item with same name, folder
+        found_index = self.file_in_d_list(d.target_file)
+        if found_index is not None: # might be zero, file already exist in d_list
+            log('donwload item', d.num, 'already in list, check resume availability')
+            d_from_list = self.d_list[found_index]
+            d.id = d_from_list.id
+
+            # default
+            response = "Resume"
+
+            if not silent:
+                # show dialogue
+                msg_text = (f'File with the same name: \n{self.d.name},\n already exists in download list\n'
+                'Do you want to resume this file?\n'
+                'Resume ==> continue if it has been partially downloaded ... \n'
+                'Overwrite ==> delete old downloads and overwrite existing item... \n'
+                'Note: if you need a fresh download, you have to change file name \n'
+                'or target folder, or delete the same entry from the download list.')
+
+                # Create a QMessageBox
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Question)
+                msg.setWindowTitle("File Already Exists")
+                msg.setText(msg_text)
+
+                # Add buttons
+                resume_button = msg.addButton("Resume", QMessageBox.YesRole)
+                overwrite_button = msg.addButton("Overwrite", QMessageBox.NoRole)
+                cancel_button = msg.addButton("Cancel", QMessageBox.RejectRole)
+
+                # Execute the dialog and get the result
+                msg.exec()
+
+                # Check which button was clicked
+                if msg.clickedButton() == resume_button:
+                    response = 'Resume'
+                elif msg.clickedButton() == overwrite_button:
+                    response = 'Overwrite'
+                else:
+                    response = 'Cancel'
+
+            # Handle responses
+            if response == 'Resume':
+                log('resuming')
+
+                # to resume, size must match, otherwise it will just overwrite
+                if d.size == d_from_list.size:
+                    log('resume is possible')
+                    # get the same segment size
+                    d.segment_size = d_from_list.segment_size
+                    d.downloaded = d_from_list.downloaded
+                else:
+                    log(f'file: {d.name} has a different size and will be downloaded from beginning')
+                    d.delete_tempfiles()
+
+                # Replace old item in download list
+                self.d_list[found_index] = d
+
+            elif response == 'Overwrite':
+                log('overwrite')
+                d.delete_tempfiles()
+
+                # Replace old item in download list
+                self.d_list[found_index] = d
+
+            else:
+                log('Download cancelled by user')
+                d.status = config.Status.cancelled
+                return
+            
+        # ------------------------------------------------------------------
+        else:
+            print("new file")
+            # generate unique id number for each download
+            d.id = len(self.d_list)
+
+            # add to download list
+            self.d_list.append(d)
+
+        # if max concurrent downloads exceeded, this download job will be added to pending queue
+        if len(self.active_downloads) >= config.max_concurrent_downloads:
+            d.status = config.Status.pending
+            self.pending.append(d)
+            return
+
+        # start downloading
+        if config.show_download_window and not silent:
+            # create download window
+            self.download_windows[d.id] = DownloadWindow(d)
+            self.download_windows[d.id].show()  # Add this line
+
+        # create and start brain in a separate thread
+        Thread(target=brain.brain, daemon=True, args=(d, downloader)).start()
+
+
+    def stop_all_downloads(self):
+        # change status of pending items to cancelled
+        for d in self.d_list:
+            d.status = config.Status.cancelled
+
+        self.pending.clear()
+
+    def resume_all_downloads(self):
+        # change status of all non completed items to pending
+        for d in self.d_list:
+            if d.status == config.Status.cancelled:
+                self.start_download(d, silent=True)
+
+    def file_in_d_list(self, target_file):
+        for i, d in enumerate(self.d_list):
+            if d.target_file == target_file:
+                return i
+        return None
     
     def on_download_button_clicked(self, downloader=None):
         """Handle DownloadButton click event."""
@@ -470,6 +681,7 @@ class MainWindow(QMainWindow):
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Warning)
             msg.setWindowTitle('Download Error')
+            msg.setStyleSheet("background-color: rgb(33, 37, 43); color: white; width: 280px;")
             msg.setText('Nothing to download')
             msg.setInformativeText('It might be a web page or an invalid URL link.\nCheck your link or click "Retry".')
             msg.setStandardButtons(QMessageBox.Ok)
@@ -490,34 +702,178 @@ class MainWindow(QMainWindow):
 
         if r not in ('error', 'cancelled', False):
             widgets.stackedWidget.setCurrentWidget(widgets.widgets)
+            
+    # endregion
 
+
+    # region downloads page
+    @property
+    def selected_d(self):
+        self._selected_d = self.d_list[self.selected_row_num] if self.selected_row_num is not None else None
+        return self._selected_d
+
+    @selected_d.setter
+    def selected_d(self, value):
+        self._selected_d = value
+
+    @staticmethod
+    def format_cell_data(k, v):
+        """take key, value and prepare it for display in cell"""
+        if k in ['size', 'total_size', 'downloaded']:
+            v = size_format(v)
+        elif k == 'speed':
+            v = size_format(v, '/s')
+        elif k in ('percent', 'progress'):
+            v = f'{v}%' if v else '---'
+        elif k == 'time_left':
+            v = time_format(v)
+        elif k == 'resumable':
+            v = 'yes' if v else 'no'
+        elif k == 'name':
+            v = validate_file_name(v)
+
+        return v
+    
+    
+
+
+
+class DownloadWindow(QWidget):
+    def __init__(self, d=None):
+        super().__init__()
+        self.setStyleSheet("""
+            QWidget {
+                background-color: rgb(33, 37, 43);
+                color: white;
+            }
+        """)
+        self.d = d
+        self.q = d.q
+        self.timeout = 10
+        self.timer = 0
+        self._progress_mode = 'determinate'
+        self.init_ui()
         
 
+    @property
+    def progress_mode(self):
+        return self._progress_mode
+
+    @progress_mode.setter
+    def progress_mode(self, mode):
+        """change progressbar mode (determinate / undeterminate)"""
+        if self._progress_mode != mode:
+            self.progress_bar.setFormat(mode)
+            self._progress_mode = mode
+
+    def set_progress_mode(self, mode):
+        if mode == 'determinate':
+            self.progress_bar.setRange(0, 100)
+        else:
+            self.progress_bar.setRange(0, 0)  # This makes it indeterminate
 
 
-    # region Start download
-    def start_download(self, d, silent=False, downloader=None):
-        if d is None:
-            return
+    def init_ui(self):
+        # Create a frame to hold the layout
+        self.frame = QFrame(self)
+        self.frame.setFrameShape(QFrame.StyledPanel)
+        self.frame_layout = QVBoxLayout(self.frame)  # Create layout inside the frame
         
-        if d.name == '':
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle('Download Error')
-            msg.setText('File name is invalid')
-            msg.setInformativeText('Please enter a valid filename')
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
-            return
-        
-        print("Yes Downloads")
-    
-        
-    
+        # Output Label
+        self.out_label = QLabel(self.frame)
+        self.out_label.setFixedHeight(60)
+        self.out_label.setStyleSheet("font-size: 11px; color: white;")
+        self.frame_layout.addWidget(self.out_label)
+
+        # Progress percentage
+        self.percent_label = QLabel(self.frame)
+        self.frame_layout.addWidget(self.percent_label)
+
+        # Progress Bar
+        self.progress_bar = QProgressBar(self.frame)
+        self.progress_bar.setRange(0, 100)
+        self.frame_layout.addWidget(self.progress_bar)
+
+        # Status label and buttons (Hide/Cancel)
+        self.button_layout = QHBoxLayout()
+        self.status_label = QLabel(self.frame)
+        self.button_layout.addWidget(self.status_label)
+
+        self.hide_button = QPushButton('Hide', self.frame)
+        self.hide_button.clicked.connect(self.hide)
+        self.button_layout.addWidget(self.hide_button)
+
+        self.cancel_button = QPushButton('Cancel', self.frame)
+        self.cancel_button.clicked.connect(self.cancel)
+        self.button_layout.addWidget(self.cancel_button)
+
+        self.frame_layout.addLayout(self.button_layout)
+
+        # Log display
+        self.log_display = QTextEdit(self.frame)
+        self.log_display.setReadOnly(True)
+        self.log_display.setFixedHeight(60)
+        #self.log_display.setStyleSheet("selection-color: rgb(255, 255, 255); selection-background-color: rgb(255, 121, 198); color: white;")
+        self.frame_layout.addWidget(self.log_display)
+
+        # Set the layout to the widget
+        self.setLayout(self.frame_layout)  # Set the frame's layout as the window layout
+
+        # Set a minimum size for the window
+        self.setMinimumSize(700, 300)
+
+        # Timer for periodic GUI updates
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_gui)
+        self.timer.start(500)
 
     
+    def update_gui(self):
+        # Update the progress and display information
+        name = truncate(self.d.name, 50)
 
-    
+        out = (f"\n File: {name} \n"
+               
+               f"\n Downloaded: {size_format(self.d.downloaded)} out of {size_format(self.d.total_size)} \n"
+
+               f"\n Speed: {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} left \n"
+
+               f"\n Live connections: {self.d.live_connections} - Remaining parts: {self.d.remaining_parts} \n")
+
+        self.out_label.setText(out)
+
+        # Update progress bar mode and value
+        if self.d.progress:
+            self.set_progress_mode('determinate')
+            self.progress_bar.setValue(int(self.d.progress))
+        else:
+            self.set_progress_mode('indeterminate')
+
+        if self.d.status in (config.Status.completed, config.Status.cancelled, config.Status.error):
+            self.cancel_button.setText('Done')
+            self.cancel_button.setStyleSheet('background-color: green; color: black;')
+
+        # Update log
+        self.log_display.setPlainText(config.log_entry)
+
+        # Update percentage position
+        self.percent_label.setText(f"{self.d.progress}%")
+
+        # Status update
+        self.status_label.setText(f"{self.d.status}  {self.d.i}")
+
+    def cancel(self):
+        if self.d.status not in (config.Status.error, config.Status.completed):
+            self.d.status = config.Status.cancelled
+        self.close()
+
+    def hide(self):
+        self.close()
+
+    def close(self):
+        self.timer.stop()
+        super().close()
+
 
 
 
