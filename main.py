@@ -79,11 +79,6 @@ class MainWindow(QMainWindow):
         # thumbnail
         self.current_thumbnail = None
 
-        
-        # Start the QTimer to poll the queue
-        # self.queue_timer = QTimer()
-        # self.queue_timer.timeout.connect(self.read_q)
-        # self.queue_timer.start(500)  # Check the queue every 500ms
 
         # initial setup
         self.setup()
@@ -106,8 +101,8 @@ class MainWindow(QMainWindow):
 
         # APP NAME
         # ///////////////////////////////////////////////////////////////
-        title = "Li-DL"
-        description = "Li-DL"
+        title = config.APP_TITLE
+        description = config.APP_NAME
         # APPLY TEXTS
         self.setWindowTitle(title)
         widgets.titleRightInfo.setText(description)
@@ -184,6 +179,10 @@ class MainWindow(QMainWindow):
         widgets.home_folder_path_lineEdit.setText(config.download_folder)
         widgets.home_filename_lineEdit.textChanged.connect(self.on_filename_changed)
         widgets.DownloadButton.clicked.connect(self.on_download_button_clicked)
+
+        widgets.version.setText(f"{config.APP_VERSION}")
+        widgets.titleLeftApp.setText(f"{config.APP_NAME}")
+        widgets.titleLeftDescription.setText(f"{config.APP_DEC}")
 
         log('Starting PyIDM version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen')
         # log('starting application')

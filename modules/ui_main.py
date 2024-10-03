@@ -1005,6 +1005,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.contentTopBg)
 
         self.contentBottom = QFrame(self.contentBox)
+        self.contentBottom.setStyleSheet("color: white;")
         self.contentBottom.setObjectName(u"contentBottom")
         self.contentBottom.setFrameShape(QFrame.NoFrame)
         self.contentBottom.setFrameShadow(QFrame.Raised)
@@ -1854,7 +1855,7 @@ class Ui_MainWindow(object):
         # Value for Status Code
         self.statusCodeValue = QLabel(self.statusSpeedFrame)
         self.statusCodeValue.setObjectName(u"statusCodeValue")
-        self.statusCodeValue.setStyleSheet(u"background-color: white;")
+        #self.statusCodeValue.setStyleSheet(u"background-color: white;")
         #self.statusCodeValue.setText("200")  # Default value
         self.horizontalLayout_statusSpeed.addWidget(self.statusCodeValue)
 
@@ -1867,8 +1868,8 @@ class Ui_MainWindow(object):
         # Value for Total Speed
         self.totalSpeedValue = QLabel(self.statusSpeedFrame)
         self.totalSpeedValue.setObjectName(u"totalSpeedValue")
-        self.totalSpeedValue.setText("⬇350 bytes/s")  # Default value
-        self.totalSpeedValue.setStyleSheet(u"background-color: white;")
+        self.totalSpeedValue.setText("⬇ 0 bytes/s")  # Default value
+        #self.totalSpeedValue.setStyleSheet(u"background-color: white;")
         self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedValue)
 
         # Add the statusSpeedFrame to the bottom bar's layout
