@@ -684,7 +684,7 @@ class Ui_MainWindow(object):
         self.btn_new.setFont(font)
         self.btn_new.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_new.setLayoutDirection(Qt.LeftToRight)
-        self.btn_new.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-settings.png);")
+        self.btn_new.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-terminal.png);")
 
         self.verticalLayout_8.addWidget(self.btn_new)
 
@@ -1492,15 +1492,65 @@ class Ui_MainWindow(object):
         ###############################################################################################################
         
         
+        # Create a new page (QWidget)
         self.new_page = QWidget()
         self.new_page.setObjectName(u"new_page")
+
+        # Main layout for the page (QVBoxLayout)
         self.verticalLayout_20 = QVBoxLayout(self.new_page)
         self.verticalLayout_20.setObjectName(u"verticalLayout_20")
-        self.label = QLabel(self.new_page)
-        self.label.setObjectName(u"label")
-        self.label.setAlignment(Qt.AlignCenter)
 
-        self.verticalLayout_20.addWidget(self.label)
+        # First frame for the "Detailed events" label
+        self.frame1 = QFrame(self.new_page)
+        self.frame1.setObjectName(u"frame1")
+        self.frame1.setFrameShape(QFrame.StyledPanel)
+        self.frame1.setFrameShadow(QFrame.Raised)
+        self.frame1.setMinimumSize(QSize(0, 50))  # Set a minimum size for the label frame
+
+        # Layout for the first frame
+        self.horizontalLayout_1 = QHBoxLayout(self.frame1)
+        self.horizontalLayout_1.setObjectName(u"horizontalLayout_1")
+
+        # "Detailed events" label
+        self.detailedEventsLabel = QLabel(self.frame1)
+        self.detailedEventsLabel.setObjectName(u"detailedEventsLabel")
+        self.detailedEventsLabel.setText("Detailed events")
+        font = QFont()
+        font.setPointSize(12)  # Adjust the font size for visibility
+        font.setBold(True)
+        self.detailedEventsLabel.setFont(font)
+
+        # Add the label to the frame's layout
+        self.horizontalLayout_1.addWidget(self.detailedEventsLabel)
+
+        # Add the first frame to the page layout
+        self.verticalLayout_20.addWidget(self.frame1)
+
+        # Second frame for the terminal/log display
+        self.frame2 = QFrame(self.new_page)
+        self.frame2.setObjectName(u"frame2")
+        self.frame2.setFrameShape(QFrame.StyledPanel)
+        self.frame2.setFrameShadow(QFrame.Raised)
+        self.frame2.setStyleSheet("background-color: black;")  # Set the background to black
+        self.frame2.setMinimumSize(QSize(0, 200))  # Adjust the minimum size for the terminal
+
+        # Layout for the second frame (Terminal-style display)
+        self.verticalLayout_terminal = QVBoxLayout(self.frame2)
+        self.verticalLayout_terminal.setObjectName(u"verticalLayout_terminal")
+
+        # Text edit or label for displaying logs (simulating a terminal)
+        self.logDisplay = QTextEdit(self.frame2)
+        #self.logDisplay.insertPlainText("This is me")
+        self.logDisplay.setObjectName(u"logDisplay")
+        self.logDisplay.setReadOnly(True)  # Make it read-only since it's a log display
+        self.logDisplay.setStyleSheet("color: white; background-color: black;")  # White text on black background
+
+        # Add the log display to the second frame
+        self.verticalLayout_terminal.addWidget(self.logDisplay)
+
+        # Add the second frame to the page layout
+        self.verticalLayout_20.addWidget(self.frame2)
+
 
         self.stackedWidget.addWidget(self.new_page)
 
