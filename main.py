@@ -37,10 +37,10 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import clipboard_read, clipboard_write, size_format, validate_file_name
+from modules.utils import clipboard_read, clipboard_write, size_format, validate_file_name, log, log_recorder
 from modules import config
-from PySide6.QtWidgets import QMainWindow, QApplication, QFileDialog
-from PySide6.QtCore import QTimer
+from PySide6.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox
+from PySide6.QtCore import QTimer, Qt
 class MainWindow(QMainWindow):
     def __init__(self, d_list):
         QMainWindow.__init__(self)
@@ -50,9 +50,6 @@ class MainWindow(QMainWindow):
         self.d = DownloadItem()
 
         
-
-        # main window
-        self.window = None
 
         # download windows
         self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
@@ -185,6 +182,15 @@ class MainWindow(QMainWindow):
         widgets.home_open_pushButton.clicked.connect(self.open_folder_dialog)
         widgets.home_folder_path_lineEdit.setText(config.download_folder)
         widgets.home_filename_lineEdit.textChanged.connect(self.on_filename_changed)
+        widgets.DownloadButton.clicked.connect(self.on_download_button_clicked)
+
+        log('Starting PyIDM version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen')
+        # log('starting application')
+        log('operating system:', config.operating_system_info)
+        log('current working directory:', config.current_directory)
+        os.chdir(config.current_directory)
+
+
 
 
        
@@ -252,18 +258,38 @@ class MainWindow(QMainWindow):
             k, v = config.main_window_q.get()
             #print(f"Processing queue: {k} -> {v}")
 
-            if k == 'url':
+            if k == 'log':
+                try:
+                    contents = widgets.logDisplay.toPlainText()
+
+                    
+                    # print(size_format(len(contents)))
+                    if len(contents) > config.max_log_size:
+                        # delete 20% of contents to keep size under max_log_size
+                        slice_size = int(config.max_log_size * 0.2)
+                        widgets.logDisplay.setPlainText(contents[slice_size:])
+                        
+
+                    widgets.logDisplay.append(v)
+                except Exception as e:
+                    print(e)
+
+                self.set_status(v.strip('\n'))
+
+            elif k == 'url':
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
                 #print(f"Updated QLineEdit with URL: {v}")
                 self.url_text_change()
                 self.update_progress_bar()
+            
+            elif k == "download":
+                self.start_download(*v)
 
+                
 
-    # def on_retry_clicked(self):
-    #     """Event handler for retry button click."""
-    #     self.retry_button_clicked = True  # Set the flag
-    #     print("Retry button clicked, executing run.")
+            
+
 
     def run(self):
         """Handle the event loop."""
@@ -280,22 +306,7 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"Error in run loop: {e}")
 
-
-    def open_folder_dialog(self):
-        """Open a dialog to select a folder and update the line edit."""
-        # Open a folder selection dialog
-        folder_path = QFileDialog.getExistingDirectory(self, "Select Download Folder")
-
-        # If a folder is selected, update the line edit with the absolute path
-        if folder_path:
-            widgets.home_folder_path_lineEdit.setText(folder_path)
-        else:
-            # If no folder is selected, reset to the default folder (config.download_folder)
-            widgets.home_folder_path_lineEdit.setText(config.download_folder)
-
-    
-
-   # region General
+    # region Url stuffs
     def url_text_change(self):
         """Handle URL changes in the QLineEdit."""
         url = widgets.home_link_lineEdit.text().strip()
@@ -315,12 +326,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f"Error in url_text_change: {e}")
 
-    def update_progress_bar(self):
-        """Update the progress bar based on URL processing."""
-        # Start a new thread for the progress updates
-        Thread(target=self.process_url, daemon=True).start()
-
-    
     def process_url(self):
         """Simulate processing the URL and update the progress bar."""
         
@@ -358,11 +363,6 @@ class MainWindow(QMainWindow):
         self.playlist = []
         self.video = None
 
-        # widgets
-        # self.disable()
-        # self.reset_video_controls()
-        # self.window['status_code']('')
-
 
     def set_status(self, text):
         """update status bar text widget"""
@@ -370,17 +370,17 @@ class MainWindow(QMainWindow):
             self.window['status_bar'](text)
         except:
             pass
+
+    def update_progress_bar(self):
+        """Update the progress bar based on URL processing."""
+        # Start a new thread for the progress updates
+        Thread(target=self.process_url, daemon=True).start()
+
     
     def refresh_headers(self, url):
         if self.d.url != '':
             #self.change_cursor('busy')
             Thread(target=self.get_header, args=[url], daemon=True).start()
-
-    def on_filename_changed(self, text):
-        """Handle manual changes to the filename line edit."""
-        # Only update the download item if the change was made manually
-        if not self.filename_set_by_program:
-            self.d.name = text
 
 
     def get_header(self, url):
@@ -392,13 +392,39 @@ class MainWindow(QMainWindow):
 
             # enable download button
             if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
-                widgets.DownloadButton.hide()
+                widgets.DownloadButton.setEnabled(False)  # Disables the button
+            
+
 
             # check if the link contains stream videos by youtube-dl
             # Thread(target=self.youtube_func, daemon=True).start()
 
         #self.change_cursor('default')
 
+
+    # region download folder
+    def open_folder_dialog(self):
+        """Open a dialog to select a folder and update the line edit."""
+        # Open a folder selection dialog
+        folder_path = QFileDialog.getExistingDirectory(self, "Select Download Folder")
+
+        # If a folder is selected, update the line edit with the absolute path
+        if folder_path:
+            widgets.home_folder_path_lineEdit.setText(folder_path)
+        else:
+            # If no folder is selected, reset to the default folder (config.download_folder)
+            widgets.home_folder_path_lineEdit.setText(config.download_folder)
+    
+
+    def on_filename_changed(self, text):
+        """Handle manual changes to the filename line edit."""
+        # Only update the download item if the change was made manually
+        if not self.filename_set_by_program:
+            self.d.name = text
+
+
+    
+    # region Update Gui
     def update_gui(self):
         """Update GUI elements with current download information."""
         try:
@@ -410,6 +436,8 @@ class MainWindow(QMainWindow):
 
             if self.d.status_code == 200:
                 cod = "ok"
+            else:
+                cod = ""
 
             widgets.statusCodeValue.setText(f"{self.d.status_code} {cod}")
 
@@ -433,6 +461,56 @@ class MainWindow(QMainWindow):
                 
         except Exception as e:
             print('MainWindow.update_gui() error:', e)
+    
+    def on_download_button_clicked(self, downloader=None):
+        """Handle DownloadButton click event."""
+        # Check if the download button is disabled
+        if self.d.url == "":
+            # Use QMessageBox to display the popup in PyQt
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle('Download Error')
+            msg.setText('Nothing to download')
+            msg.setInformativeText('It might be a web page or an invalid URL link.\nCheck your link or click "Retry".')
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            return
+        
+        #     return
+
+
+        # Get a copy of the current download item (self.d)
+        d = copy.copy(self.d)
+
+        # Set the folder for download
+        d.folder = config.download_folder  # Ensure that config.download_folder is properly set
+
+        # Start the download using the appropriate downloader
+        r = self.start_download(d, downloader=downloader)
+
+        if r not in ('error', 'cancelled', False):
+            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
+
+        
+
+
+
+    # region Start download
+    def start_download(self, d, silent=False, downloader=None):
+        if d is None:
+            return
+        
+        if d.name == '':
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Warning)
+            msg.setWindowTitle('Download Error')
+            msg.setText('File name is invalid')
+            msg.setInformativeText('Please enter a valid filename')
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec()
+            return
+        
+        print("Yes Downloads")
     
         
     
@@ -488,6 +566,9 @@ if __name__ == "__main__":
 
     # Start the clipboard listener in a separate thread
     Thread(target=clipboard_listener, daemon=True).start()
+    # Start logging
+    Thread(target=log_recorder, daemon=True).start()
+
 
     # Start the event loop
     sys.exit(app.exec())

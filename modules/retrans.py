@@ -9,7 +9,7 @@ def retranslateUi(self, MainWindow):
         self.toggleButton.setText(QCoreApplication.translate("MainWindow", u"Hide", None))
         self.btn_home.setText(QCoreApplication.translate("MainWindow", u"Home", None))
         self.btn_widgets.setText(QCoreApplication.translate("MainWindow", u"Downloads", None))
-        self.btn_new.setText(QCoreApplication.translate("MainWindow", u"Settings", None))
+        self.btn_new.setText(QCoreApplication.translate("MainWindow", u"Logs", None))
         self.btn_save.setText(QCoreApplication.translate("MainWindow", u"Save", None))
         self.btn_exit.setText(QCoreApplication.translate("MainWindow", u"Exit", None))
         self.toggleLeftBox.setText(QCoreApplication.translate("MainWindow", u"About", None))
@@ -140,7 +140,7 @@ def retranslateUi(self, MainWindow):
         # ___qtablewidgetitem23.setText(QCoreApplication.translate("MainWindow", u"Line", None));
         # self.tableWidget.setSortingEnabled(__sortingEnabled)
 
-        self.label.setText(QCoreApplication.translate("MainWindow", u"NEW PAGE TEST", None))
+        #self.label.setText(QCoreApplication.translate("MainWindow", u"NEW PAGE TEST", None))
         #self.btn_message.setText(QCoreApplication.translate("MainWindow", u"Message", None))
         #self.btn_print.setText(QCoreApplication.translate("MainWindow", u"Print", None))
         #self.btn_logout.setText(QCoreApplication.translate("MainWindow", u"Logout", None))

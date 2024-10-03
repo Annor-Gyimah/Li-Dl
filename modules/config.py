@@ -13,12 +13,12 @@ import os
 import sys
 import platform
 
-#from .version import __version__
+from .version import __version__
 
 
 # CONSTANTS
 APP_NAME = 'PyIDM'
-#APP_VERSION = __version__ 
+APP_VERSION = __version__ 
 #APP_TITLE = f'{APP_NAME} version {APP_VERSION} .. an open source download manager'
 DEFAULT_DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), 'Downloads')
 DEFAULT_THEME = 'DarkGrey2'
@@ -86,7 +86,8 @@ else:
 sys.path.insert(0, os.path.dirname(current_directory))
 sys.path.insert(0, current_directory)
 
-sett_folder = None
+# sett_folder = None
+sett_folder = os.path.dirname(os.path.abspath(__file__))
 global_sett_folder = None
 download_folder = DEFAULT_DOWNLOAD_FOLDER
 
