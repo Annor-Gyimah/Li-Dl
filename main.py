@@ -37,11 +37,13 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import clipboard_read, clipboard_write, size_format, validate_file_name, log, log_recorder, delete_file, time_format, truncate
+from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, 
+                           log, log_recorder, delete_file, time_format, truncate, notify)
 from modules import config, brain, setting
 
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
-                               QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem)
+                               QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
+                               QDialog, QComboBox, QInputDialog)
 from PySide6.QtCore import QTimer, Qt, QSize
 class MainWindow(QMainWindow):
     def __init__(self, d_list):
@@ -180,6 +182,17 @@ class MainWindow(QMainWindow):
         widgets.home_folder_path_lineEdit.setText(config.download_folder)
         widgets.home_filename_lineEdit.textChanged.connect(self.on_filename_changed)
         widgets.DownloadButton.clicked.connect(self.on_download_button_clicked)
+        widgets.delete.clicked.connect(self.delete_btn)
+        widgets.resume.clicked.connect(self.resume_btn)
+        widgets.resume_all.clicked.connect(self.resume_all_downloads)
+        widgets.cancel.clicked.connect(self.cancel_btn)
+        widgets.refresh.clicked.connect(self.refresh_link_btn)
+        widgets.d_window.clicked.connect(self.download_window)
+        widgets.schedule_all.clicked.connect(self.schedule_all)
+        widgets.stop_all.clicked.connect(self.stop_all_downloads)
+        widgets.delete_all.clicked.connect(self.delete_all_downloads)
+
+        
 
         widgets.version.setText(f"{config.APP_VERSION}")
         widgets.titleLeftApp.setText(f"{config.APP_NAME}")
@@ -488,9 +501,17 @@ class MainWindow(QMainWindow):
             setting.save_setting()
             setting.save_d_list(self.d_list)
 
-            
-            
+            self.check_scheduled()
 
+            
+            
+            # run download windows if existed
+            # keys = list(self.download_windows.keys())
+            # for i in keys:
+            #     win = self.download_windows[i]
+            #     win.run()
+            #     if win.event is None:
+            #         self.download_windows.pop(i, None)
 
 
             
@@ -678,19 +699,6 @@ class MainWindow(QMainWindow):
         Thread(target=brain.brain, daemon=True, args=(d, downloader)).start()
 
 
-    def stop_all_downloads(self):
-        # change status of pending items to cancelled
-        for d in self.d_list:
-            d.status = config.Status.cancelled
-
-        self.pending.clear()
-
-    def resume_all_downloads(self):
-        # change status of all non completed items to pending
-        for d in self.d_list:
-            if d.status == config.Status.cancelled:
-                self.start_download(d, silent=True)
-
     def file_in_d_list(self, target_file):
         for i, d in enumerate(self.d_list):
             if d.target_file == target_file:
@@ -758,15 +766,6 @@ class MainWindow(QMainWindow):
 
         return v
     
-    # def populate_table(self):
-    #     # Populate table with formatted data from d_list
-    #     for row, d in enumerate(self.d_list):
-    #         log(f"My Id{d.id}")
-    #         for col, key in enumerate(self.d_headers):
-    #             cell_value = self.format_cell_data(key, getattr(d, key, ''))
-    #             item = QTableWidgetItem(cell_value)
-    #             widgets.tableWidget.setItem(row, col, item)
-
     def populate_table(self):
         # Populate table with formatted data from d_list
         for row, d in enumerate(self.d_list):
@@ -779,6 +778,228 @@ class MainWindow(QMainWindow):
                 cell_value = self.format_cell_data(key, getattr(d, key, ''))
                 item = QTableWidgetItem(cell_value)
                 widgets.tableWidget.setItem(row, col, item)
+
+    # region downloads functions
+
+    def check_internet(self):
+        """Check if the system has internet connectivity."""
+
+        # initializing URL
+        url = "https://www.google.com"
+        timeout = 10
+        try:
+            # requesting URL
+            request = requests.get(url,
+                                timeout=timeout)
+            log("Internet is on")
+            return True
+        # catching exception
+        except (requests.ConnectionError,
+                requests.Timeout) as exception:
+            log("Internet is off")
+        
+
+    def resume_btn(self):
+        # Ensure a row is selected
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        # Now, self.selected_d should be properly set by the property
+        if self.selected_d is None:
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Check if there is internet connectivity
+        if not self.check_internet():
+            QMessageBox.warning(self, 'No Internet', "Please check your internet connection and try again.", QMessageBox.Ok)
+            return
+
+        # If everything is good, resume the download
+        try:
+            self.start_download(self.selected_d, silent=True)
+        except Exception as e:
+            QMessageBox.critical(self, 'Error', f"An error occurred while resuming the download: {e}", QMessageBox.Ok)
+
+
+        
+    def cancel_btn(self):
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        if self.selected_row_num is None:
+            return
+
+        d = self.selected_d
+        if d.status == config.Status.completed:
+            return
+
+        d.status = config.Status.cancelled
+
+        if d.status == config.Status.pending:
+            self.pending.pop(d.id)
+
+    def refresh_link_btn(self):
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        if self.selected_row_num is None:
+            return
+
+        d = self.selected_d
+        config.download_folder = d.folder
+
+        widgets.home_link_lineEdit.setText(d.url)
+        self.url_text_change()
+
+        widgets.home_folder_path_lineEdit.setText(config.download_folder)
+        widgets.stackedWidget.setCurrentWidget(widgets.home)
+
+    def download_window(self):
+        if self.selected_d:
+            if config.auto_close_download_window and self.selected_d.status != config.Status.downloading:
+                QMessageBox.information(self, 'Error', "To open download window offline \n go to setting tab, then uncheck auto close download window", QMessageBox.Ok)
+                return
+                
+            else:
+                d = self.selected_d
+                if d.id not in self.download_windows:
+                    self.download_windows[d.id] = DownloadWindow(d=d)
+                else:
+                    self.download_windows[d.id].focus()
+
+    def stop_all_downloads(self):
+        # change status of pending items to cancelled
+        for d in self.d_list:
+            d.status = config.Status.cancelled
+
+        self.pending.clear()
+
+    def resume_all_downloads(self):
+        # change status of all non completed items to pending
+        for d in self.d_list:
+            if d.status == config.Status.cancelled:
+                self.start_download(d, silent=True)
+
+    
+    def delete_btn(self):
+        selected_items = widgets.tableWidget.selectedItems()
+        if not selected_items:
+            return
+
+        selected_row = widgets.tableWidget.currentRow()
+        
+
+        # Assuming self.d_list is your list of download items
+        if self.active_downloads:
+            msg = "Can't delete items while downloading. Stop or cancel all downloads first!"
+            QMessageBox.warning(self, 'Warning', msg, QMessageBox.Ok)
+            return
+
+        msg = f"Warning!!!\nAre you sure you want to delete {self.d_list[selected_row].name}?"
+        reply = QMessageBox.question(self, 'Delete file?', msg, QMessageBox.Yes | QMessageBox.No)
+
+        if reply != QMessageBox.Yes:
+            return
+
+        try:
+            # Remove the item from the list and update the table
+            d = self.d_list.pop(selected_row)
+
+            # Update the remaining items' IDs
+            for i, item in enumerate(self.d_list):
+                item.id = i
+
+            # Log the deleted item (for debugging)
+            log(f"D:  {d}")
+
+            # Remove the row from the table
+            widgets.tableWidget.removeRow(selected_row)
+
+            # Delete temporary files
+            # d.delete_tempfiles()
+
+            notification = f"File: {d.name} has been deleted."
+            notify(notification, title=f'{config.APP_NAME} - Download completed')
+            d.delete_tempfiles()
+            
+
+        except Exception as e:
+            log(f"Error deleting item: {e}")
+
+    def delete_all_downloads(self):
+        # Check if there are any active downloads
+        if self.active_downloads:
+            msg = "Can't delete items while downloading.\nStop or cancel all downloads first!"
+            QMessageBox.warning(self, 'Warning', msg, QMessageBox.Ok)
+            return
+
+        # Confirmation dialog - user has to write "delete" to proceed
+        msg = 'Delete all items and their progress temp files\n' \
+            'Type the word "delete" and hit OK to proceed.'
+        response, ok = QInputDialog.getText(self, 'Warning!!', msg)
+
+        if not ok or response != 'delete':
+            return
+
+        # Log the deletion process
+        log('Start deleting all download items')
+
+        # Stop all downloads
+        self.stop_all_downloads()
+
+        # Reset selected item number
+        self.selected_row_num = None
+
+        # Get the number of downloads
+        n = len(self.d_list)
+
+        # Delete temp files for each download in a separate thread
+        for i in range(n):
+            d = self.d_list[i]
+            Thread(target=d.delete_tempfiles, daemon=True).start()
+
+        # Clear the download list
+        self.d_list.clear()
+
+        # Optionally, update the UI (e.g., clearing table rows)
+        widgets.tableWidget.setRowCount(0)
+
+
+    def check_scheduled(self):
+        t = time.localtime()
+        c_t = (t.tm_hour, t.tm_min)
+        for d in self.d_list:
+            if d.sched and d.sched[0] <= c_t[0] and d.sched[1] <= c_t[1]:
+                self.start_download(d, silent=True)  # send for download
+                d.sched = None  # cancel schedule time
+
+    def schedule_all(self):
+        try:
+            response = ask_for_sched_time('Download scheduled for...')
+            print(response)
+
+            if response:
+                for d in self.d_list:
+                    if d.status in (config.Status.pending, config.Status.cancelled):
+                        d.sched = response
+                        print(f'Scheduled {d.name} for {response[0]}:{response[1]}')
+        except Exception as e:
+            print(f'Error in scheduling: {e}')
 
 
 
@@ -907,6 +1128,8 @@ class DownloadWindow(QWidget):
         # Status update
         self.status_label.setText(f"{self.d.status}  {self.d.i}")
 
+    
+
     def cancel(self):
         if self.d.status not in (config.Status.error, config.Status.completed):
             self.d.status = config.Status.cancelled
@@ -915,6 +1138,15 @@ class DownloadWindow(QWidget):
     def hide(self):
         self.close()
 
+    def focus(self):
+        self.show()  # Ensure the window is shown
+        self.setWindowState(self.windowState() & ~Qt.WindowMinimized | Qt.WindowActive)
+        self.raise_()  # Bring the window to the front
+        self.activateWindow()  # Give focus to the window
+        self.update_gui()
+
+
+
     def close(self):
         self.timer.stop()
         super().close()
@@ -922,7 +1154,68 @@ class DownloadWindow(QWidget):
 
 
 
+class ScheduleDialog(QDialog):
+    def __init__(self, msg='', parent=None):
+        super().__init__(parent)
+        self.setWindowTitle('Scheduling Download Item')
 
+        # Create layout
+        layout = QVBoxLayout(self)
+
+        # Message label
+        self.message_label = QLabel(msg)
+        layout.addWidget(self.message_label)
+
+        # Hour selection
+        self.hours_combo = QComboBox(self)
+        self.hours_combo.addItems([str(i) for i in range(1, 13)])  # 1 to 12
+        layout.addWidget(self.hours_combo)
+
+        # Minute selection
+        self.minutes_combo = QComboBox(self)
+        self.minutes_combo.addItems([str(i) for i in range(0, 60)])  # 0 to 59
+        layout.addWidget(self.minutes_combo)
+
+        # AM/PM selection
+        self.am_pm_combo = QComboBox(self)
+        self.am_pm_combo.addItems(['AM', 'PM'])
+        layout.addWidget(self.am_pm_combo)
+
+        # Ok and Cancel buttons
+        self.ok_button = QPushButton('Ok', self)
+        self.ok_button.clicked.connect(self.accept)
+        layout.addWidget(self.ok_button)
+
+        self.cancel_button = QPushButton('Cancel', self)
+        self.cancel_button.clicked.connect(self.reject)
+        layout.addWidget(self.cancel_button)
+
+        # Set default values
+        self.hours_combo.setCurrentIndex(0)  # Default to 1
+        self.minutes_combo.setCurrentIndex(0)  # Default to 0
+        self.am_pm_combo.setCurrentIndex(0)  # Default to AM
+
+    @property
+    def response(self):
+        # Return the selected hours and minutes as a tuple
+        h = int(self.hours_combo.currentText())
+        m = int(self.minutes_combo.currentText())
+        am_pm = self.am_pm_combo.currentText()
+
+        if am_pm == 'PM' and h != 12:
+            h += 12
+        elif am_pm == 'AM' and h == 12:
+            h = 0
+
+        return h, m
+
+def ask_for_sched_time(msg=''):
+    dialog = ScheduleDialog(msg)
+    result = dialog.exec()  # Show the dialog as a modal
+
+    if result == QDialog.Accepted:
+        return dialog.response  # Return the (hours, minutes) tuple
+    return None
 
 
 # Define clipboard_listener and singleApp functions here

@@ -1354,12 +1354,12 @@ class Ui_MainWindow(object):
         icon11.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
         self.refresh.setIcon(icon11)
         ###################################################################################################
-        self.folder = QPushButton("Folder", self.frame1)
-        self.folder.setMinimumSize(QSize(150, 50))
-        self.folder.setStyleSheet(u"background-color: rgb(52, 59, 72);")
-        icon12 = QIcon()
-        icon12.addFile(u":/icons/images/icons/cil-folder-open.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.folder.setIcon(icon12)
+        # self.folder = QPushButton("Folder", self.frame1)
+        # self.folder.setMinimumSize(QSize(150, 50))
+        # self.folder.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        # icon12 = QIcon()
+        # icon12.addFile(u":/icons/images/icons/cil-folder-open.png", QSize(), QIcon.Normal, QIcon.Off)
+        # self.folder.setIcon(icon12)
         ###################################################################################################
         self.d_window = QPushButton("D. Window", self.frame1)
         self.d_window.setMinimumSize(QSize(150, 50))
@@ -1373,7 +1373,7 @@ class Ui_MainWindow(object):
         self.row1Layout.addWidget(self.resume)
         self.row1Layout.addWidget(self.cancel)
         self.row1Layout.addWidget(self.refresh)
-        self.row1Layout.addWidget(self.folder)
+        #self.row1Layout.addWidget(self.folder)
         self.row1Layout.addWidget(self.d_window)
 
         # Second row (Horizontal layout)
@@ -1454,18 +1454,6 @@ class Ui_MainWindow(object):
         # Enable row selection
         self.tableWidget.setSelectionBehavior(QTableView.SelectRows)
         self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
-
-
-        # Example row setup with automatic incremental ID for the first column
-        # for row in range(90):
-        #         # Set incremental ID in the first column
-        #         id_item = QTableWidgetItem(str(row + 1))  # Incremental ID starting from 1
-        #         self.tableWidget.setItem(row, 0, id_item)
-                
-        #         # Fill the remaining columns with sample data (can be dynamically updated later)
-        #         for col in range(1, 8):  # Starting from column 1, as column 0 is for ID
-        #                 item = QTableWidgetItem(f"Data {row+1}-{col+1}")
-        #                 self.tableWidget.setItem(row, col, item)
 
         # Set the table widget's size policy to expand
         self.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
