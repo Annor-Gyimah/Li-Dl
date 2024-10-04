@@ -38,9 +38,10 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 widgets = None
 
 from modules.utils import clipboard_read, clipboard_write, size_format, validate_file_name, log, log_recorder, delete_file, time_format, truncate
-from modules import config, brain
+from modules import config, brain, setting
 
-from PySide6.QtWidgets import QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame
+from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
+                               QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem)
 from PySide6.QtCore import QTimer, Qt, QSize
 class MainWindow(QMainWindow):
     def __init__(self, d_list):
@@ -67,7 +68,7 @@ class MainWindow(QMainWindow):
         self.disabled = True  # for download button
 
         # download list
-        self.d_headers = ['i', 'name', 'progress', 'speed', 'time_left', 'downloaded', 'total_size', 'status']
+        self.d_headers = ['id', 'name', 'progress', 'speed', 'time_left', 'downloaded', 'total_size', 'status', 'i']
         self.d_list = d_list  # list of DownloadItem() objects
         self.selected_row_num = None
         self._selected_d = None
@@ -189,6 +190,18 @@ class MainWindow(QMainWindow):
         log('operating system:', config.operating_system_info)
         log('current working directory:', config.current_directory)
         os.chdir(config.current_directory)
+
+        # load stored setting from disk
+        setting.load_setting()
+        self.d_list = setting.load_d_list()
+
+        
+
+
+        
+
+        
+        
 
 
 
@@ -468,6 +481,17 @@ class MainWindow(QMainWindow):
             else:
                 widgets.totalSpeedValue.setText((f'⬇ 0 bytes'))
 
+            # Fill table with download data
+            self.populate_table()
+
+            # Save setting to disk
+            setting.save_setting()
+            setting.save_d_list(self.d_list)
+
+            
+            
+
+
 
             
                 
@@ -546,11 +570,12 @@ class MainWindow(QMainWindow):
         # check if file with the same name exist in destination
         if os.path.isfile(d.target_file):
             #  show dialogue
-            msg = QMessageBox.question(self, 'File with the same name already exist in ' + d.folder + '\n Do you want to overwrite file?', "File Overwrite", QMessageBox.Yes | QMessageBox.No)
+            msg = QMessageBox.question(self, f"File Overwrite", f"File with the same name already exist in {d.folder}. \n Do you want to overwrite file?", QMessageBox.Yes | QMessageBox.No)
 
-            msg = 'File with the same name already exist in ' + d.folder + '\n Do you want to overwrite file?'
+            # msg.setInformationText(f"")
+            #msg = 'File with the same name already exist in ' + d.folder + '\n Do you want to overwrite file?'
 
-            if msg != 'Yes':
+            if msg != QMessageBox.Yes:
                 log('Download cancelled by user')
                 return 'cancelled'
             else:
@@ -733,7 +758,28 @@ class MainWindow(QMainWindow):
 
         return v
     
-    
+    # def populate_table(self):
+    #     # Populate table with formatted data from d_list
+    #     for row, d in enumerate(self.d_list):
+    #         log(f"My Id{d.id}")
+    #         for col, key in enumerate(self.d_headers):
+    #             cell_value = self.format_cell_data(key, getattr(d, key, ''))
+    #             item = QTableWidgetItem(cell_value)
+    #             widgets.tableWidget.setItem(row, col, item)
+
+    def populate_table(self):
+        # Populate table with formatted data from d_list
+        for row, d in enumerate(self.d_list):
+            # Set the ID column (use row + 1 or d.id if available)
+            id_item = QTableWidgetItem(str(row + 1))  # Row number starts from 1
+            widgets.tableWidget.setItem(row, 0, id_item)  # First column is ID
+            
+            # Fill the remaining columns based on the d_headers
+            for col, key in enumerate(self.d_headers[1:], 1):  # Skip 'id', already handled
+                cell_value = self.format_cell_data(key, getattr(d, key, ''))
+                item = QTableWidgetItem(cell_value)
+                widgets.tableWidget.setItem(row, col, item)
+
 
 
 
@@ -924,6 +970,7 @@ if __name__ == "__main__":
     # Start logging
     Thread(target=log_recorder, daemon=True).start()
 
-
+    
+    
     # Start the event loop
     sys.exit(app.exec())
