@@ -1445,23 +1445,27 @@ class Ui_MainWindow(object):
         self.tableWidget.setObjectName(u"tableWidget")
 
         # Set 8 columns and 3 rows
-        self.tableWidget.setColumnCount(8)
+        self.tableWidget.setColumnCount(9)
         self.tableWidget.setRowCount(90)
 
         # Set the horizontal header labels
-        headers = ["ID", "Name", "Progress", "Speed", "Left", "Done", "Size", "Status"]
+        headers = ["ID", "Name", "Progress", "Speed", "Left", "Done", "Size", "Status", "I"]
         self.tableWidget.setHorizontalHeaderLabels(headers)
+        # Enable row selection
+        self.tableWidget.setSelectionBehavior(QTableView.SelectRows)
+        self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
+
 
         # Example row setup with automatic incremental ID for the first column
-        for row in range(90):
-                # Set incremental ID in the first column
-                id_item = QTableWidgetItem(str(row + 1))  # Incremental ID starting from 1
-                self.tableWidget.setItem(row, 0, id_item)
+        # for row in range(90):
+        #         # Set incremental ID in the first column
+        #         id_item = QTableWidgetItem(str(row + 1))  # Incremental ID starting from 1
+        #         self.tableWidget.setItem(row, 0, id_item)
                 
-                # Fill the remaining columns with sample data (can be dynamically updated later)
-                for col in range(1, 8):  # Starting from column 1, as column 0 is for ID
-                        item = QTableWidgetItem(f"Data {row+1}-{col+1}")
-                        self.tableWidget.setItem(row, col, item)
+        #         # Fill the remaining columns with sample data (can be dynamically updated later)
+        #         for col in range(1, 8):  # Starting from column 1, as column 0 is for ID
+        #                 item = QTableWidgetItem(f"Data {row+1}-{col+1}")
+        #                 self.tableWidget.setItem(row, col, item)
 
         # Set the table widget's size policy to expand
         self.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
