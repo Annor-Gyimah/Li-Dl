@@ -38,13 +38,19 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 widgets = None
 
 from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, 
-                           log, log_recorder, delete_file, time_format, truncate, notify)
+                           log, log_recorder, delete_file, time_format, truncate, notify, open_file, run_command, handle_exceptions)
 from modules import config, brain, setting
+
+
+
+from PySide6.QtCore import QTimer, Qt, QSize, QPoint
+from PySide6.QtGui import QAction, QIcon
 
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
-                               QDialog, QComboBox, QInputDialog)
-from PySide6.QtCore import QTimer, Qt, QSize
+                               QDialog, QComboBox, QInputDialog, QMenu)
+
+
 class MainWindow(QMainWindow):
     def __init__(self, d_list):
         QMainWindow.__init__(self)
@@ -191,6 +197,10 @@ class MainWindow(QMainWindow):
         widgets.schedule_all.clicked.connect(self.schedule_all)
         widgets.stop_all.clicked.connect(self.stop_all_downloads)
         widgets.delete_all.clicked.connect(self.delete_all_downloads)
+        #widgets.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
+        # Enable custom context menu on the table widget
+        widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
 
         
 
@@ -1001,7 +1011,122 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print(f'Error in scheduling: {e}')
 
+    
+    
 
+    def show_table_context_menu(self, pos: QPoint):
+        # Get the position of the click (row)
+        index = widgets.tableWidget.indexAt(pos)
+        if not index.isValid():
+            return  # No row selected
+
+        # Create the context menu
+        context_menu = QMenu(widgets.tableWidget)
+
+        # Create actions
+        action_open_file = QAction(QIcon(":/icons/images/icons/cil-file.png"), 'Open File', context_menu)
+        action_open_location = QAction(QIcon(":/icons/images/icons/cil-folder.png"), 'Open File Location', context_menu)
+        action_watch_downloading = QAction('▶ Watch while downloading', context_menu)
+        action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-calendar-check.png"), '⏳ Schedule download', context_menu)
+        action_cancel_schedule = QAction('⏳ Cancel schedule!', context_menu)
+
+
+        # Add actions to the context menu
+        context_menu.addAction(action_open_file)
+        context_menu.addAction(action_open_location)
+        context_menu.addAction(action_watch_downloading)
+        context_menu.addAction(action_schedule_download)
+        context_menu.addAction(action_cancel_schedule)
+
+        # Connect actions to methods
+        action_open_file.triggered.connect(self.open_item)
+        action_open_location.triggered.connect(self.open_file_location)
+        action_watch_downloading.triggered.connect(self.open_item)
+        action_schedule_download.triggered.connect(self.schedule_download)
+        action_cancel_schedule.triggered.connect(self.cancel_schedule)
+        # action_view_details.triggered.connect(self.view_details)
+
+        # Show the context menu at the cursor position
+        context_menu.exec(widgets.tableWidget.viewport().mapToGlobal(pos))
+
+    def open_item(self):
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        if self.selected_d.status == config.Status.completed:
+            open_file(self.selected_d.target_file)
+            log("Opening file.....")
+        else:
+            open_file(self.selected_d.temp_file)
+            log("Failed openeing file")
+
+
+    def open_file_location(self):
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        d = self.selected_d
+
+        try:
+            folder = os.path.abspath(d.folder)
+            log(f'This is the folder {folder}')
+            file = d.target_file
+
+            if config.operating_system == 'Windows':
+                if not os.path.isfile(file):
+                    os.startfile(folder)
+                else:
+                    cmd = f'explorer /select, "{file}"'
+                    run_command(cmd)
+            else:
+                # linux
+                cmd = f'xdg-open "folder"'
+                # os.system(cmd)
+                run_command(cmd)
+        except Exception as e:
+            handle_exceptions(e)
+
+
+    def schedule_download(self):
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        response = ask_for_sched_time(msg=self.selected_d.name)
+        if response:
+            self.selected_d.sched = response
+    
+    def cancel_schedule(self):
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            return
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+        
+        self.selected_d.sched = None
+        
+
+    def view_details(self):
+        selected_row = widgets.tableWidget.currentRow()
+        if selected_row != -1:
+            item_name = widgets.tableWidget.item(selected_row, 1).text()  # Assuming 'Name' is in column 1
+            print(f"Viewing details for: {item_name}")
 
 
 class DownloadWindow(QWidget):
