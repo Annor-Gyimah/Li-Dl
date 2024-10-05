@@ -21,47 +21,6 @@
 >> list saved
 >> setting saved
 >> list saved
->> This is the folder /home/gyimah/Downloads
->> running command: xdg-open "folder"
->> gio: file:///home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/modules/folder: Error when getting information for file “/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/modules/folder”: No such file or directory
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
->> setting saved
->> list saved
 >> setting saved
 >> list saved
 >> setting saved

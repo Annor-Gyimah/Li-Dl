@@ -1456,9 +1456,7 @@ class Ui_MainWindow(object):
         self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
 
         # # Set the table widget's size policy to expand
-        # self.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        # self.tableWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
-        
+        self.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
        
 
         
@@ -1471,6 +1469,8 @@ class Ui_MainWindow(object):
 
         # Vertical header can be hidden (optional)
         self.tableWidget.verticalHeader().setVisible(False)
+
+        
 
         # Add the table widget to the frame's layout
         self.horizontalLayout_12.addWidget(self.tableWidget)

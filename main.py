@@ -201,7 +201,7 @@ class MainWindow(QMainWindow):
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
-
+        
         
 
         widgets.version.setText(f"{config.APP_VERSION}")
@@ -788,6 +788,11 @@ class MainWindow(QMainWindow):
                 cell_value = self.format_cell_data(key, getattr(d, key, ''))
                 item = QTableWidgetItem(cell_value)
                 widgets.tableWidget.setItem(row, col, item)
+        # Enable manual resizing by the user
+        # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        # widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
+        # widgets.tableWidget.horizontalHeader().setDefaultSectionSize(150)
+
 
     # region downloads functions
 
@@ -1026,9 +1031,9 @@ class MainWindow(QMainWindow):
         # Create actions
         action_open_file = QAction(QIcon(":/icons/images/icons/cil-file.png"), 'Open File', context_menu)
         action_open_location = QAction(QIcon(":/icons/images/icons/cil-folder.png"), 'Open File Location', context_menu)
-        action_watch_downloading = QAction('▶ Watch while downloading', context_menu)
-        action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-calendar-check.png"), '⏳ Schedule download', context_menu)
-        action_cancel_schedule = QAction('⏳ Cancel schedule!', context_menu)
+        action_watch_downloading = QAction(QIcon(":/icons/images/icons/cil-media-play.png"), 'Watch while downloading', context_menu)
+        action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-clock.png"), 'Schedule download', context_menu)
+        action_cancel_schedule = QAction(QIcon(":/icons/images/icons/cil-x.png"), ' Cancel schedule!', context_menu)
 
 
         # Add actions to the context menu
