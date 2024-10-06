@@ -260,5 +260,11 @@
     <file>images/icons/icon_minimize.png</file>
     <file>images/icons/icon_restore.png</file>
     <file>images/icons/icon_settings.png</file>
+    <file>images/icons/cil-delete.png</file>
+    <file>images/icons/cil-schedule.png</file>
+    <file>images/icons/cil-cancel.png</file>
+    <file>images/icons/cil-d_window.png</file>
+    <file>images/icons/cil-refresh.png</file>
+    <file>images/icons/cil-delete_all.png</file>
   </qresource>
 </RCC>

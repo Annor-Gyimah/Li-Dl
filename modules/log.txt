@@ -83,3 +83,489 @@
 >> list saved
 >> setting saved
 >> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> Internet is on
+>> donwload item 4 already in list, check resume availability
+>> resuming
+>> resume is possible
+>> ----------------------------------------------------------------------------------------------------
+>> start downloading file: "Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv", size: 134.2 MB, to: /home/gyimah/Downloads
+>> setting saved
+>> list saved
+>> >> 'worker' 0 'start seg:' '10' 'range:' '5242880-5767167' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 10 'resuming, new range:' '5455278-5767167' 'current file size:' 212398
+>> >> 'worker' 1 'start seg:' '11' 'range:' '5767168-6291455' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 11 'resuming, new range:' '6208942-6291455' 'current file size:' 441774
+>> >> 'worker' 2 'start seg:' '12' 'range:' '6291456-6815743' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 12 'resuming, new range:' '6454702-6815743' 'current file size:' 163246
+>> >> 'worker' 3 'start seg:' '13' 'range:' '6815744-7340031' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 13 'resuming, new range:' '6929838-7340031' 'current file size:' 114094
+>> >> 'worker' 4 'start seg:' '14' 'range:' '7340032-7864319' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 14 'resuming, new range:' '7470510-7864319' 'current file size:' 130478
+>> >> 'worker' 5 'start seg:' '15' 'range:' '7864320-8388607' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 15 'resuming, new range:' '7945646-8388607' 'current file size:' 81326
+>> >> 'worker' 6 'start seg:' '16' 'range:' '8388608-8912895' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 16 'resuming, new range:' '8420782-8912895' 'current file size:' 32174
+>> >> 'worker' 7 'start seg:' '17' 'range:' '8912896-9437183' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 17 'resuming, new range:' '8961454-9437183' 'current file size:' 48558
+>> >> 'worker' 8 'start seg:' '18' 'range:' '9437184-9961471' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 18 'resuming, new range:' '9485742-9961471' 'current file size:' 48558
+>> >> 'worker' 9 'start seg:' '19' 'range:' '9961472-10485759' 'size:' 524288 'SL=' 0
+>> >> 'Seg' 19 'resuming, new range:' '10059181-10485759' 'current file size:' 97709
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> >> 'downloaded segment:' '11'
+>> >> 'worker' 1 'start seg:' '20' 'range:' '10485760-11010047' 'size:' 524288 'SL=' 0
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> >> 'downloaded segment:' '17'
+>> >> 'worker' 7 'start seg:' '21' 'range:' '11010048-11534335' 'size:' 524288 'SL=' 0
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> >> 'downloaded segment:' '10'
+>> >> completed segment:  10
+>> >> completed segment:  11
+>> >> 'worker' 0 'start seg:' '22' 'range:' '11534336-12058623' 'size:' 524288 'SL=' 0
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> worker 6 terminated by user
+>> >> 'worker' 6 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/16' 'downloaded' 342876 'target size:' 524288 'remaining:' 181412
+>> worker 0 terminated by user
+>> >> 'worker' 0 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/22' 'downloaded' 64940 'target size:' 524288 'remaining:' 459348
+>> thread_manager 4: quitting
+>> brain 4: Cancelled download
+>> brain 4: quitting
+>> worker 1 terminated by user
+>> >> 'worker' 1 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/20' 'downloaded' 179628 'target size:' 524288 'remaining:' 344660
+>> file_manager 4: quitting
+>> worker 2 terminated by user
+>> >> 'worker' 2 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/12' 'downloaded' 408412 'target size:' 524288 'remaining:' 115876
+>> worker 7 terminated by user
+>> >> 'worker' 7 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/21' 'downloaded' 114092 'target size:' 524288 'remaining:' 410196
+>> worker 4 terminated by user
+>> >> 'worker' 4 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/14' 'downloaded' 441180 'target size:' 524288 'remaining:' 83108
+>> worker 8 terminated by user
+>> >> 'worker' 8 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/18' 'downloaded' 375644 'target size:' 524288 'remaining:' 148644
+>> worker 3 terminated by user
+>> >> 'worker' 3 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/13' 'downloaded' 310108 'target size:' 524288 'remaining:' 214180
+>> worker 5 terminated by user
+>> >> 'worker' 5 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/15' 'downloaded' 441180 'target size:' 524288 'remaining:' 83108
+>> worker 9 terminated by user
+>> >> 'worker' 9 'did not complete' '/home/gyimah/Downloads/_temp_Tensei%20shitara%20Slime%20Datta%20Ken%20S3%20-%2014.%5BSS%5D%5B720%5D%5Bx265%5D%5BAioFilm.com%5D.mkv_parts_/19' 'downloaded' 392025 'target size:' 524288 'remaining:' 132263
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
+>> setting saved
+>> list saved
