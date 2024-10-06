@@ -218,8 +218,41 @@ class MainWindow(QMainWindow):
         setting.load_setting()
         self.d_list = setting.load_d_list()
 
+        # Add this line to set the checkbox state based on the loaded setting
+        widgets.monitor_clipboard.setChecked(config.monitor_clipboard)
+        widgets.checkBox2.setChecked(config.show_download_window)
+        widgets.checkBox3.setChecked(config.auto_close_download_window)
+        widgets.checkBox4.setChecked(config.show_thumbnail)
+        
+        widgets.combo_setting.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
+        seg_size = config.segment_size // 1024  # kb
+        if seg_size >= 1024:
+            seg_size = seg_size // 1024
+            seg_size_unit = 'MB'
+        else:
+            seg_size_unit = 'KB'
+
+        widgets.lineEdit_segment.setText(str(seg_size))
+        widgets.segment_combo_setting.setCurrentText(seg_size_unit)
+        # Connect the stateChanged signal of the checkbox to the update function
+
+        
+        widgets.lineEdit_network.setText(str(config.speed_limit) if config.speed_limit > 0 else "")
+        widgets.checkBox_network.setChecked(True if config.speed_limit > 0 else False)
+        widgets.combo_max_downloads.setCurrentText(str(config.max_concurrent_downloads))
+        widgets.combo_max_connections.setCurrentText(str(config.max_connections))
+        widgets.checkBox_proxy.setChecked(True if config.enable_proxy else False)
+        widgets.lineEdit_proxy.setText(config.proxy if config.enable_proxy == True else "")
+        widgets.combo_proxy_type.setCurrentText(config.proxy_type)
+        #widgets.label_proxy_info.setText(config.proxy == '' if config.enable_proxy)
         
 
+        #widgets.checkBox_network.stateChanged.connect(self.speed_limit_set)
+     
+        
+            
+     
+        
 
         
 
@@ -321,6 +354,8 @@ class MainWindow(QMainWindow):
             
             elif k == "download":
                 self.start_download(*v)
+            elif k == "monitor":
+                widgets.monitor_clipboard.setChecked(v)
 
                 
 
@@ -513,8 +548,16 @@ class MainWindow(QMainWindow):
 
             self.check_scheduled()
 
-            
-            
+            self.settings_folder()
+            self.monitor_clip()
+            self.show_download_win()
+            self.auto_close_win()
+            self.show_thumb_nail()
+            self.segment_size_set()
+            self.speed_limit_set()
+            self.max_current_dl()
+            self.max_connection()
+            self.proxy_settings()
             # run download windows if existed
             # keys = list(self.download_windows.keys())
             # for i in keys:
@@ -793,6 +836,7 @@ class MainWindow(QMainWindow):
         # widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
         # widgets.tableWidget.horizontalHeader().setDefaultSectionSize(150)
 
+    # endregion
 
     # region downloads functions
 
@@ -1126,13 +1170,171 @@ class MainWindow(QMainWindow):
         
         self.selected_d.sched = None
         
+    # endregion
 
-    def view_details(self):
-        selected_row = widgets.tableWidget.currentRow()
-        if selected_row != -1:
-            item_name = widgets.tableWidget.item(selected_row, 1).text()  # Assuming 'Name' is in column 1
-            print(f"Viewing details for: {item_name}")
+    # region settings
+    def settings_folder(self):
+        # Get the currently selected value in the combo box
+        selected = widgets.combo_setting.currentText()
+        
+        if selected == "Local":
+            # Choose local folder as the settings folder
+            config.sett_folder = config.current_directory
 
+            # Remove settings.cfg from global folder
+            delete_file(os.path.join(config.global_sett_folder, 'setting.cfg'))
+        else:
+            # Choose global folder as the settings folder
+            config.sett_folder = config.global_sett_folder
+
+            # Remove settings.cfg from local folder
+            delete_file(os.path.join(config.current_directory, 'setting.cfg'))
+
+            # Check if the global settings folder exists
+            if not os.path.isdir(config.global_sett_folder):
+                try:
+                    # Display a confirmation dialog using QMessageBox
+                    choice = QMessageBox.question(self, 'Create Folder', 
+                                                f'Folder: {config.global_sett_folder}\nwill be created',
+                                                QMessageBox.Ok | QMessageBox.Cancel)
+
+                    # If the user cancels, raise an exception
+                    if choice != QMessageBox.Cancel:
+                        # Try to create the folder
+                        os.mkdir(config.global_sett_folder)
+                    else:
+                        raise Exception('Operation Cancelled by User')
+
+                except Exception as e:
+                    # Log the error
+                    log('global setting folder error:', e)
+
+                    # If there is an error, use the current directory as the fallback
+                    config.sett_folder = config.current_directory
+
+                    # Show a popup with the error and inform the user about the fallback
+                    QMessageBox.critical(self, 'Error',
+                                        f'Error while creating global settings folder\n'
+                                        f'"{config.global_sett_folder}"\n'
+                                        f'{str(e)}\n'
+                                        f'Local folder will be used instead')
+
+                    # Update the combo box to reflect the local folder choice
+                    widgets.combo_setting.setCurrentText('Local')
+
+        # Save the current setting to a configuration file
+        #self.save_settings()
+
+        # Update the combo box to reflect the current setting folder
+        try:
+            widgets.combo_setting.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
+        except:
+            pass
+    
+
+    def monitor_clip(self):
+        checked = widgets.monitor_clipboard.isChecked()
+        config.monitor_clipboard = checked
+    
+    def show_download_win(self):
+        checked = widgets.checkBox2.isChecked()
+        config.show_download_window = checked
+
+    def auto_close_win(self):
+        checked = widgets.checkBox3.isChecked()
+        config.auto_close_download_window = checked
+    
+    def show_thumb_nail(self):
+        checked = widgets.checkBox4.isChecked()
+        config.show_thumbnail = checked
+
+    def segment_size_set(self):
+        selected_seg_unit = widgets.segment_combo_setting.currentText()
+        selected_seg_size = widgets.lineEdit_segment.text()
+        try:
+            seg_size_unit = selected_seg_unit
+            if seg_size_unit == 'KB':
+                seg_size = int(selected_seg_size) * 1024
+            else:
+                seg_size = int(selected_seg_size) * 1024 * 1024
+            config.segment_size = seg_size
+            self.d.segment_size = seg_size
+        except:
+            pass
+
+    def speed_limit_set(self):
+        # Check the state of the checkbox and enable/disable the line edit accordingly
+        
+        if widgets.checkBox_network.isChecked():
+            widgets.lineEdit_network.setEnabled(True)  # Enable editing
+
+            sl = widgets.lineEdit_network.text().replace(' ', '')  # if values['speed_limit'] else 0
+
+                    # validate speed limit,  expecting formats: number + (k, kb, m, mb) final value should be in kb
+                    # pattern \d*[mk]b?
+
+            match = re.fullmatch(r'\d+([mk]b?)?', sl, re.I)
+            if match:
+                # print(match.group())
+
+                digits = re.match(r"[0-9]+", sl, re.I).group()
+                digits = int(digits)
+
+                letters = re.search(r"[a-z]+", sl, re.I)
+                letters = letters.group().lower() if letters else None
+
+                # print(digits, letters)
+
+                if letters in ('k', 'kb', None):
+                    sl = digits
+                elif letters in ('m', 'mb'):
+                    sl = digits * 1024
+            else:
+                sl = 0
+
+            config.speed_limit = sl
+            
+            
+        else:
+            config.speed_limit = 0
+            widgets.lineEdit_network.setEnabled(False)  # Disable editing
+
+    def max_current_dl(self):
+        config.max_concurrent_downloads = int(widgets.combo_max_downloads.currentText())
+
+    def max_connection(self):
+        config.max_connections = int(widgets.combo_max_connections.currentText())
+
+    def proxy_settings(self):
+        if widgets.checkBox_proxy.isChecked():
+            widgets.lineEdit_proxy.setEnabled(True)
+            widgets.combo_proxy_type.setEnabled(True)
+            config.enable_proxy = True
+
+            
+            raw_proxy = widgets.lineEdit_proxy.text()
+            config.raw_proxy = raw_proxy
+
+            # proxy type
+            config.proxy_type = widgets.combo_proxy_type.currentText()
+
+            if raw_proxy and isinstance(raw_proxy, str):
+                raw_proxy = raw_proxy.split('://')[-1]
+                proxy = config.proxy_type + '://' + raw_proxy
+
+                config.proxy = proxy
+                widgets.label_proxy_info.setText(config.proxy)
+            
+        
+        else:
+            config.enable_proxy = False
+            config.proxy = ""
+            config.raw_proxy = ""
+            widgets.label_proxy_info.setText(config.proxy)
+            widgets.lineEdit_proxy.setEnabled(False)
+            widgets.combo_proxy_type.setEnabled(False)
+
+    
 
 class DownloadWindow(QWidget):
     def __init__(self, d=None):
