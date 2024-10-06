@@ -1624,7 +1624,7 @@ class Ui_MainWindow(object):
         # Combo box for settings
         self.combo_setting = QComboBox(self.generalSettingsRow)
         self.combo_setting.setObjectName(u"combo_setting")
-        self.combo_setting.addItems(["Option 1", "Option 2", "Option 3"])
+        self.combo_setting.addItems(["Local", "Global"])
 
         # Add to row layout
         self.generalRowLayout.addWidget(self.label_setting)
@@ -1634,12 +1634,15 @@ class Ui_MainWindow(object):
         self.generalLayout.addWidget(self.generalSettingsRow)
 
         # Four Checkboxes for general settings
-        self.checkBox1 = QCheckBox("Monitor Copied Urls", self.generalFrame)
+        self.monitor_clipboard = QCheckBox("Monitor Copied Urls", self.generalFrame)
+        # Set default value (checked or unchecked)
+        # self.monitor_clipboard.setChecked(True)  # This will set it as checked by default
+
         self.checkBox2 = QCheckBox("Show Download Window", self.generalFrame)
         self.checkBox3 = QCheckBox("Auto close DL Window", self.generalFrame)
         self.checkBox4 = QCheckBox("Show Thumbnail", self.generalFrame)
 
-        self.generalLayout.addWidget(self.checkBox1)
+        self.generalLayout.addWidget(self.monitor_clipboard)
         self.generalLayout.addWidget(self.checkBox2)
         self.generalLayout.addWidget(self.checkBox3)
         self.generalLayout.addWidget(self.checkBox4)
@@ -1766,6 +1769,51 @@ class Ui_MainWindow(object):
 
         # Add row to connection layout
         self.connectionLayout.addWidget(self.connectionSettingsRow2)
+
+        # --- Third new row: Proxy Settings ---
+        self.proxySettingsRow = QFrame(self.connectionFrame)
+        self.proxySettingsRow.setObjectName(u"proxySettingsRow")
+        self.proxyRowLayout = QVBoxLayout(self.proxySettingsRow)  # Changed to QVBoxLayout for the new line
+        self.proxyRowLayout.setSpacing(10)
+        self.proxyRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # First row layout for the checkbox, line edit, and combo box
+        self.proxyTopRowLayout = QHBoxLayout()
+        self.proxyTopRowLayout.setSpacing(10)
+        self.proxyTopRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Checkbox for enabling/disabling proxy settings
+        self.checkBox_proxy = QCheckBox("Proxy", self.proxySettingsRow)
+
+        # QLineEdit for Proxy Address Input
+        self.lineEdit_proxy = QLineEdit(self.proxySettingsRow)
+        self.lineEdit_proxy.setPlaceholderText("Enter Proxy IP or Domain")
+        self.lineEdit_proxy.setMinimumSize(QSize(70, 30))
+
+        # Combo box for Proxy Types (HTTP, HTTPS, SOCKS5)
+        self.combo_proxy_type = QComboBox(self.proxySettingsRow)
+        self.combo_proxy_type.addItems(['http', 'https', 'socks4', 'socks5'])
+
+        # Add widgets to the first row layout
+        self.proxyTopRowLayout.addWidget(self.checkBox_proxy)
+        self.proxyTopRowLayout.addWidget(self.lineEdit_proxy)
+        self.proxyTopRowLayout.addWidget(self.combo_proxy_type)
+
+        # Add the first row layout to the main proxy settings layout
+        self.proxyRowLayout.addLayout(self.proxyTopRowLayout)
+
+        # Add a spacer to create separation between the rows
+        self.proxyRowLayout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
+
+        # Label for additional information, added below the combo box
+        self.label_proxy_info = QLabel(self.proxySettingsRow)
+
+        # Add the label to the main layout, after the first row
+        self.proxyRowLayout.addWidget(self.label_proxy_info)
+
+        # Add the entire proxy settings row to the connection layout
+        self.connectionLayout.addWidget(self.proxySettingsRow)
+
 
         # Add the second frame to the right sidebar layout
         self.verticalLayout_7.addWidget(self.connectionFrame)
