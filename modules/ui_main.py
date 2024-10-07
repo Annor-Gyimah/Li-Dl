@@ -292,6 +292,35 @@ class Ui_MainWindow(object):
 "}\n"
 "\n"
 "/* /////////////////////////////////////////////////////////////////////////////////////////////////\n"
+"QMessageBox */\n"
+"QMessageBox {\n"
+"    background-color: rgb(33, 37, 43);\n"  
+"    color: rgb(221, 221, 221);\n"           
+"    border: 1px solid rgb(44, 49, 58);\n"
+"}\n"
+
+"QMessageBox QLabel {\n"
+"    color: rgb(221, 221, 221);\n"            
+"    font: 10pt 'Segoe UI';\n"                
+"}\n"
+
+"QMessageBox QPushButton {\n"
+"    background-color: rgb(40, 44, 52);\n"    
+"    color: rgb(221, 221, 221);\n"            
+"    border: 1px solid rgb(44, 49, 58);\n"    
+"    padding: 5px 15px;\n"                    
+"}\n"
+
+"QMessageBox QPushButton:hover {\n"
+"    background-color: rgb(189, 147, 249);\n" 
+"    color: rgb(255, 255, 255);\n"            
+"}\n"
+
+"QMessageBox QPushButton:pressed {\n"
+"    background-color: rgb(111, 66, 193);\n"  
+"    color: rgb(255, 255, 255);\n"            
+"}\n"
+"/* /////////////////////////////////////////////////////////////////////////////////////////////////\n"
 "PlainTextEdit */\n"
 "QPlainTextEdit {\n"
 "	background-color: rgb(27, 29, 35);\n"
@@ -677,7 +706,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_8.addWidget(self.btn_widgets)
 
         self.btn_new = QPushButton(self.topMenu)
-        self.btn_new.setObjectName(u"btn_settings")
+        self.btn_new.setObjectName(u"btn_logs")
         sizePolicy.setHeightForWidth(self.btn_new.sizePolicy().hasHeightForWidth())
         self.btn_new.setSizePolicy(sizePolicy)
         self.btn_new.setMinimumSize(QSize(0, 45))
@@ -688,29 +717,29 @@ class Ui_MainWindow(object):
 
         self.verticalLayout_8.addWidget(self.btn_new)
 
-        self.btn_save = QPushButton(self.topMenu)
-        self.btn_save.setObjectName(u"btn_save")
-        sizePolicy.setHeightForWidth(self.btn_save.sizePolicy().hasHeightForWidth())
-        self.btn_save.setSizePolicy(sizePolicy)
-        self.btn_save.setMinimumSize(QSize(0, 45))
-        self.btn_save.setFont(font)
-        self.btn_save.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_save.setLayoutDirection(Qt.LeftToRight)
-        self.btn_save.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-save.png)")
+        # self.btn_save = QPushButton(self.topMenu)
+        # self.btn_save.setObjectName(u"btn_save")
+        # sizePolicy.setHeightForWidth(self.btn_save.sizePolicy().hasHeightForWidth())
+        # self.btn_save.setSizePolicy(sizePolicy)
+        # self.btn_save.setMinimumSize(QSize(0, 45))
+        # self.btn_save.setFont(font)
+        # self.btn_save.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.btn_save.setLayoutDirection(Qt.LeftToRight)
+        # self.btn_save.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-save.png)")
 
-        self.verticalLayout_8.addWidget(self.btn_save)
+        # self.verticalLayout_8.addWidget(self.btn_save)
 
-        self.btn_exit = QPushButton(self.topMenu)
-        self.btn_exit.setObjectName(u"btn_exit")
-        sizePolicy.setHeightForWidth(self.btn_exit.sizePolicy().hasHeightForWidth())
-        self.btn_exit.setSizePolicy(sizePolicy)
-        self.btn_exit.setMinimumSize(QSize(0, 45))
-        self.btn_exit.setFont(font)
-        self.btn_exit.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_exit.setLayoutDirection(Qt.LeftToRight)
-        self.btn_exit.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-x.png);")
+        # self.btn_exit = QPushButton(self.topMenu)
+        # self.btn_exit.setObjectName(u"btn_exit")
+        # sizePolicy.setHeightForWidth(self.btn_exit.sizePolicy().hasHeightForWidth())
+        # self.btn_exit.setSizePolicy(sizePolicy)
+        # self.btn_exit.setMinimumSize(QSize(0, 45))
+        # self.btn_exit.setFont(font)
+        # self.btn_exit.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.btn_exit.setLayoutDirection(Qt.LeftToRight)
+        # self.btn_exit.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-x.png);")
 
-        self.verticalLayout_8.addWidget(self.btn_exit)
+        # self.verticalLayout_8.addWidget(self.btn_exit)
 
 
         self.verticalMenuLayout.addWidget(self.topMenu, 0, Qt.AlignTop)

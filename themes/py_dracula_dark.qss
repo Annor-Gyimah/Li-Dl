@@ -266,6 +266,36 @@ QLineEdit:focus {
 }
 
 /* /////////////////////////////////////////////////////////////////////////////////////////////////
+QMessageBox */
+QMessageBox {
+    background-color: rgb(33, 37, 43);    /* Background color for QMessageBox */
+    color: rgb(221, 221, 221);            /* Text color */
+    border: 1px solid rgb(44, 49, 58);    /* Border styling */
+}
+
+QMessageBox QLabel {
+    color: rgb(221, 221, 221);            /* Text color inside QMessageBox */
+    font: 10pt "Segoe UI";                /* Font styling for text */
+}
+
+QMessageBox QPushButton {
+    background-color: rgb(40, 44, 52);    /* Button background color */
+    color: rgb(221, 221, 221);            /* Button text color */
+    border: 1px solid rgb(44, 49, 58);    /* Button border */
+    padding: 5px 15px;                    /* Button padding */
+}
+
+QMessageBox QPushButton:hover {
+    background-color: rgb(189, 147, 249); /* Button hover background color */
+    color: rgb(255, 255, 255);            /* Button hover text color */
+}
+
+QMessageBox QPushButton:pressed {
+    background-color: rgb(111, 66, 193);  /* Button pressed background color */
+    color: rgb(255, 255, 255);            /* Button pressed text color */
+}
+
+/* /////////////////////////////////////////////////////////////////////////////////////////////////
 PlainTextEdit */
 QPlainTextEdit {
 	background-color: rgb(27, 29, 35);
