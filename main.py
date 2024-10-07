@@ -134,7 +134,7 @@ class MainWindow(QMainWindow):
         widgets.btn_home.clicked.connect(self.buttonClick)
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
-        widgets.btn_save.clicked.connect(self.buttonClick)
+        #widgets.btn_save.clicked.connect(self.buttonClick)
         
 
         # EXTRA LEFT BOX
@@ -285,16 +285,16 @@ class MainWindow(QMainWindow):
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
 
         # SHOW NEW PAGE
-        if btnName == "btn_settings":
+        if btnName == "btn_logs":
             widgets.stackedWidget.setCurrentWidget(widgets.new_page) # SET PAGE
             UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
 
-        if btnName == "btn_save":
-            print("Save BTN clicked!")
+        # if btnName == "btn_save":
+        #     print("Save BTN clicked!")
 
-        # PRINT BTN NAME
-        print(f'Button "{btnName}" pressed!')
+        # # PRINT BTN NAME
+        # print(f'Button "{btnName}" pressed!')
 
     # RESIZE EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -341,7 +341,7 @@ class MainWindow(QMainWindow):
 
                     widgets.logDisplay.append(v)
                 except Exception as e:
-                    print(e)
+                    log(f"{e}")
 
                 self.set_status(v.strip('\n'))
 
@@ -862,7 +862,14 @@ class MainWindow(QMainWindow):
         # Ensure a row is selected
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
 
         # Set selected_row_num to the selected row
@@ -889,7 +896,14 @@ class MainWindow(QMainWindow):
     def cancel_btn(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
 
         # Set selected_row_num to the selected row
@@ -910,7 +924,14 @@ class MainWindow(QMainWindow):
     def refresh_link_btn(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
 
         # Set selected_row_num to the selected row
@@ -929,10 +950,34 @@ class MainWindow(QMainWindow):
         widgets.stackedWidget.setCurrentWidget(widgets.home)
 
     def download_window(self):
+        selected_row = widgets.tableWidget.currentRow()
+        
+        if selected_row < 0 or selected_row >= len(self.d_list):
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec()
+            return
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
         if self.selected_d:
             if config.auto_close_download_window and self.selected_d.status != config.Status.downloading:
-                QMessageBox.information(self, 'Error', "To open download window offline \n go to setting tab, then uncheck auto close download window", QMessageBox.Ok)
+                msg = "To open download window offline \n go to setting tab, then uncheck auto close download window"
+                information_box = QMessageBox(self)
+                information_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+                information_box.setText(msg)
+                information_box.setWindowTitle("Information")
+                information_box.setIcon(QMessageBox.Information)
+                information_box.setStandardButtons(QMessageBox.Ok)
+                information_box.exec()
+                #QMessageBox.information(self, 'Error', "To open download window offline \n go to setting tab, then uncheck auto close download window", QMessageBox.Ok)
                 return
+                
                 
             else:
                 d = self.selected_d
@@ -961,16 +1006,27 @@ class MainWindow(QMainWindow):
             return
 
         selected_row = widgets.tableWidget.currentRow()
-        
 
         # Assuming self.d_list is your list of download items
         if self.active_downloads:
             msg = "Can't delete items while downloading. Stop or cancel all downloads first!"
-            QMessageBox.warning(self, 'Warning', msg, QMessageBox.Ok)
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Warning')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
 
         msg = f"Warning!!!\nAre you sure you want to delete {self.d_list[selected_row].name}?"
-        reply = QMessageBox.question(self, 'Delete file?', msg, QMessageBox.Yes | QMessageBox.No)
+        confirmation_box = QMessageBox(self)
+        confirmation_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+        confirmation_box.setWindowTitle('Delete file?')
+        confirmation_box.setText(msg)
+        confirmation_box.setIcon(QMessageBox.Question)
+        confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+        reply = confirmation_box.exec_()
 
         if reply != QMessageBox.Yes:
             return
@@ -989,13 +1045,9 @@ class MainWindow(QMainWindow):
             # Remove the row from the table
             widgets.tableWidget.removeRow(selected_row)
 
-            # Delete temporary files
-            # d.delete_tempfiles()
-
             notification = f"File: {d.name} has been deleted."
             notify(notification, title=f'{config.APP_NAME} - Download completed')
             d.delete_tempfiles()
-            
 
         except Exception as e:
             log(f"Error deleting item: {e}")
@@ -1003,15 +1055,27 @@ class MainWindow(QMainWindow):
     def delete_all_downloads(self):
         # Check if there are any active downloads
         if self.active_downloads:
-            msg = "Can't delete items while downloading.\nStop or cancel all downloads first!"
-            QMessageBox.warning(self, 'Warning', msg, QMessageBox.Ok)
+            msg = "Can't delete items while downloading. Stop or cancel all downloads first!"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Warning')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
 
         # Confirmation dialog - user has to write "delete" to proceed
-        msg = 'Delete all items and their progress temp files\n' \
-            'Type the word "delete" and hit OK to proceed.'
-        response, ok = QInputDialog.getText(self, 'Warning!!', msg)
+        msg = 'Delete all items and their progress temp files\n Type the word "delete" and hit OK to proceed.'
+        input_dialog = QInputDialog.getText(self, 'Warning!!', msg)
+        #input_dialog[0].setStyleSheet("background-color: rgb(33, 37, 43); color: white;")  # Apply the stylesheet
 
+        
+
+        
+
+        # Unpack the response and the 'OK' status
+        response, ok = input_dialog
         if not ok or response != 'delete':
             return
 
@@ -1050,15 +1114,14 @@ class MainWindow(QMainWindow):
     def schedule_all(self):
         try:
             response = ask_for_sched_time('Download scheduled for...')
-            print(response)
 
             if response:
                 for d in self.d_list:
                     if d.status in (config.Status.pending, config.Status.cancelled):
                         d.sched = response
-                        print(f'Scheduled {d.name} for {response[0]}:{response[1]}')
+                        log(f'Scheduled {d.name} for {response[0]}:{response[1]}')
         except Exception as e:
-            print(f'Error in scheduling: {e}')
+            log(f'Error in scheduling: {e}')
 
     
     
@@ -1101,25 +1164,44 @@ class MainWindow(QMainWindow):
     def open_item(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
+            
 
         # Set selected_row_num to the selected row
         self.selected_row_num = selected_row
-
-        if self.selected_d.status == config.Status.completed:
-            open_file(self.selected_d.target_file)
-            log("Opening file.....")
-        else:
-            open_file(self.selected_d.temp_file)
-            log("Failed openeing file")
+        try:
+            if self.selected_d.status == config.Status.completed:
+                open_file(self.selected_d.target_file)
+                log(f"Opening file..... {self.selected_d.target_file}")
+            else:
+                open_file(self.selected_d.temp_file)
+            
+        except Exception as e:
+            log(f"Error is {e}")
 
 
     def open_file_location(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+        
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
+            
 
         # Set selected_row_num to the selected row
         self.selected_row_num = selected_row
@@ -1128,7 +1210,8 @@ class MainWindow(QMainWindow):
 
         try:
             folder = os.path.abspath(d.folder)
-            log(f'This is the folder {folder}')
+            
+            
             file = d.target_file
 
             if config.operating_system == 'Windows':
@@ -1139,7 +1222,7 @@ class MainWindow(QMainWindow):
                     run_command(cmd)
             else:
                 # linux
-                cmd = f'xdg-open "folder"'
+                cmd = f'xdg-open "{folder}"'
                 # os.system(cmd)
                 run_command(cmd)
         except Exception as e:
@@ -1149,7 +1232,14 @@ class MainWindow(QMainWindow):
     def schedule_download(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
 
         # Set selected_row_num to the selected row
@@ -1162,7 +1252,14 @@ class MainWindow(QMainWindow):
     def cancel_schedule(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-            QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
+            msg = "No download item selected"
+            warning_box = QMessageBox(self)
+            warning_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+            warning_box.setWindowTitle('Error')
+            warning_box.setText(msg)
+            warning_box.setIcon(QMessageBox.Warning)
+            warning_box.setStandardButtons(QMessageBox.Ok)
+            warning_box.exec_()
             return
 
         # Set selected_row_num to the selected row
@@ -1343,6 +1440,7 @@ class DownloadWindow(QWidget):
             QWidget {
                 background-color: rgb(33, 37, 43);
                 color: white;
+                
             }
         """)
         self.d = d
@@ -1351,7 +1449,7 @@ class DownloadWindow(QWidget):
         self.timer = 0
         self._progress_mode = 'determinate'
         self.init_ui()
-        
+        self.resize(500, 250)  # Adjusted size to make it smaller
 
     @property
     def progress_mode(self):
@@ -1490,6 +1588,57 @@ class ScheduleDialog(QDialog):
     def __init__(self, msg='', parent=None):
         super().__init__(parent)
         self.setWindowTitle('Scheduling Download Item')
+        self.resize(400, 180)
+        self.setStyleSheet("""
+            QDialog {
+                background-color: rgb(33, 37, 43);
+                color: white;
+            }
+            QLabel {
+                color: white;
+            }
+            QComboBox {
+                background-color: rgb(27, 29, 35);
+                border-radius: 5px;
+                border: 2px solid rgb(33, 37, 43);
+                padding: 5px;
+                padding-left: 10px;
+                color: white;
+            }
+            QComboBox:hover {
+                border: 2px solid rgb(64, 71, 88);
+            }
+            QComboBox::drop-down {
+                subcontrol-origin: padding;
+                subcontrol-position: top right;
+                width: 25px; 
+                border-left-width: 3px;
+                border-left-color: rgba(39, 44, 54, 150);
+                border-left-style: solid;
+                border-top-right-radius: 3px;
+                border-bottom-right-radius: 3px;	
+                background-image: url(:/icons/images/icons/cil-arrow-bottom.png);
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+            QComboBox QAbstractItemView {
+                color: white;	
+                background-color: rgb(33, 37, 43);
+                padding: 10px;
+                selection-background-color: rgb(39, 44, 54);
+            }
+            QPushButton {
+                background-color: rgb(33, 37, 43);
+                border: 1px solid rgb(44, 49, 58);
+                border-radius: 5px;
+                padding: 5px 10px;
+                color: white;
+            }
+            QPushButton:hover {
+                background-color: rgb(44, 49, 58);
+                
+            }
+        """)
 
         # Create layout
         layout = QVBoxLayout(self)
@@ -1498,29 +1647,47 @@ class ScheduleDialog(QDialog):
         self.message_label = QLabel(msg)
         layout.addWidget(self.message_label)
 
-        # Hour selection
+        # Row layout for hours and minutes selection
+        row_layout = QHBoxLayout()
+
+        # Hour label and combo box
+        self.hour_label = QLabel("Hours:")
+        row_layout.addWidget(self.hour_label)
         self.hours_combo = QComboBox(self)
         self.hours_combo.addItems([str(i) for i in range(1, 13)])  # 1 to 12
-        layout.addWidget(self.hours_combo)
+        row_layout.addWidget(self.hours_combo)
 
-        # Minute selection
+        # Minute label and combo box
+        self.minute_label = QLabel("Minutes:")
+        row_layout.addWidget(self.minute_label)
         self.minutes_combo = QComboBox(self)
-        self.minutes_combo.addItems([str(i) for i in range(0, 60)])  # 0 to 59
-        layout.addWidget(self.minutes_combo)
+        self.minutes_combo.addItems([f"{i:02d}" for i in range(0, 60)])  # 0 to 59, formatted as two digits
+        row_layout.addWidget(self.minutes_combo)
 
-        # AM/PM selection
+        # Add the row layout to the main layout
+        layout.addLayout(row_layout)
+
+        # AM/PM selection in the next row, centered
+        am_pm_layout = QHBoxLayout()
+        am_pm_layout.addStretch()  # Add space on the left
         self.am_pm_combo = QComboBox(self)
         self.am_pm_combo.addItems(['AM', 'PM'])
-        layout.addWidget(self.am_pm_combo)
+        am_pm_layout.addWidget(self.am_pm_combo)
+        am_pm_layout.addStretch()  # Add space on the right
+        layout.addLayout(am_pm_layout)
 
         # Ok and Cancel buttons
+        button_layout = QHBoxLayout()
         self.ok_button = QPushButton('Ok', self)
         self.ok_button.clicked.connect(self.accept)
-        layout.addWidget(self.ok_button)
+        button_layout.addWidget(self.ok_button)
 
         self.cancel_button = QPushButton('Cancel', self)
         self.cancel_button.clicked.connect(self.reject)
-        layout.addWidget(self.cancel_button)
+        button_layout.addWidget(self.cancel_button)
+
+        # Add the buttons to the layout
+        layout.addLayout(button_layout)
 
         # Set default values
         self.hours_combo.setCurrentIndex(0)  # Default to 1
