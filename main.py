@@ -39,9 +39,9 @@ widgets = None
 
 from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, 
                            log, log_recorder, delete_file, time_format, truncate, notify, open_file, run_command, handle_exceptions)
-from modules import config, brain, setting
+from modules import config, brain, setting, video
 
-
+from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
 
 from PySide6.QtCore import QTimer, Qt, QSize, QPoint
 from PySide6.QtGui import QAction, QIcon
@@ -84,6 +84,19 @@ class MainWindow(QMainWindow):
         # update
         self.new_version_available = False
         self.new_version_description = None
+
+        # youtube specific
+        self.video = None
+        self.yt_id = 0  # unique id for each youtube thread
+        self.playlist = []
+        self.pl_title = ''
+        self.pl_quality = None
+        self._pl_menu = []
+        self._stream_menu = []
+        self.m_bar_lock = Lock()  # a lock to access a video quality progress bar from threads
+        # self._s_bar = 0  # side progress bar for video quality loading
+        self._m_bar = 0  # main playlist progress par
+        self.stream_menu_selection = ''
 
         # thumbnail
         self.current_thumbnail = None
@@ -248,10 +261,15 @@ class MainWindow(QMainWindow):
         
 
         #widgets.checkBox_network.stateChanged.connect(self.speed_limit_set)
-     
+        # import youtube-dl in a separate thread
+        # Thread(target=video.import_ytdl, daemon=True).start()
         
-            
-     
+        # # Start the clipboard listener in a separate thread
+        # Thread(target=clipboard_listener, daemon=True).start()
+        # # Start logging
+        # Thread(target=log_recorder, daemon=True).start()
+
+        # Thread(target=self.youtube_func, daemon=True).start()
         
 
         
@@ -337,6 +355,26 @@ class MainWindow(QMainWindow):
                         # delete 20% of contents to keep size under max_log_size
                         slice_size = int(config.max_log_size * 0.2)
                         widgets.logDisplay.setPlainText(contents[slice_size:])
+
+                    # parse youtube output while fetching playlist info with option "process=True"
+                    if '[download]' in v:  # "[download] Downloading video 3 of 30"
+                        try:
+                            b = v.rsplit(maxsplit=3)  # ['[download] Downloading video', '3', 'of', '30']
+                            total_num = int(b[-1])
+                            num = int(b[-3])
+
+                            # get 50% of this value and the remaining 50% will be for other processing
+                            percent = int(num * 100 / total_num)
+                            percent = percent // 2
+
+                            # # update media progress bar
+                            # self.m_bar = percent
+
+                            # # update playlist frame title
+                            # self.window['playlist_frame'](
+                            #     value=f'Playlist ({num} of {total_num} {"videos" if num > 1 else "video"}):')
+                        except:
+                            pass
                         
 
                     widgets.logDisplay.append(v)
@@ -349,6 +387,7 @@ class MainWindow(QMainWindow):
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
                 #print(f"Updated QLineEdit with URL: {v}")
+                # Thread(target=self.youtube_func, daemon=True).start()
                 self.url_text_change()
                 self.update_progress_bar()
             
@@ -372,7 +411,6 @@ class MainWindow(QMainWindow):
             #     self.retry_button_clicked = False  # Reset it back to False after processing
 
             self.read_q()
-
             self.update_gui()  # You can also update the GUI components based on certain conditions
         except Exception as e:
             print(f"Error in run loop: {e}")
@@ -388,10 +426,16 @@ class MainWindow(QMainWindow):
         try:
             self.d.eff_url = self.d.url = url
             print(f"New URL set: {url}")
-            
+             
             # Update the DownloadItem with the new URL
-            self.d.update(url)
+            #self.d.update(url)
             
+            # schedule refresh header func
+            if isinstance(self.url_timer, Timer):
+                self.url_timer.cancel()  # cancel previous timer
+
+            self.url_timer = Timer(0.5, self.refresh_headers, args=[url])
+            self.url_timer.start()
             # Trigger the progress bar update and GUI refresh
             self.update_progress_bar()
         except Exception as e:
@@ -465,10 +509,64 @@ class MainWindow(QMainWindow):
             if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
                 widgets.DownloadButton.setEnabled(False)  # Disables the button
             
+            else:
+               # Call yt-dlp to extract metadata without downloading the video
+                with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+                    self.d.vid_info = ydl.extract_info(url, download=False, process=False)
 
+                # Use yt-dlp's metadata to determine if the URL is a streaming video
+                if self.d.vid_info.get('extractor'):
+                    log(f"This is a streaming URL ({self.d.vid_info['extractor']}). Running youtube_func for: {url}")
+                    Thread(target=self.youtube_func, daemon=True).start()
+    
+    # def get_header(self, url):
+    #     try:
+    #         # Call yt-dlp to extract metadata without downloading the video
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             self.d.vid_info = ydl.extract_info(url, download=False, process=False)
 
-            # check if the link contains stream videos by youtube-dl
-            # Thread(target=self.youtube_func, daemon=True).start()
+    #         # Define a list of supported streaming platforms (you can expand this list)
+    #         streaming_sites = ['youtube.com', 'youtu.be', 'vimeo.com', 'dailymotion.com', 'twitch.tv', 'facebook.com', 'instagram.com']
+
+    #         # Check if the URL belongs to any streaming site
+    #         if any(site in url for site in streaming_sites):
+    #             log(f"This is a streaming URL. Running youtube_func for: {url}")
+    #             Thread(target=self.youtube_func, daemon=True).start()
+    #         else:
+    #             log("This is not a streaming URL. Skipping youtube_func...")
+    #             # Handle non-streaming URLs here
+    #             self.d.update(url)
+    #             if url == self.d.url:
+    #                 if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
+    #                     widgets.DownloadButton.setEnabled(True)
+
+    #     except Exception as e:
+    #         log(f"Error in get_header: {e}")
+
+    
+    
+    
+    # def get_header(self, url):
+    #     try:
+    #         # Call yt-dlp to extract metadata without downloading the video
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             self.d.vid_info = ydl.extract_info(url, download=False, process=False)
+
+    #         # Check if the link contains 'youtube.com' or 'youtu.be' before running youtube_func
+    #         if 'youtube.com' in url or 'youtu.be' in url:
+    #             log("This is a YouTube URL. Running youtube_func...")
+    #             Thread(target=self.youtube_func, daemon=True).start()
+    #         else:
+    #             log("This is not a YouTube URL. Skipping youtube_func...")
+    #             # Handle non-YouTube URLs here
+    #             self.d.update(url)
+    #             if url == self.d.url:
+    #                 if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
+    #                     widgets.DownloadButton.setEnabled(True)
+
+    #     except Exception as e:
+    #         log(f"Error in get_header: {e}")
+
 
         #self.change_cursor('default')
 
@@ -543,8 +641,8 @@ class MainWindow(QMainWindow):
             self.populate_table()
 
             # Save setting to disk
-            setting.save_setting()
-            setting.save_d_list(self.d_list)
+            # setting.save_setting()
+            # setting.save_d_list(self.d_list)
 
             self.check_scheduled()
 
@@ -558,17 +656,8 @@ class MainWindow(QMainWindow):
             self.max_current_dl()
             self.max_connection()
             self.proxy_settings()
-            # run download windows if existed
-            # keys = list(self.download_windows.keys())
-            # for i in keys:
-            #     win = self.download_windows[i]
-            #     win.run()
-            #     if win.event is None:
-            #         self.download_windows.pop(i, None)
-
-
             
-                
+               
         except Exception as e:
             log('MainWindow.update_gui() error:', e)
     
@@ -591,6 +680,13 @@ class MainWindow(QMainWindow):
         if d is None:
             return
         
+         # check for ffmpeg availability in case this is a dash video
+        if d.type == 'dash' or 'm3u8' in d.protocol:
+            # log('Dash video detected')
+            if not self.ffmpeg_check():
+                log('Download cancelled, FFMPEG is missing')
+                return 'cancelled'
+        
 
         folder = d.folder or config.download_folder
         # validate destination folder for existence and permissions
@@ -603,43 +699,19 @@ class MainWindow(QMainWindow):
             # update download item
             d.folder = folder
         except FileNotFoundError:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle('Folder Error')
-            msg.setText(f'destination folder {folder} does not exist')
-            msg.setInformativeText('Please enter a valid folder name')
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
+            self.show_information('Folder Error', 'Please enter a valid folder name', f'destination folder {folder} does not exist')
+           
             return
         except PermissionError:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle('Folder Error')
-            msg.setText(f"you don't have enough permission for destination folder {folder}")
-            msg.setInformativeText(f'Check if you have permission for the destination folder {folder}')
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
-            return
+            self.show_information('Folder Error', f"you don't have enough permission for destination folder {folder}", f"you don't have enough permission for destination folder {folder}")
+           
         except Exception as e:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle('Folder Error')
-            msg.setText(f'problem in destination folder {repr(e)}')
-            #msg.setInformativeText('Please enter a valid folder name')
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
-            return
+            self.show_warning('Folder Error',f'problem in destination folder {repr(e)}')
         
         # validate file name
         if d.name == '':
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle('Download Error')
-            msg.setText('File name is invalid')
-            msg.setInformativeText('Please enter a valid filename')
-            msg.setStandardButtons(QMessageBox.Ok)
-            msg.exec()
-            return
+            self.show_warning('Download Error', 'File name is invalid. Please enter a valid filename')
+            
         
         # check if file with the same name exist in destination
         if os.path.isfile(d.target_file):
@@ -758,6 +830,8 @@ class MainWindow(QMainWindow):
                 return i
         return None
     
+    
+    
     def on_download_button_clicked(self, downloader=None):
         """Handle DownloadButton click event."""
         # Check if the download button is disabled
@@ -790,6 +864,296 @@ class MainWindow(QMainWindow):
             
     # endregion
 
+    # region youtube
+    def ytdl_downloader(self):
+        """Launch youtube-dl with proper command arguments."""
+        
+        # Check for youtube-dl executable in current folder if app is FROZEN
+        if config.FROZEN:
+            cmd = 'where youtube-dl' if config.operating_system == 'Windows' else 'which yt-dlp'
+            error, output = run_command(cmd, verbose=True)
+            if not error:
+                ytdl_executable = output.strip()
+            else:
+                # Show dialog for missing youtube-dl
+                msg = ('Alternative Download with youtube-dl\n'
+                    'youtube-dl executable is required. To use this option,\n'
+                    'please download the right version into the application folder,\n'
+                    'i.e. "youtube-dl.exe" for Windows or "youtube-dl" for other OS.')
+                
+                dialog = QDialog(self)
+                dialog.setWindowTitle('Youtube-dl missing')
+                layout = QVBoxLayout(dialog)
+
+                label = QLabel(msg)
+                layout.addWidget(label)
+
+                open_website_btn = QPushButton('Open website', dialog)
+                cancel_btn = QPushButton('Cancel', dialog)
+                
+                layout.addWidget(open_website_btn)
+                layout.addWidget(cancel_btn)
+
+                def on_open_website():
+                    webbrowser.open_new('https://github.com/ytdl-org/youtube-dl/releases/latest')
+                    dialog.close()
+
+                def on_cancel():
+                    dialog.close()
+
+                open_website_btn.clicked.connect(on_open_website)
+                cancel_btn.clicked.connect(on_cancel)
+
+                dialog.exec_()
+
+                return  # exit if youtube-dl is missing
+        else:
+            ytdl_executable = f'"{sys.executable}" -m yt-dlp'
+
+        # Preparing the download command
+        d = self.d
+        verbose = '-v' if config.log_level >= 3 else ''
+
+        if not self.video:
+            requested_format = 'best'
+            name = os.path.join(config.download_folder, '%(title)s.%(ext)s').replace("\\", "/")
+        else:
+            name = d.target_file.replace("\\", "/")
+            if d.type == 'dash':
+                requested_format = f'"{d.format_id}"+"{d.audio_format_id}"/"{d.format_id}"+bestaudio/best'
+            else:
+                requested_format = f'"{d.format_id}"/best'
+
+        # Creating command
+        cmd = (f'{ytdl_executable} -f {requested_format} {d.url} -o "{name}" {verbose} '
+            f'--hls-use-mpegts --ffmpeg-location {config.ffmpeg_actual_path} --proxy "{config.proxy}"')
+        log('cmd:', cmd)
+
+        # Execute the command
+        if config.operating_system == 'Windows':
+            # Write a batch file to start a new cmd terminal
+            batch_file = os.path.join(config.current_directory, 'ytdl_cmd.bat')
+            with open(batch_file, 'w') as f:
+                f.write(cmd + '\npause')
+
+            # Execute the batch file
+            os.startfile(batch_file)
+        else:
+            # For Linux/macOS (not tested)
+            subprocess.Popen([os.getenv('SHELL'), '-i', '-c', cmd])
+    
+
+    def youtube_func(self):
+        """Fetch metadata from YouTube and process it."""
+        try:
+            # Ensure youtube-dl is loaded
+            if video.ytdl is None:
+                log('youtube-dl module still loading, please wait')
+                while not video.ytdl:
+                    time.sleep(0.1)
+
+            log(f"Extracting info for URL: {self.d.url}")
+            # Extract information with youtube-dl
+            with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+                info = ydl.extract_info(self.d.url, download=False, process=False)
+                log('Media info:', info, log_level=3)
+
+                # Check if it's a playlist
+                if info.get('_type') == 'playlist' or 'entries' in info:
+                    pl_info = list(info.get('entries', []))
+                    self.playlist = []
+                    for item in pl_info:
+                        url = item.get('url') or item.get('webpage_url') or item.get('id')
+                        if url:
+                            self.playlist.append(Video(url))
+
+                    # Make sure the first video is valid
+                    if self.playlist:
+                        self.d = self.playlist[0]
+                        log(f"Playlist processed. First video: {self.d.title}")
+                    else:
+                        log("Error: No valid videos found in playlist")
+                        return
+
+                else:
+                    # Single video case
+                    log("Processing single video")
+                    video_obj = Video(self.d.url, vid_info=info)
+                    if video_obj.title:  # Check if the video object is valid
+                        self.playlist = [video_obj]
+                        self.d = video_obj
+                        log(f'Single video processed: {self.d.title}')
+                    else:
+                        log("Error: Single video extraction failed")
+                        return
+
+                # Update GUI elements
+                self.update_pl_menu()
+                self.update_stream_menu()
+
+        except Exception as e:
+            log('youtube_func()> error:', e)
+            log('Error occurred on line:', sys.exc_info()[-1].tb_lineno)
+            import traceback
+            log('Traceback:', traceback.format_exc())
+
+    def update_pl_menu(self):
+        """Update the playlist combobox after processing."""
+        try:
+            log("Updating playlist menu")
+            if not hasattr(self, 'playlist') or not self.playlist:
+                log("Error: Playlist is empty or not initialized")
+                return
+
+            # Set the playlist combobox with video titles
+            widgets.combo_setting_c.clear()  # Clear existing items
+            for i, video in enumerate(self.playlist):
+                if hasattr(video, 'title') and video.title:
+                    widgets.combo_setting_c.addItem(f'{i + 1} - {video.title}')
+                else:
+                    log(f"Warning: Video at index {i} has no title")
+
+            # Automatically select the first video in the playlist
+            if self.playlist:
+                self.playlist_OnChoice(self.playlist[0])
+
+        except Exception as e:
+            log(f"Error updating playlist menu: {e}")
+            import traceback
+            log('Traceback:', traceback.format_exc())
+
+    def update_stream_menu(self):
+        """Update the stream combobox after selecting a video."""
+        try:
+            log("Updating stream menu")
+            if not hasattr(self, 'd') or not self.d:
+                log("Error: No video selected")
+                return
+            
+            if not hasattr(self.d, 'stream_names') or not self.d.stream_names:
+                log("Error: Selected video has no streams")
+                return
+
+            # Set the stream combobox with available stream options
+            widgets.stream_combo.clear()  # Clear existing items
+            widgets.stream_combo.addItems(self.d.stream_names)
+
+            # Automatically select the first stream
+            if self.d.stream_names:
+                selected_stream = self.d.stream_names[0]
+                widgets.stream_combo.setCurrentText(selected_stream)
+                self.stream_OnChoice(selected_stream)
+
+        except Exception as e:
+            log(f"Error updating stream menu: {e}")
+            import traceback
+            log('Traceback:', traceback.format_exc())
+
+
+
+    def playlist_OnChoice(self, selected_video):
+        """Handle playlist item selection."""
+        if selected_video not in self.playlist:
+            return
+
+        # Find the selected video index and set it as the current download item
+        index = self.playlist.index(selected_video)
+        self.video = self.playlist[index]
+        self.d = self.video  # Update current download item to the selected video
+
+        # Update the stream menu based on the selected video
+        self.update_stream_menu()
+
+        # Optionally load the video thumbnail in a separate thread
+        if config.show_thumbnail:
+            Thread(target=self.video.get_thumbnail).start()
+
+        # Update the GUI to reflect the current selection
+        #self.update_gui()
+
+
+    def stream_OnChoice(self, selected_stream):
+        """Handle stream selection."""
+        if selected_stream not in self.video.stream_names:
+            selected_stream = self.video.stream_names[0]  # Default to the first stream
+
+        self.video.selected_stream = self.video.streams[selected_stream]  # Set the selected stream
+        #self.update_gui()  # Update the GUI to reflect the selected stream
+
+
+    def ffmpeg_check(self):
+        """Check if ffmpeg is available, if not, prompt user to download."""
+        
+        if not check_ffmpeg():
+            if config.operating_system == 'Windows':
+                # Create the dialog
+                dialog = QDialog(self)
+                dialog.setWindowTitle('FFmpeg is missing')
+
+                # Layout setup
+                layout = QVBoxLayout(dialog)
+
+                # Label for missing FFmpeg
+                label = QLabel('"ffmpeg" is missing!! and needs to be downloaded:\n')
+                layout.addWidget(label)
+
+                # Radio buttons for choosing destination folder
+                recommended_radio = QRadioButton(f"Recommended: {config.global_sett_folder}")
+                recommended_radio.setChecked(True)
+                local_radio = QRadioButton(f"Local folder: {config.current_directory}")
+
+                # Group radio buttons
+                radio_group = QButtonGroup(dialog)
+                radio_group.addButton(recommended_radio)
+                radio_group.addButton(local_radio)
+
+                # Layout for radio buttons
+                radio_layout = QVBoxLayout()
+                radio_layout.addWidget(recommended_radio)
+                radio_layout.addWidget(local_radio)
+
+                layout.addLayout(radio_layout)
+
+                # Buttons for Download and Cancel
+                button_layout = QHBoxLayout()
+                download_button = QPushButton('Download')
+                cancel_button = QPushButton('Cancel')
+                button_layout.addWidget(download_button)
+                button_layout.addWidget(cancel_button)
+
+                layout.addLayout(button_layout)
+
+                # Set layout and show the dialog
+                dialog.setLayout(layout)
+
+                # Handle button actions
+                def on_download():
+                    selected_folder = config.global_sett_folder if recommended_radio.isChecked() else config.current_directory
+                    download_ffmpeg(destination=selected_folder)
+                    dialog.accept()  # Close the dialog after download
+
+                def on_cancel():
+                    dialog.reject()  # Close dialog on cancel
+
+                # Connect button signals
+                download_button.clicked.connect(on_download)
+                cancel_button.clicked.connect(on_cancel)
+
+                # Execute the dialog
+                dialog.exec_()
+
+            else:
+                # Show error popup for non-Windows systems
+                QMessageBox.critical(self, 
+                                    'FFmpeg is missing',
+                                    '"ffmpeg" is required to merge an audio stream with your video.\n'
+                                    'Executable must be copied into the PyIDM folder or add the ffmpeg path to system PATH.\n'
+                                    'You can download it manually from https://www.ffmpeg.org/download.html.')
+
+            return False
+        else:
+            return True
+    # endregion
 
     # region downloads page
     @property
@@ -857,11 +1221,12 @@ class MainWindow(QMainWindow):
         warning_box.setStandardButtons(QMessageBox.Ok)
         warning_box.exec()
 
-    def show_information(self, title, msg):
+    def show_information(self, title, inform, msg):
         information_box = QMessageBox(self)
         information_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
         information_box.setText(msg)
         information_box.setWindowTitle(title)
+        information_box.setInformativeText(inform)
         information_box.setIcon(QMessageBox.Information)
         information_box.setStandardButtons(QMessageBox.Ok)
         information_box.exec()
@@ -963,7 +1328,7 @@ class MainWindow(QMainWindow):
 
         if self.selected_d:
             if config.auto_close_download_window and self.selected_d.status != config.Status.downloading:
-                self.show_information(title='Information', msg="To open download window offline \n go to setting tab, then uncheck auto close download window")
+                self.show_information(title='Information',inform="", msg="To open download window offline \n go to setting tab, then uncheck auto close download window")
     
                 
                 
@@ -1698,6 +2063,8 @@ def clipboard_listener():
         time.sleep(0.2)
 
 
+
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     
@@ -1705,11 +2072,16 @@ if __name__ == "__main__":
     window = MainWindow(config.d_list)
     window.show()
     
-
+    Thread(target=video.import_ytdl, daemon=True).start()
+        
     # Start the clipboard listener in a separate thread
     Thread(target=clipboard_listener, daemon=True).start()
     # Start logging
     Thread(target=log_recorder, daemon=True).start()
+    
+
+    
+    
 
     
     
