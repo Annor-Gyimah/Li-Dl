@@ -105,16 +105,16 @@ class Video(DownloadItem):
 
     def _process_streams(self):
         """ Create Stream object lists"""
-        if not self.vid_info or 'formats' not in self.vid_info or self.vid_info['formats'] is None:
-            log("Error: No video formats found in vid_info")
-            return
+        # if not self.vid_info or 'formats' not in self.vid_info or self.vid_info['formats'] is None:
+        #     log("Error: No video formats found in vid_info")
+        #     return
 
-        try:
-            all_streams = [Stream(x) for x in self.vid_info['formats']]
-        except Exception as e:
-            log(f"Error creating Stream objects: {e}")
-            return
-        #all_streams = [Stream(x) for x in self.vid_info['formats']]
+        # try:
+        #     all_streams = [Stream(x) for x in self.vid_info['formats']]
+        # except Exception as e:
+        #     log(f"Error creating Stream objects: {e}")
+        #     return
+        all_streams = [Stream(x) for x in self.vid_info['formats']]
 
         # prepare some categories
         normal_streams = {stream.raw_name: stream for stream in all_streams if stream.mediatype == 'normal'}
