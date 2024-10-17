@@ -29,7 +29,7 @@ DEFAULT_CONCURRENT_CONNECTIONS = 3
 APP_URL = 'https://github.com/pyIDM/pyIDM'
 LATEST_RELEASE_URL = 'https://github.com/pyIDM/pyIDM/releases/latest'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
-DEFAULT_LOG_LEVEL = 2
+DEFAULT_LOG_LEVEL = 3
 
 APP_LATEST_VERSION = None  # get value from update module
 ytdl_VERSION = 'xxx'  # will be loaded once youtube-dl get imported

@@ -1302,6 +1302,11 @@ class Ui_MainWindow(object):
         icon8.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
         self.DownloadButton.setIcon(icon8)
         
+        self.combo_setting_c = QComboBox(self.home_row_5)
+        self.combo_setting_c.setObjectName(u"combo_setting")
+        
+        self.stream_combo = QComboBox(self.home_row_5)
+        #self.combo_setting_c.addItems])
         
         
 
@@ -1309,6 +1314,8 @@ class Ui_MainWindow(object):
 
         # Add the progress bar to the layout with margins
         self.home_verticalLayout_5.addWidget(self.DownloadButton, 0, Qt.AlignHCenter | Qt.AlignTop)
+        self.home_verticalLayout_5.addWidget(self.combo_setting_c, 0, Qt.AlignHCenter | Qt.AlignTop)
+        self.home_verticalLayout_5.addWidget(self.stream_combo, 0, Qt.AlignHCenter | Qt.AlignTop)
 
         # Set margins directly on the layout for spacing
         self.home_verticalLayout_5.setContentsMargins(20, 0, 20, 0)  # Left and right margins set to 20 pixels

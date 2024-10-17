@@ -117,7 +117,7 @@ def save_d_list(d_list):
                 json.dump(data, f)
             except Exception as e:
                 print('error save d_list:', e)
-        log('list saved')
+        #log('list saved')
     except Exception as e:
         handle_exceptions(e)
 
@@ -149,6 +149,6 @@ def save_setting():
         file = os.path.join(config.sett_folder, 'setting.cfg')
         with open(file, 'w') as f:
             json.dump(settings, f)
-            log('setting saved')
+            #log('setting saved')
     except Exception as e:
         handle_exceptions(e)

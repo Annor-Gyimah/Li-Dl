@@ -105,6 +105,15 @@ class Video(DownloadItem):
 
     def _process_streams(self):
         """ Create Stream object lists"""
+        # if not self.vid_info or 'formats' not in self.vid_info or self.vid_info['formats'] is None:
+        #     log("Error: No video formats found in vid_info")
+        #     return
+
+        # try:
+        #     all_streams = [Stream(x) for x in self.vid_info['formats']]
+        # except Exception as e:
+        #     log(f"Error creating Stream objects: {e}")
+        #     return
         all_streams = [Stream(x) for x in self.vid_info['formats']]
 
         # prepare some categories
@@ -231,7 +240,7 @@ class Stream:
         self.protocol = stream_info.get('protocol', '')
 
         # calculate some values
-        self.rawbitrate = stream_info.get('abr', 0) * 1024
+        #self.rawbitrate = stream_info.get('abr', 0) * 1024
         self._mediatype = None
         self.resolution = f'{self.width}x{self.height}' if (self.width and self.height) else ''
 
@@ -410,7 +419,8 @@ def import_ytdl():
     # import youtube_dl using thread because it takes sometimes 20 seconds to get imported and impact app startup time
     start = time.time()
     global ytdl, ytdl_version
-    import youtube_dl as ytdl
+    #import youtube_dl as ytdl
+    import yt_dlp as ytdl
     config.ytdl_VERSION = ytdl.version.__version__
 
     load_time = time.time() - start
@@ -643,10 +653,19 @@ def pre_process_hls(d):
         buffer = download(url)  # get BytesIO object
 
         if buffer:
-            # convert to string
-            buffer = buffer.getvalue().decode()
-            if '#EXT' in repr(buffer):
-                return buffer
+            # Try decoding with UTF-8 first
+            try:
+                content = buffer.getvalue().decode('utf-8')
+            except UnicodeDecodeError:
+                # If UTF-8 fails, try decoding with ISO-8859-1 (Latin-1)
+                try:
+                    content = buffer.getvalue().decode('iso-8859-1')
+                except UnicodeDecodeError:
+                    # If both fail, use a more permissive decoding
+                    content = buffer.getvalue().decode('utf-8', errors='replace')
+            
+            if '#EXT' in content:
+                return content
 
         log('pre_process_hls()> received invalid m3u8 file from server')
         if config.log_level >= 3:

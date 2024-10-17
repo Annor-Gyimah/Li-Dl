@@ -43,55 +43,15 @@ from modules import config, brain, setting, video
 
 from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
 
-from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot
-
+from PySide6.QtCore import QTimer, Qt, QSize, QPoint
 from PySide6.QtGui import QAction, QIcon
 
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
-                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton)
-
-class YouTubeThread(QThread):
-    finished = Signal(object)  # Signal to emit when the process is complete
-
-    def __init__(self, url):
-        super().__init__()
-        self.url = url
-
-    def run(self):
-        try:
-            # Ensure youtube-dl is loaded
-            if video.ytdl is None:
-                log('youtube-dl module still loading, please wait')
-                while not video.ytdl:
-                    time.sleep(0.1)
-
-            log(f"Extracting info for URL: {self.url}")
-            # Extract information with youtube-dl
-            with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                info = ydl.extract_info(self.url, download=False, process=False)
-                log('Media info:', info, log_level=3)
-
-                # Process the info and create Video objects
-                if info.get('_type') == 'playlist' or 'entries' in info:
-                    pl_info = list(info.get('entries', []))
-                    playlist = []
-                    for item in pl_info:
-                        url = item.get('url') or item.get('webpage_url') or item.get('id')
-                        if url:
-                            playlist.append(Video(url))
-                    result = playlist
-                else:
-                    result = Video(self.url, vid_info=info)
-
-                self.finished.emit(result)
-        except Exception as e:
-            log('YouTubeThread error:', e)
-            self.finished.emit(None)
+                               QDialog, QComboBox, QInputDialog, QMenu)
 
 
 class MainWindow(QMainWindow):
-    update_gui_signal = Signal(dict)
     def __init__(self, d_list):
         QMainWindow.__init__(self)
 
@@ -300,12 +260,16 @@ class MainWindow(QMainWindow):
         #widgets.label_proxy_info.setText(config.proxy == '' if config.enable_proxy)
         
 
-        self.update_gui_signal.connect(self.process_gui_updates)
-        self.update_timer = QTimer(self)
-        self.update_timer.timeout.connect(self.check_for_updates)
-        self.update_timer.start(100)  # Check for updates every 100ms
+        #widgets.checkBox_network.stateChanged.connect(self.speed_limit_set)
+        # import youtube-dl in a separate thread
+        # Thread(target=video.import_ytdl, daemon=True).start()
+        
+        # # Start the clipboard listener in a separate thread
+        # Thread(target=clipboard_listener, daemon=True).start()
+        # # Start logging
+        # Thread(target=log_recorder, daemon=True).start()
 
-        self.pending_updates = {}
+        # Thread(target=self.youtube_func, daemon=True).start()
         
 
 
@@ -423,6 +387,8 @@ class MainWindow(QMainWindow):
             elif k == 'url':
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
+                #print(f"Updated QLineEdit with URL: {v}")
+                # Thread(target=self.youtube_func, daemon=True).start()
                 self.url_text_change()
                 self.update_progress_bar()
             
@@ -446,7 +412,7 @@ class MainWindow(QMainWindow):
             #     self.retry_button_clicked = False  # Reset it back to False after processing
 
             self.read_q()
-            self.queue_updates()  # You can also update the GUI components based on certain conditions
+            self.update_gui()  # You can also update the GUI components based on certain conditions
         except Exception as e:
             print(f"Error in run loop: {e}")
 
@@ -488,7 +454,7 @@ class MainWindow(QMainWindow):
             
             # widgets.stackedWidget.setCurrentWidget(widgets.widgets)
         #widgets.size_value_label.setText(size_format(self.d.protocol))
-        #self.update_gui()
+        self.update_gui()
 
 
     def update_progress_bar_value(self, value):
@@ -501,7 +467,7 @@ class MainWindow(QMainWindow):
 
 
     def retry(self):
-        #self.d.url = ''
+        self.d.url = ''
         self.url_text_change()
 
     def reset(self):
@@ -533,36 +499,108 @@ class MainWindow(QMainWindow):
             Thread(target=self.get_header, args=[url], daemon=True).start()
 
 
+    # def get_header(self, url):
+    #     # curl_headers = get_headers(url)
+    #     self.d.update(url)
+
+    #     # update headers only if no other curl thread created with different url
+    #     if url == self.d.url:
+
+    #         # enable download button
+    #         if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
+    #             widgets.DownloadButton.setEnabled(True)  # Disables the button
+            
+    #         else:
+    #            # Call yt-dlp to extract metadata without downloading the video
+    #             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #                 self.d.vid_info = ydl.extract_info(url, download=False, process=False)
+
+    #             # Use yt-dlp's metadata to determine if the URL is a streaming video
+    #             if self.d.vid_info.get('extractor'):
+    #                 log(f"This is a streaming URL ({self.d.vid_info['extractor']}). Running youtube_func for: {url}", log_level=3)
+    #                 Thread(target=self.youtube_func, daemon=True).start()
     
+    # def get_header(self, url):
+    #     try:
+    #         # Call yt-dlp to extract metadata without downloading the video
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             self.d.vid_info = ydl.extract_info(url, download=False, process=False)
+
+    #         # Define a list of supported streaming platforms (you can expand this list)
+    #         streaming_sites = ['youtube.com', 'youtu.be', 'vimeo.com', 'dailymotion.com', 'twitch.tv', 'facebook.com', 'instagram.com']
+
+    #         # Check if the URL belongs to any streaming site
+    #         if any(site in url for site in streaming_sites):
+    #             log(f"This is a streaming URL. Running youtube_func for: {url}")
+    #             Thread(target=self.youtube_func, daemon=True).start()
+    #         else:
+    #             log("This is not a streaming URL. Skipping youtube_func...")
+    #             # Handle non-streaming URLs here
+    #             self.d.update(url)
+    #             if url == self.d.url:
+    #                 if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
+    #                     widgets.DownloadButton.setEnabled(True)
+
+    #     except Exception as e:
+    #         log(f"Error in get_header: {e}")
+
+    
+    
+    
+    # def get_header(self, url):
+    #     try:
+    #         # Call yt-dlp to extract metadata without downloading the video
+    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+    #             self.d.vid_info = ydl.extract_info(url, download=False, process=False)
+
+    #         # Check if the link contains 'youtube.com' or 'youtu.be' before running youtube_func
+    #         if 'youtube.com' in url or 'youtu.be' in url:
+    #             log("This is a YouTube URL. Running youtube_func...")
+    #             Thread(target=self.youtube_func, daemon=True).start()
+    #         else:
+    #             log("This is not a YouTube URL. Skipping youtube_func...")
+    #             # Handle non-YouTube URLs here
+    #             self.d.update(url)
+    #             if url == self.d.url:
+    #                 if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
+    #                     widgets.DownloadButton.setEnabled(True)
+
+    #     except Exception as e:
+    #         log(f"Error in get_header: {e}")
+
 
     def get_header(self, url):
+        # curl_headers = get_headers(url)
         self.d.update(url)
 
+        # update headers only if no other curl thread created with different url
         if url == self.d.url:
+
+            # update status code widget
+            try:
+                if self.d.status_code == 200:
+                    cod = "ok"
+                else:
+                    cod = ""
+
+                widgets.statusCodeValue.setText(f"{self.d.status_code} {cod}")
+            except:
+                pass
+            # self.set_status(self.d.status_code_description)
+            # if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
+            #     widgets.DownloadButton.setEnabled(True)
+            # else:
+            #     if 'youtube.com' in url or 'youtu.be' in url:
+            #         log("This is a YouTube URL. Running youtube_func...")
+            #         Thread(target=self.youtube_func, daemon=True).start()
+
+            # enable download button
             if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
                 widgets.DownloadButton.setEnabled(True)
 
-            # Use QThread for YouTube function
-            self.yt_thread = YouTubeThread(url)
-            self.yt_thread.finished.connect(self.on_youtube_finished)
-            self.yt_thread.start()
+            # check if the link contains stream videos by youtube-dl
+            Thread(target=self.youtube_func, daemon=True).start()
 
-    def on_youtube_finished(self, result):
-        if isinstance(result, list):
-            self.playlist = result
-            if self.playlist:
-                self.d = self.playlist[0]
-        elif isinstance(result, Video):
-            self.playlist = [result]
-            self.d = result
-        else:
-            log("Error: YouTube extraction failed")
-            widgets.combo_setting_c.clear()
-            widgets.stream_combo.clear()
-            return
-
-        self.update_pl_menu()
-        self.update_stream_menu()
 
     # region download folder
     def open_folder_dialog(self):
@@ -588,99 +626,71 @@ class MainWindow(QMainWindow):
 
     
     # region Update Gui
-    def check_for_updates(self):
-        if self.pending_updates:
-            self.update_gui_signal.emit(self.pending_updates)
-            self.pending_updates.clear()
-
-    def queue_update(self, key, value):
-        self.pending_updates[key] = value
-
-    @Slot(dict)
-    def process_gui_updates(self, updates):
+    def update_gui(self):
+        """Update GUI elements with current download information."""
         try:
-            for key, value in updates.items():
-                if key == 'filename':
-                    if widgets.home_filename_lineEdit.text() != value:
-                        self.filename_set_by_program = True
-                        widgets.home_filename_lineEdit.setText(value)
-                        self.filename_set_by_program = False
-                elif key == 'status_code':
-                    cod = "ok" if value == 200 else ""
-                    widgets.statusCodeValue.setText(f"{value} {cod}")
-                elif key == 'size':
-                    size_text = size_format(value) if value else "Unknown"
-                    widgets.size_value_label.setText(size_text)
-                elif key == 'type':
-                    widgets.type_value_label.setText(value)
-                elif key == 'protocol':
-                    widgets.protocol_value_label.setText(value)
-                elif key == 'resumable':
-                    widgets.resumable_value_label.setText("Yes" if value else "No")
-                elif key == 'total_speed':
-                    speed_text = f'⬇ {size_format(value, "/s")}' if value else '⬇ 0 bytes'
-                    widgets.totalSpeedValue.setText(speed_text)
-                elif key == 'populate_table':
-                    self.populate_table()
-                elif key == 'check_scheduled':
-                    self.check_scheduled()
-                elif key == 'settings_folder':
-                    self.settings_folder()
-                elif key == 'monitor_clip':
-                    self.monitor_clip()
-                elif key == 'show_download_win':
-                    self.show_download_win()
-                elif key == 'auto_close_win':
-                    self.auto_close_win()
-                elif key == 'show_thumb_nail':
-                    self.show_thumb_nail()
-                elif key == 'segment_size_set':
-                    self.segment_size_set()
-                elif key == 'speed_limit_set':
-                    self.speed_limit_set()
-                elif key == 'max_current_dl':
-                    self.max_current_dl()
-                elif key == 'max_connection':
-                    self.max_connection()
-                elif key == 'proxy_settings':
-                    self.proxy_settings()
-                elif key == 'pending_jobs':
-                    self.pending_jobs()
+            # Update the filename only if it's different
+            if widgets.home_filename_lineEdit.text() != self.d.name:
+                self.filename_set_by_program = True  # Set the flag
+                widgets.home_filename_lineEdit.setText(self.d.name)
+                self.filename_set_by_program = False
 
-            # Save settings (consider if this needs to be done every update)
+            # if self.d.status_code == 200:
+            #     cod = "ok"
+            # else:
+            #     cod = ""
+
+            # widgets.statusCodeValue.setText(f"{self.d.status_code} {cod}")
+
+            # Update size label
+            size_text = size_format(self.d.total_size) if self.d.total_size else "Unknown"
+            widgets.size_value_label.setText(size_text)
+
+            # Update the type label
+            type_text = self.d.type
+            widgets.type_value_label.setText(type_text)
+
+            # Update the protocol label
+            protocol_text = self.d.protocol
+            widgets.protocol_value_label.setText(protocol_text)
+
+            # Update the resumable label
+            resumable_text = "Yes" if self.d.resumable else "No"
+            widgets.resumable_value_label.setText(resumable_text)
+
+            total_speed = 0
+            for i in self.active_downloads:
+                d = self.d_list[i]
+                total_speed += d.speed
+            
+            if total_speed != 0:
+                widgets.totalSpeedValue.setText((f'⬇ {size_format(total_speed, "/s")}'))
+            else:
+                widgets.totalSpeedValue.setText((f'⬇ 0 bytes'))
+
+            # Fill table with download data
+            self.populate_table()
+
+            # Save setting to disk
             setting.save_setting()
             setting.save_d_list(self.d_list)
 
+            self.check_scheduled()
+
+            self.settings_folder()
+            self.monitor_clip()
+            self.show_download_win()
+            self.auto_close_win()
+            self.show_thumb_nail()
+            self.segment_size_set()
+            self.speed_limit_set()
+            self.max_current_dl()
+            self.max_connection()
+            self.proxy_settings()
+            self.pending_jobs()
+            
         except Exception as e:
-            log('MainWindow.process_gui_updates() error:', e)
-
-    def queue_updates(self):
-        """Queue updates instead of directly modifying GUI"""
-        self.queue_update('filename', self.d.name)
-        self.queue_update('status_code', self.d.status_code)
-        self.queue_update('size', self.d.total_size)
-        self.queue_update('type', self.d.type)
-        self.queue_update('protocol', self.d.protocol)
-        self.queue_update('resumable', self.d.resumable)
-
-        total_speed = sum(self.d_list[i].speed for i in self.active_downloads)
-        self.queue_update('total_speed', total_speed)
-
-        # Queue other updates
-        self.queue_update('populate_table', None)
-        self.queue_update('check_scheduled', None)
-        self.queue_update('settings_folder', None)
-        self.queue_update('monitor_clip', None)
-        self.queue_update('show_download_win', None)
-        self.queue_update('auto_close_win', None)
-        self.queue_update('show_thumb_nail', None)
-        self.queue_update('segment_size_set', None)
-        self.queue_update('speed_limit_set', None)
-        self.queue_update('max_current_dl', None)
-        self.queue_update('max_connection', None)
-        self.queue_update('proxy_settings', None)
-        self.queue_update('pending_jobs', None)
-    
+            log('MainWindow.update_gui() error:', e)
     
     
 
@@ -703,11 +713,6 @@ class MainWindow(QMainWindow):
             self.start_download(self.pending.popleft(), silent=True)
     
     def start_download(self, d, silent=False, downloader=None):
-        if not self.check_internet():
-            self.show_warning("No Internet","Please check your internet connection and try again")
-            return
-        
-
         if d is None:
             return
         
@@ -890,25 +895,9 @@ class MainWindow(QMainWindow):
         # Start the download using the appropriate downloader
         r = self.start_download(d, downloader=downloader)
 
-        
         if r not in ('error', 'cancelled', False):
-            self.change_to_downloads()
+            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
             
-
-        else:
-            if r is None:
-                return
-    
-    def change_to_downloads(self):
-        # GET BUTTON CLICKED
-        btn = widgets.btn_widgets
-
-        # SHOW WIDGETS PAGE
-        btnName = "btn_downloads"
-        widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-        UIFunctions.resetStyle(self, btnName)
-        btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
-
     # endregion
 
     # region youtube
@@ -990,6 +979,59 @@ class MainWindow(QMainWindow):
             subprocess.Popen([os.getenv('SHELL'), '-i', '-c', cmd])
     
 
+    def youtube_func(self):
+        """Fetch metadata from YouTube and process it."""
+        try:
+            # Ensure youtube-dl is loaded
+            if video.ytdl is None:
+                log('youtube-dl module still loading, please wait')
+                while not video.ytdl:
+                    time.sleep(0.1)
+
+            log(f"Extracting info for URL: {self.d.url}")
+            # Extract information with youtube-dl
+            with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
+                info = ydl.extract_info(self.d.url, download=False, process=False)
+                log('Media info:', info, log_level=3)
+
+                # Check if it's a playlist
+                if info.get('_type') == 'playlist' or 'entries' in info:
+                    pl_info = list(info.get('entries', []))
+                    self.playlist = []
+                    for item in pl_info:
+                        url = item.get('url') or item.get('webpage_url') or item.get('id')
+                        if url:
+                            self.playlist.append(Video(url))
+
+                    # Make sure the first video is valid
+                    if self.playlist:
+                        self.d = self.playlist[0]
+                        log(f"Playlist processed. First video: {self.d.title}")
+                    else:
+                        log("Error: No valid videos found in playlist")
+                        return
+
+                else:
+                    # Single video case
+                    log("Processing single video")
+                    video_obj = Video(self.d.url, vid_info=info)
+                    if video_obj.title:  # Check if the video object is valid
+                        self.playlist = [video_obj]
+                        self.d = video_obj
+                        log(f'Single video processed: {self.d.title}')
+                    else:
+                        log("Error: Single video extraction failed")
+                        return
+
+                # Update GUI elements
+                self.update_pl_menu()
+                self.update_stream_menu()
+
+        except Exception as e:
+            log('youtube_func()> error:', e)
+            log('Error occurred on line:', sys.exc_info()[-1].tb_lineno)
+            import traceback
+            log('Traceback:', traceback.format_exc())
 
     def update_pl_menu(self):
         """Update the playlist combobox after processing."""
@@ -1628,9 +1670,7 @@ class MainWindow(QMainWindow):
                     widgets.combo_setting.setCurrentText('Local')
 
         # Save the current setting to a configuration file
-        # self.save_settings()
-        # setting.save_setting()
-        # setting.save_d_list(self.d_list)
+        #self.save_settings()
 
         # Update the combo box to reflect the current setting folder
         try:
