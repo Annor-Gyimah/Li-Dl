@@ -931,7 +931,7 @@ class MainWindow(QMainWindow):
                 # Reset to default thumbnail if no new thumbnail is provided
                 default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
                 widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
-                print("Resetting to default thumbnail")
+                log("Resetting to default thumbnail")
             elif thumbnail != self.current_thumbnail:
                 self.current_thumbnail = thumbnail
 
