@@ -43,13 +43,14 @@ from modules import config, brain, setting, video
 
 from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
 
-from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot
+from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl
 
-from PySide6.QtGui import QAction, QIcon
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage
 
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
                                QDialog, QComboBox, QInputDialog, QMenu, QRadioButton)
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 
 class YouTubeThread(QThread):
     finished = Signal(object)  # Signal to emit when the process is complete
@@ -138,6 +139,7 @@ class MainWindow(QMainWindow):
         self._m_bar = 0  # main playlist progress par
         self.stream_menu_selection = ''
 
+        
         # thumbnail
         self.current_thumbnail = None
 
@@ -307,6 +309,8 @@ class MainWindow(QMainWindow):
 
         self.pending_updates = {}
         
+        self.network_manager = QNetworkAccessManager()
+        self.network_manager.finished.connect(self.on_thumbnail_downloaded)
 
 
         
@@ -646,7 +650,7 @@ class MainWindow(QMainWindow):
                     self.proxy_settings()
                 elif key == 'pending_jobs':
                     self.pending_jobs()
-
+               
             # Save settings (consider if this needs to be done every update)
             setting.save_setting()
             setting.save_d_list(self.d_list)
@@ -680,6 +684,7 @@ class MainWindow(QMainWindow):
         self.queue_update('max_connection', None)
         self.queue_update('proxy_settings', None)
         self.queue_update('pending_jobs', None)
+        #self.queue_update('thumbnail', None)
     
     
     
@@ -912,6 +917,64 @@ class MainWindow(QMainWindow):
     # endregion
 
     # region youtube
+    # def thumbnail(self):
+    #     if self.video:
+    #         if self.video.thumbnail:
+    #             self.show_thumbnail(thumbnail=self.video.thumbnail)
+
+    def show_thumbnail(self, thumbnail=None):
+        """Show video thumbnail in thumbnail image widget in main tab, call without parameter to reset thumbnail."""
+        print(f"Attempting to show thumbnail: {thumbnail}")
+
+        try:
+            if thumbnail is None or thumbnail == "":
+                # Reset to default thumbnail if no new thumbnail is provided
+                default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
+                widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+                print("Resetting to default thumbnail")
+            elif thumbnail != self.current_thumbnail:
+                self.current_thumbnail = thumbnail
+
+                if thumbnail.startswith(('http://', 'https://')):
+                    # If it's a URL, download the image
+                    print(f"Downloading thumbnail from URL: {thumbnail}")
+                    request = QNetworkRequest(QUrl(thumbnail))
+                    self.network_manager.get(request)
+                else:
+                    # If it's a local file path
+                    pixmap = QPixmap(thumbnail)
+                    if not pixmap.isNull():
+                        print(f"Loaded local thumbnail: {thumbnail}")
+                        widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+                    else:
+                        print(f"Failed to load local thumbnail: {thumbnail}")
+                        self.reset_to_default_thumbnail()
+
+        except Exception as e:
+            log('show_thumbnail() error:', e)
+            self.reset_to_default_thumbnail()
+    
+    def on_thumbnail_downloaded(self, reply):
+        if reply.error() == QNetworkReply.NoError:
+            data = reply.readAll()
+            image = QImage()
+            if image.loadFromData(data):
+                pixmap = QPixmap.fromImage(image)
+                widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+                print("Successfully downloaded and set thumbnail")
+            else:
+                print("Failed to create image from downloaded data")
+                self.reset_to_default_thumbnail()
+        else:
+            print(f"Error downloading thumbnail: {reply.errorString()}")
+            self.reset_to_default_thumbnail()
+
+    def reset_to_default_thumbnail(self):
+        default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
+        widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+        print("Reset to default thumbnail due to error")
+
+
     def ytdl_downloader(self):
         """Launch youtube-dl with proper command arguments."""
         
@@ -1020,6 +1083,7 @@ class MainWindow(QMainWindow):
         """Update the stream combobox after selecting a video."""
         try:
             log("Updating stream menu")
+            
             if not hasattr(self, 'd') or not self.d:
                 log("Error: No video selected")
                 return
@@ -1053,6 +1117,7 @@ class MainWindow(QMainWindow):
         # Find the selected video index and set it as the current download item
         index = self.playlist.index(selected_video)
         self.video = self.playlist[index]
+        print(f"This is the thumbnails url {self.video.thumbnail_url}")
         self.d = self.video  # Update current download item to the selected video
 
         # Update the stream menu based on the selected video
@@ -1061,7 +1126,9 @@ class MainWindow(QMainWindow):
         # Optionally load the video thumbnail in a separate thread
         if config.show_thumbnail:
             Thread(target=self.video.get_thumbnail).start()
-
+        
+        self.show_thumbnail(thumbnail=self.video.thumbnail_url)
+        
         # Update the GUI to reflect the current selection
         #self.update_gui()
 

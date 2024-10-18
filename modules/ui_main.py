@@ -1246,7 +1246,7 @@ class Ui_MainWindow(object):
         # Create a horizontal layout for the frame
         self.home_horizontalLayout_4 = QHBoxLayout(self.home_row_4)
         self.home_horizontalLayout_4.setObjectName(u"horizontalLayout_11")
-        self.home_horizontalLayout_4.setContentsMargins(60, 80, 60, 60)  # Adjust margins for overall spacing
+        self.home_horizontalLayout_4.setContentsMargins(60, 20, 60, 60)  # Adjust margins for overall spacing
         self.home_horizontalLayout_4.setSpacing(20)  # Space between different label-value pairs
 
         # Function to create a label-value pair and add it to the layout
@@ -1302,10 +1302,10 @@ class Ui_MainWindow(object):
         icon8.addFile(u":/icons/images/icons/cil-data-transfer-down.png", QSize(), QIcon.Normal, QIcon.Off)
         self.DownloadButton.setIcon(icon8)
         
-        self.combo_setting_c = QComboBox(self.home_row_5)
-        self.combo_setting_c.setObjectName(u"combo_setting")
+        # self.combo_setting_c = QComboBox(self.home_row_5)
+        # self.combo_setting_c.setObjectName(u"combo_setting")
         
-        self.stream_combo = QComboBox(self.home_row_5)
+        # self.stream_combo = QComboBox(self.home_row_5)
         #self.combo_setting_c.addItems])
         
         
@@ -1314,22 +1314,95 @@ class Ui_MainWindow(object):
 
         # Add the progress bar to the layout with margins
         self.home_verticalLayout_5.addWidget(self.DownloadButton, 0, Qt.AlignHCenter | Qt.AlignTop)
-        self.home_verticalLayout_5.addWidget(self.combo_setting_c, 0, Qt.AlignHCenter | Qt.AlignTop)
-        self.home_verticalLayout_5.addWidget(self.stream_combo, 0, Qt.AlignHCenter | Qt.AlignTop)
 
         # Set margins directly on the layout for spacing
         self.home_verticalLayout_5.setContentsMargins(20, 0, 20, 0)  # Left and right margins set to 20 pixels
 
 
 
+        # Create the main frame for home_row_6
+        self.home_row_6 = QFrame(self.home)
+        self.home_row_6.setFrameShape(QFrame.StyledPanel)
+        self.home_row_6.setFrameShadow(QFrame.Raised)
+        self.home_row_6.setMinimumHeight(50)  # Adjusted height
+        self.home_row_6.setMaximumHeight(120)  # Set a reasonable height to avoid overlap
+
+        # Create a horizontal layout for the frame
+        self.home_horizontalLayout_row_6 = QHBoxLayout(self.home_row_6)
+        self.home_horizontalLayout_row_6.setSpacing(10)  # Reduced spacing for padding
+        self.home_horizontalLayout_row_6.setContentsMargins(40, 10, 40, 10)  # Adjust margins to add padding on left and right
+
+        # First layout: for the video thumbnail
+        self.home_video_thumbnail_layout = QVBoxLayout()
+        self.home_video_thumbnail_layout.setSpacing(0)
+
+        # Add QLabel to represent the video thumbnail
+        self.home_video_thumbnail_label = QLabel(self.home_row_6)
+        self.home_video_thumbnail_label.setFixedSize(150, 100)  # Fixed size for thumbnail
+        self.home_video_thumbnail_label.setPixmap(QPixmap(":/icons/images/icons/thumbnail-default.png").scaled(150, 150, Qt.KeepAspectRatio))
+        self.home_video_thumbnail_label.setAlignment(Qt.AlignCenter)
+        #self.home_video_thumbnail_label.setStyleSheet("background-color: rgb(33, 37, 43);")
+        self.home_video_thumbnail_layout.addWidget(self.home_video_thumbnail_label)
+
         
 
+        # Add the thumbnail layout to the horizontal layout
+        self.home_horizontalLayout_row_6.addStretch(1)  # Add stretch to left for centering
+        self.home_horizontalLayout_row_6.addLayout(self.home_video_thumbnail_layout)
+
+        # Layout for combo boxes
+        self.home_combobox_layout = QVBoxLayout()
+        self.home_combobox_layout.setSpacing(10)  # Space between combo boxes
+
+        # Add the first combo box
+        self.combo_setting_c = QComboBox(self.home_row_6)
+        self.combo_setting_c.setMinimumSize(QSize(120, 30))  # Adjust width here
+        self.combo_setting_c.setStyleSheet("""
+        QComboBox {
+                background-color: rgb(33, 37, 43);  /* Background of the combo box */
+                color: white;  /* Text color */
+                border: 1px solid gray;  /* Border */
+                padding: 5px;
+        }
+        QComboBox QAbstractItemView {
+                background-color: rgb(33, 37, 43);  /* Background of drop-down list */
+                color: white;  /* Text color in the drop-down list */
+                selection-background-color: rgb(85, 170, 255);  /* Color of the selected item */
+        }
+        """)
+        self.combo_setting_c.addItems(["Local", "Global"])
+        self.home_combobox_layout.addWidget(self.combo_setting_c)
+
+        # Add the second combo box
+        self.stream_combo = QComboBox(self.home_row_6)
+        self.stream_combo.setMinimumSize(QSize(120, 30))  # Adjust width here
+        self.stream_combo.setStyleSheet("""
+        QComboBox {
+                background-color: rgb(33, 37, 43);  /* Background of the combo box */
+                color: white;  /* Text color */
+                border: 1px solid gray;  /* Border */
+                padding: 5px;
+        }
+        QComboBox QAbstractItemView {
+                background-color: rgb(33, 37, 43);  /* Background of drop-down list */
+                color: white;  /* Text color in the drop-down list */
+                selection-background-color: rgb(85, 170, 255);  /* Color of the selected item */
+        }
+        """)
+        self.home_combobox_layout.addWidget(self.stream_combo)
+
+        # Add the combo box layout to the horizontal layout
+        self.home_horizontalLayout_row_6.addSpacing(10)  # Add space between thumbnail and combo boxes
+        self.home_horizontalLayout_row_6.addLayout(self.home_combobox_layout)
+        self.home_horizontalLayout_row_6.addStretch(1)  # Add stretch to the right for centering
 
 
+       
 
         self.home_verticalLayout.addWidget(self.home_row_1)
         self.home_verticalLayout.addWidget(self.home_row_2)
         self.home_verticalLayout.addWidget(self.home_row_3)
+        self.home_verticalLayout.addWidget(self.home_row_6)
         self.home_verticalLayout.addWidget(self.home_row_4)
         self.home_verticalLayout.addWidget(self.home_row_5)
 
