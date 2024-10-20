@@ -653,24 +653,42 @@ def pre_process_hls(d):
         buffer = download(url)  # get BytesIO object
 
         if buffer:
-            # Try decoding with UTF-8 first
-            try:
-                content = buffer.getvalue().decode('utf-8')
-            except UnicodeDecodeError:
-                # If UTF-8 fails, try decoding with ISO-8859-1 (Latin-1)
-                try:
-                    content = buffer.getvalue().decode('iso-8859-1')
-                except UnicodeDecodeError:
-                    # If both fail, use a more permissive decoding
-                    content = buffer.getvalue().decode('utf-8', errors='replace')
-            
-            if '#EXT' in content:
-                return content
+            # convert to string
+            buffer = buffer.getvalue().decode('utf-8')
+            if '#EXT' in repr(buffer):
+                return buffer
 
         log('pre_process_hls()> received invalid m3u8 file from server')
         if config.log_level >= 3:
             log('---------------------------------------\n', buffer, '---------------------------------------\n')
         return None
+    
+    # def download_m3u8(url):
+    #     # download the manifest from m3u8 file descriptor located at url
+    #     buffer = download(url)  # get BytesIO object
+
+    #     if buffer:
+    #         # Try decoding with UTF-8 first
+    #         try:
+    #             buffer = buffer.getvalue().decode('utf-8')
+    #             log('decoding with utf-8')
+    #         except UnicodeDecodeError:
+    #             # If UTF-8 fails, try decoding with ISO-8859-1 (Latin-1)
+    #             try:
+    #                 buffer = buffer.getvalue().decode('iso-8859-1')
+    #                 log('decoding with iso-8859-1')
+    #             except UnicodeDecodeError:
+    #                 # If both fail, use a more permissive decoding
+    #                 buffer = buffer.getvalue().decode('utf-8', errors='replace')
+            
+    #         if '#EXT' in repr(buffer):
+    #             return buffer
+
+    #     log('pre_process_hls()> received invalid m3u8 file from server')
+    #     if config.log_level >= 3:
+    #         log('yes started from here')
+    #         log('---------------------------------------\n', buffer, '---------------------------------------\n')
+    #     return None
 
     # download m3u8 files
     master_m3u8 = download_m3u8(d.manifest_url)

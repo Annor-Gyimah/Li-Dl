@@ -49,7 +49,7 @@ from PySide6.QtGui import QAction, QIcon, QPixmap, QImage
 
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
-                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton)
+                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 
 class YouTubeThread(QThread):
@@ -83,7 +83,7 @@ class YouTubeThread(QThread):
                             playlist.append(Video(url))
                     result = playlist
                 else:
-                    result = Video(self.url, vid_info=info)
+                    result = Video(self.url, vid_info=None)
 
                 self.finished.emit(result)
         except Exception as e:
@@ -152,7 +152,7 @@ class MainWindow(QMainWindow):
 
         # SET AS GLOBAL WIDGETS
         # ///////////////////////////////////////////////////////////////
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_MainWindow() 
         self.ui.setupUi(self)
         global widgets
         widgets = self.ui
@@ -273,6 +273,8 @@ class MainWindow(QMainWindow):
         setting.load_setting()
         self.d_list = setting.load_d_list()
 
+        widgets.home_folder_path_lineEdit.setText(config.download_folder)
+
         # Add this line to set the checkbox state based on the loaded setting
         widgets.monitor_clipboard.setChecked(config.monitor_clipboard)
         widgets.checkBox2.setChecked(config.show_download_window)
@@ -363,9 +365,9 @@ class MainWindow(QMainWindow):
 
     # MOUSE CLICK EVENTS
     # ///////////////////////////////////////////////////////////////
-    # def mousePressEvent(self, event):
-    #     # SET DRAG POS WINDOW
-    #     self.dragPos = event.globalPos()
+    def mousePressEvent(self, event):
+        # SET DRAG POS WINDOW
+        self.dragPos = event.globalPos()
 
     #     # PRINT MOUSE EVENTS
     #     if event.buttons() == Qt.LeftButton:
@@ -900,9 +902,9 @@ class MainWindow(QMainWindow):
             self.change_to_downloads()
             
 
-        else:
-            if r is None:
-                return
+        # else:
+        #     if r is None:
+        #         return
     
     def change_to_downloads(self):
         # GET BUTTON CLICKED
@@ -917,10 +919,6 @@ class MainWindow(QMainWindow):
     # endregion
 
     # region youtube
-    # def thumbnail(self):
-    #     if self.video:
-    #         if self.video.thumbnail:
-    #             self.show_thumbnail(thumbnail=self.video.thumbnail)
 
     def show_thumbnail(self, thumbnail=None):
         """Show video thumbnail in thumbnail image widget in main tab, call without parameter to reset thumbnail."""
@@ -1137,6 +1135,8 @@ class MainWindow(QMainWindow):
         """Handle stream selection."""
         if selected_stream not in self.video.stream_names:
             selected_stream = self.video.stream_names[0]  # Default to the first stream
+        # else: 
+        #     selected_stream = widgets.stream_combo.setCurrentText(self.video.stream_names)
 
         self.video.selected_stream = self.video.streams[selected_stream]  # Set the selected stream
         #self.update_gui()  # Update the GUI to reflect the selected stream
@@ -1854,7 +1854,7 @@ class DownloadWindow(QWidget):
         
         # Output Label
         self.out_label = QLabel(self.frame)
-        self.out_label.setFixedHeight(60)
+        self.out_label.setFixedHeight(160)
         self.out_label.setStyleSheet("font-size: 11px; color: white;")
         self.frame_layout.addWidget(self.out_label)
 
