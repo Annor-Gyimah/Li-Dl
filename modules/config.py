@@ -26,8 +26,8 @@ DEFAULT_THEME = 'DarkGrey2'
 DEFAULT_CONNECTIONS = 10
 DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
-APP_URL = 'https://github.com/pyIDM/pyIDM'
-LATEST_RELEASE_URL = 'https://github.com/pyIDM/pyIDM/releases/latest'
+APP_URL = 'http://localhost/lite/Modern_GUI_PyDracula_PySide6_or_PyQt6-master'
+LATEST_RELEASE_URL = 'http://localhost/lite/source.zip'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
 DEFAULT_LOG_LEVEL = 3
 

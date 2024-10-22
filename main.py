@@ -37,9 +37,9 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, 
+from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, compare_versions, 
                            log, log_recorder, delete_file, time_format, truncate, notify, open_file, run_command, handle_exceptions)
-from modules import config, brain, setting, video
+from modules import config, brain, setting, video, update
 
 from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
 
@@ -89,6 +89,18 @@ class YouTubeThread(QThread):
         except Exception as e:
             log('YouTubeThread error:', e)
             self.finished.emit(None)
+    
+        
+class UpdateAppThread(QThread):
+    app_update = Signal()
+    def __ini__(self, remote=True):
+        super().__init__()
+        self.remote = remote
+    
+    def run(self):
+        
+        self.app_update.emit()
+
 
 
 class MainWindow(QMainWindow):
@@ -252,6 +264,7 @@ class MainWindow(QMainWindow):
         widgets.schedule_all.clicked.connect(self.schedule_all)
         widgets.stop_all.clicked.connect(self.stop_all_downloads)
         widgets.delete_all.clicked.connect(self.delete_all_downloads)
+        widgets.update_button.clicked.connect(self.start_update)
         #widgets.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -260,10 +273,12 @@ class MainWindow(QMainWindow):
         
 
         widgets.version.setText(f"{config.APP_VERSION}")
+        widgets.version_label.setText(f"App Version: {config.APP_VERSION}")
+        
         widgets.titleLeftApp.setText(f"{config.APP_NAME}")
         widgets.titleLeftDescription.setText(f"{config.APP_DEC}")
 
-        log('Starting PyIDM version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen')
+        log(f'Starting {config.APP_NAME} version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen')
         # log('starting application')
         log('operating system:', config.operating_system_info)
         log('current working directory:', config.current_directory)
@@ -301,6 +316,7 @@ class MainWindow(QMainWindow):
         widgets.checkBox_proxy.setChecked(True if config.enable_proxy else False)
         widgets.lineEdit_proxy.setText(config.proxy if config.enable_proxy == True else "")
         widgets.combo_proxy_type.setCurrentText(config.proxy_type)
+        widgets.combo_check_update.setCurrentText(str(config.update_frequency))
         #widgets.label_proxy_info.setText(config.proxy == '' if config.enable_proxy)
         
 
@@ -313,7 +329,7 @@ class MainWindow(QMainWindow):
         
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
-
+        self.one_time = True
 
         
 
@@ -436,6 +452,9 @@ class MainWindow(QMainWindow):
                 self.start_download(*v)
             elif k == "monitor":
                 widgets.monitor_clipboard.setChecked(v)
+            
+            elif k == 'show_update_gui':  # show update gui
+                self.show_update_gui()
 
                 
 
@@ -453,6 +472,25 @@ class MainWindow(QMainWindow):
 
             self.read_q()
             self.queue_updates()  # You can also update the GUI components based on certain conditions
+            if self.one_time:
+                self.one_time = False
+                # check availability of ffmpeg in the system or in same folder with this script
+                
+                # check_for_update
+                t = time.localtime()
+                today = t.tm_yday  # today number in the year range (1 to 366)
+
+                try:
+                    days_since_last_update = today - config.last_update_check
+                    print(days_since_last_update, today, config.last_update_check)
+                    log('days since last check for update:', days_since_last_update, 'day(s).')
+
+                    if days_since_last_update >= config.update_frequency:
+                        Thread(target=self.update_available, daemon=True).start()
+                        Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                        config.last_update_check = today
+                except Exception as e:
+                    log('MainWindow.run()>', e)
         except Exception as e:
             print(f"Error in run loop: {e}")
 
@@ -652,6 +690,8 @@ class MainWindow(QMainWindow):
                     self.proxy_settings()
                 elif key == 'pending_jobs':
                     self.pending_jobs()
+                elif key == 'check_update_frequency':
+                    self.check_update_frequency()
                
             # Save settings (consider if this needs to be done every update)
             setting.save_setting()
@@ -686,6 +726,7 @@ class MainWindow(QMainWindow):
         self.queue_update('max_connection', None)
         self.queue_update('proxy_settings', None)
         self.queue_update('pending_jobs', None)
+        self.queue_update('check_update_frequency', None)
         #self.queue_update('thumbnail', None)
     
     
@@ -899,20 +940,20 @@ class MainWindow(QMainWindow):
 
         
         if r not in ('error', 'cancelled', False):
-            self.change_to_downloads()
+            self.change_page(btn=widgets.btn_widgets, btnName="btn_downloads", page=widgets.widgets)
             
 
         # else:
         #     if r is None:
         #         return
     
-    def change_to_downloads(self):
+    def change_page(self, btn, btnName, page):
         # GET BUTTON CLICKED
-        btn = widgets.btn_widgets
+        btn = btn
 
         # SHOW WIDGETS PAGE
-        btnName = "btn_downloads"
-        widgets.stackedWidget.setCurrentWidget(widgets.widgets)
+        btnName = btnName
+        widgets.stackedWidget.setCurrentWidget(page)
         UIFunctions.resetStyle(self, btnName)
         btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
 
@@ -1648,7 +1689,7 @@ class MainWindow(QMainWindow):
     def settings_folder(self):
         # Get the currently selected value in the combo box
         selected = widgets.combo_setting.currentText()
-        
+        widgets.ytdlp_version_label.setText(f"YT-DLP Version: {config.ytdl_VERSION}")
         if selected == "Local":
             # Choose local folder as the settings folder
             config.sett_folder = config.current_directory
@@ -1693,11 +1734,6 @@ class MainWindow(QMainWindow):
 
                     # Update the combo box to reflect the local folder choice
                     widgets.combo_setting.setCurrentText('Local')
-
-        # Save the current setting to a configuration file
-        # self.save_settings()
-        # setting.save_setting()
-        # setting.save_d_list(self.d_list)
 
         # Update the combo box to reflect the current setting folder
         try:
@@ -1807,6 +1843,217 @@ class MainWindow(QMainWindow):
             widgets.label_proxy_info.setText(config.proxy)
             widgets.lineEdit_proxy.setEnabled(False)
             widgets.combo_proxy_type.setEnabled(False)
+
+    # endregion
+
+    # region update
+
+    def change_cursor(self, cursor_type):
+        """Change cursor to busy or normal."""
+        if cursor_type == 'busy':
+            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        elif cursor_type == 'normal':
+            QApplication.restoreOverrideCursor()  # Restore normal cursor
+
+    def check_update_frequency(self):
+        selected = int(widgets.combo_check_update.currentText())
+        config.update_frequency = selected
+
+    def update_available(self):
+        self.change_cursor('busy')
+
+        # check for update
+        current_version = config.APP_VERSION
+        info = update.get_changelog()
+
+        if info:
+            latest_version, version_description = info
+
+            # compare with current application version
+            newer_version = compare_versions(current_version, latest_version)  # return None if both equal
+            print(newer_version, current_version, latest_version)
+
+            if not newer_version or newer_version == current_version:
+                self.new_version_available = False
+                log("check_for_update() --> App. is up-to-date, server version=", latest_version)
+            else:  # newer_version == latest_version
+                self.new_version_available = True
+                #self.show_information('Updates', '', 'Updates available')
+                self.handle_update()
+                
+
+            # updaet global values
+            config.APP_LATEST_VERSION = latest_version
+            self.new_version_description = version_description
+        else:
+            self.new_version_description = None
+            self.new_version_available = False
+
+        self.change_cursor('normal')
+
+
+    def check_for_update(self):
+        self.change_cursor('busy')
+
+        # check for update
+        current_version = config.APP_VERSION
+        info = update.get_changelog()
+
+        if info:
+            latest_version, version_description = info
+
+            # compare with current application version
+            newer_version = compare_versions(current_version, latest_version)  # return None if both equal
+            print(newer_version, current_version, latest_version)
+
+            if not newer_version or newer_version == current_version:
+                self.new_version_available = False
+                log("check_for_update() --> App. is up-to-date, server version=", latest_version)
+            else:  # newer_version == latest_version
+                self.new_version_available = True
+                
+
+            # updaet global values
+            config.APP_LATEST_VERSION = latest_version
+            self.new_version_description = version_description
+        else:
+            self.new_version_description = None
+            self.new_version_available = False
+
+        self.change_cursor('normal')
+
+    def start_update(self):
+      
+        self.startupdate = UpdateAppThread()
+        self.startupdate.app_update.connect(self.update_app)
+        
+        self.startupdate.start()
+
+    def update_app(self, remote=True):
+        """show changelog with latest version and ask user for update
+        :param remote: bool, check remote server for update"""
+        
+        if remote:
+            Thread(target=self.check_for_update, daemon=True).start()
+            #self.check_for_update()
+            
+
+        if self.new_version_available:
+            config.main_window_q.put(('show_update_gui', ''))
+            # self.show_update_gui()
+        else:
+            self.show_information(title="App Update", inform=f"App. is up-to-date \n", msg=f"Current version: {config.APP_VERSION} \n Server version:  {config.APP_LATEST_VERSION} \n")
+            if self.new_version_description:
+                pass
+            else:
+                self.show_information(title="App Update", inform="Check your internet connection", msg="Couldnt check for update")
+        
+        
+                
+    def show_update_gui(self):
+        # Create a QDialog (modal window)
+        dialog = QDialog(self)
+        dialog.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+        dialog.setWindowTitle('Update Application')
+        dialog.setModal(True)  # Keep the window on top
+
+        # Create the layout for the dialog
+        layout = QVBoxLayout()
+
+        # Add a label to indicate the new version
+        label = QLabel('New version available:')
+        layout.addWidget(label)
+
+        # Add a QTextEdit to show the new version description (read-only)
+        description_edit = QTextEdit()
+        description_edit.setText(self.new_version_description)  # Assuming self.new_version_description is a string
+        description_edit.setReadOnly(True)
+        description_edit.setFixedSize(400, 200)  # Set the size similar to size=(50, 10) in PySimpleGUI
+        layout.addWidget(description_edit)
+
+        # Create buttons for "Update" and "Cancel"
+        button_layout = QHBoxLayout()
+        update_button = QPushButton('Update')
+        cancel_button = QPushButton('Cancel')
+        button_layout.addWidget(update_button)
+        button_layout.addWidget(cancel_button)
+
+        # Add the buttons to the layout
+        layout.addLayout(button_layout)
+
+        # Set the main layout of the dialog
+        dialog.setLayout(layout)
+
+        # Connect buttons to actions
+        update_button.clicked.connect(self.handle_update)  # Call the update function when "Update" is clicked
+        cancel_button.clicked.connect(dialog.close)  # Close the dialog when "Cancel" is clicked
+
+        # Show the dialog
+        dialog.exec()
+
+    def handle_update(self):
+        update.update()  # Call the update method
+
+
+    def animate_update_note(self):
+        # display word by word
+        # values = 'new version available, click me for more info !'.split()
+        # values = [' '.join(values[:i + 1]) for i in range(len(values))]
+
+        # display character by character
+        # values = [c for c in 'new version available, click me for more info !']
+        # values = [''.join(values[:i + 1]) for i in range(len(values))]
+
+        # normal on off display
+        values = ['', 'new version available, click me for more info !']
+        note = self.window['update_note']
+
+        # add animation text property to note object
+        if not hasattr(note, 'animation_index'):
+            note.animation_index = 0
+
+        if note.animation_index < len(values) - 1:
+            note.animation_index += 1
+        else:
+            note.animation_index = 0
+
+        new_text = values[note.animation_index]
+        note(new_text)
+
+    def check_for_ytdl_update(self):
+        config.ytdl_LATEST_VERSION = update.check_for_ytdl_update()
+
+    def update_ytdl(self):
+        current_version = config.ytdl_VERSION
+        latest_version = config.ytdl_LATEST_VERSION or update.check_for_ytdl_update()
+        if latest_version:
+            config.ytdl_LATEST_VERSION = latest_version
+            log('youtube-dl update, latest version = ', latest_version, ' - current version = ', current_version)
+
+            if latest_version != current_version:
+                # select log tab
+                self.change_page(btn=widgets.btn_new, btnName="btn_logs", page=widgets.new_page)
+
+                msg = (f'Found new version of youtube-dl on github {latest_version}\n'
+                    f'current version =  {current_version} \n'
+                    'Install new version?')
+                confirmation_box = QMessageBox(self)
+                confirmation_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+                confirmation_box.setWindowTitle('yt-dlp module update')
+                confirmation_box.setText(msg)
+                confirmation_box.setIcon(QMessageBox.Question)
+                confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                reply = confirmation_box.exec_()
+
+                if reply == QMessageBox.Yes:
+                    try:
+                        Thread(target=update.update_youtube_dl).start()
+                    except Exception as e:
+                        log('failed to update youtube-dl module:', e)
+            else:
+                self.show_information('YT-DLP', msg=f'yt-dlp is up-to-date, current version = {current_version}')
+              
+    # endregion
 
     
 
