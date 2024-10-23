@@ -153,7 +153,7 @@ class Ui_MainWindow(object):
 "#extraIcon {\n"
 "	background-position: center;\n"
 "	background-repeat: no-repeat;\n"
-"	background-image: url(:/icons/images/icons/cil-info.png);\n"
+"	background-image: url(:/icons/images/icons/icon_info.svg);\n"
 "}\n"
 "\n"
 "/* Label */\n"
@@ -760,7 +760,7 @@ class Ui_MainWindow(object):
         self.toggleLeftBox.setFont(font)
         self.toggleLeftBox.setCursor(QCursor(Qt.PointingHandCursor))
         self.toggleLeftBox.setLayoutDirection(Qt.LeftToRight)
-        self.toggleLeftBox.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-info.png);")
+        self.toggleLeftBox.setStyleSheet(u"background-image: url(:/icons/images/icons/icon_info.svg);")
         #self.toggleLeftBox.setStyleSheet(u"background-image: url(:/icons/images/icons/intt1.png);")
 
         self.verticalLayout_9.addWidget(self.toggleLeftBox)
@@ -848,41 +848,41 @@ class Ui_MainWindow(object):
         self.verticalLayout_11.setSpacing(0)
         self.verticalLayout_11.setObjectName(u"verticalLayout_11")
         self.verticalLayout_11.setContentsMargins(0, 0, 0, 0)
-        self.btn_share = QPushButton(self.extraTopMenu)
-        self.btn_share.setObjectName(u"btn_share")
-        sizePolicy.setHeightForWidth(self.btn_share.sizePolicy().hasHeightForWidth())
-        self.btn_share.setSizePolicy(sizePolicy)
-        self.btn_share.setMinimumSize(QSize(0, 45))
-        self.btn_share.setFont(font)
-        self.btn_share.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_share.setLayoutDirection(Qt.LeftToRight)
-        self.btn_share.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-share-boxed.png);")
+        # self.btn_share = QPushButton(self.extraTopMenu)
+        # self.btn_share.setObjectName(u"btn_share")
+        # sizePolicy.setHeightForWidth(self.btn_share.sizePolicy().hasHeightForWidth())
+        # self.btn_share.setSizePolicy(sizePolicy)
+        # self.btn_share.setMinimumSize(QSize(0, 45))
+        # self.btn_share.setFont(font)
+        # self.btn_share.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.btn_share.setLayoutDirection(Qt.LeftToRight)
+        # self.btn_share.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-share-boxed.png);")
 
-        self.verticalLayout_11.addWidget(self.btn_share)
+        # self.verticalLayout_11.addWidget(self.btn_share)
 
-        self.btn_adjustments = QPushButton(self.extraTopMenu)
-        self.btn_adjustments.setObjectName(u"btn_adjustments")
-        sizePolicy.setHeightForWidth(self.btn_adjustments.sizePolicy().hasHeightForWidth())
-        self.btn_adjustments.setSizePolicy(sizePolicy)
-        self.btn_adjustments.setMinimumSize(QSize(0, 45))
-        self.btn_adjustments.setFont(font)
-        self.btn_adjustments.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_adjustments.setLayoutDirection(Qt.LeftToRight)
-        self.btn_adjustments.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-equalizer.png);")
+        # self.btn_adjustments = QPushButton(self.extraTopMenu)
+        # self.btn_adjustments.setObjectName(u"btn_adjustments")
+        # sizePolicy.setHeightForWidth(self.btn_adjustments.sizePolicy().hasHeightForWidth())
+        # self.btn_adjustments.setSizePolicy(sizePolicy)
+        # self.btn_adjustments.setMinimumSize(QSize(0, 45))
+        # self.btn_adjustments.setFont(font)
+        # self.btn_adjustments.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.btn_adjustments.setLayoutDirection(Qt.LeftToRight)
+        # self.btn_adjustments.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-equalizer.png);")
 
-        self.verticalLayout_11.addWidget(self.btn_adjustments)
+        # self.verticalLayout_11.addWidget(self.btn_adjustments)
 
-        self.btn_more = QPushButton(self.extraTopMenu)
-        self.btn_more.setObjectName(u"btn_more")
-        sizePolicy.setHeightForWidth(self.btn_more.sizePolicy().hasHeightForWidth())
-        self.btn_more.setSizePolicy(sizePolicy)
-        self.btn_more.setMinimumSize(QSize(0, 45))
-        self.btn_more.setFont(font)
-        self.btn_more.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_more.setLayoutDirection(Qt.LeftToRight)
-        self.btn_more.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-layers.png);")
+        # self.btn_more = QPushButton(self.extraTopMenu)
+        # self.btn_more.setObjectName(u"btn_more")
+        # sizePolicy.setHeightForWidth(self.btn_more.sizePolicy().hasHeightForWidth())
+        # self.btn_more.setSizePolicy(sizePolicy)
+        # self.btn_more.setMinimumSize(QSize(0, 45))
+        # self.btn_more.setFont(font)
+        # self.btn_more.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.btn_more.setLayoutDirection(Qt.LeftToRight)
+        # self.btn_more.setStyleSheet(u"background-image: url(:/icons/images/icons/cil-layers.png);")
 
-        self.verticalLayout_11.addWidget(self.btn_more)
+        # self.verticalLayout_11.addWidget(self.btn_more)
 
 
         self.verticalLayout_12.addWidget(self.extraTopMenu, 0, Qt.AlignTop)
@@ -1370,7 +1370,7 @@ class Ui_MainWindow(object):
                 selection-background-color: rgb(85, 170, 255);  /* Color of the selected item */
         }
         """)
-        self.combo_setting_c.addItems(["Local", "Global"])
+        # self.combo_setting_c.addItems(["Local", "Global"])
         self.home_combobox_layout.addWidget(self.combo_setting_c)
 
         # Add the second combo box
@@ -2007,24 +2007,24 @@ class Ui_MainWindow(object):
         self.updatebuttonRowLayout.addWidget(self.update_button)
         self.updateLayout.addWidget(self.updatebuttonRow)
 
-        # --- Third new row: YT-DLP Update button --------
-        self.ytdlp_updatebuttonRow = QFrame(self.updateFrame)
-        self.ytdlp_updatebuttonRowLayout = QHBoxLayout(self.ytdlp_updatebuttonRow)
-        self.ytdlp_updatebuttonRowLayout.setSpacing(10)
-        self.ytdlp_updatebuttonRowLayout.setContentsMargins(0, 0, 0, 0)
+        # # --- Third new row: YT-DLP Update button --------
+        # self.ytdlp_updatebuttonRow = QFrame(self.updateFrame)
+        # self.ytdlp_updatebuttonRowLayout = QHBoxLayout(self.ytdlp_updatebuttonRow)
+        # self.ytdlp_updatebuttonRowLayout.setSpacing(10)
+        # self.ytdlp_updatebuttonRowLayout.setContentsMargins(0, 0, 0, 0)
 
-        # Version label
-        self.ytdlp_version_label = QLabel(self.updateFrame)
-        self.updateLayout.addWidget(self.ytdlp_version_label)
+        # # Version label
+        # self.ytdlp_version_label = QLabel(self.updateFrame)
+        # self.updateLayout.addWidget(self.ytdlp_version_label)
 
-        self.ytdlp_update_button = QPushButton('Check for update', self.ytdlp_updatebuttonRow)
-        self.ytdlp_update_button.setMinimumSize(QSize(80, 25))
-        self.ytdlp_update_button.setFont(font)
-        self.ytdlp_update_button.setCursor(QCursor(Qt.PointingHandCursor))
-        self.ytdlp_update_button.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        # self.ytdlp_update_button = QPushButton('Check for update', self.ytdlp_updatebuttonRow)
+        # self.ytdlp_update_button.setMinimumSize(QSize(80, 25))
+        # self.ytdlp_update_button.setFont(font)
+        # self.ytdlp_update_button.setCursor(QCursor(Qt.PointingHandCursor))
+        # self.ytdlp_update_button.setStyleSheet(u"background-color: rgb(52, 59, 72);")
         
-        self.ytdlp_updatebuttonRowLayout.addWidget(self.ytdlp_update_button)
-        self.updateLayout.addWidget(self.ytdlp_updatebuttonRow)
+        # self.ytdlp_updatebuttonRowLayout.addWidget(self.ytdlp_update_button)
+        # self.updateLayout.addWidget(self.ytdlp_updatebuttonRow)
 
 
 

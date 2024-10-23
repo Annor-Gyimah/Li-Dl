@@ -59,6 +59,13 @@ class YouTubeThread(QThread):
         super().__init__()
         self.url = url
 
+    def change_cursor(self, cursor_type):
+        """Change cursor to busy or normal."""
+        if cursor_type == 'busy':
+            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        elif cursor_type == 'normal':
+            QApplication.restoreOverrideCursor()  # Restore normal cursor
+
     def run(self):
         try:
             # Ensure youtube-dl is loaded
@@ -66,8 +73,9 @@ class YouTubeThread(QThread):
                 log('youtube-dl module still loading, please wait')
                 while not video.ytdl:
                     time.sleep(0.1)
-
+            widgets.DownloadButton.setEnabled(False)
             log(f"Extracting info for URL: {self.url}")
+            self.change_cursor('busy')
             # Extract information with youtube-dl
             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
                 info = ydl.extract_info(self.url, download=False, process=False)
@@ -86,6 +94,8 @@ class YouTubeThread(QThread):
                     result = Video(self.url, vid_info=None)
 
                 self.finished.emit(result)
+                self.change_cursor('normal')
+                widgets.DownloadButton.setEnabled(True)
         except Exception as e:
             log('YouTubeThread error:', e)
             self.finished.emit(None)
@@ -554,7 +564,7 @@ class MainWindow(QMainWindow):
 
 
     def retry(self):
-        #self.d.url = ''
+        self.d.url = ''
         self.url_text_change()
 
     def reset(self):
@@ -610,8 +620,11 @@ class MainWindow(QMainWindow):
             self.d = result
         else:
             log("Error: YouTube extraction failed")
+            self.change_cursor('normal')
+            widgets.DownloadButton.setEnabled(True)
             widgets.combo_setting_c.clear()
             widgets.stream_combo.clear()
+            self.reset_to_default_thumbnail()
             return
 
         self.update_pl_menu()
@@ -1175,7 +1188,7 @@ class MainWindow(QMainWindow):
         if config.show_thumbnail:
             Thread(target=self.video.get_thumbnail).start()
         
-        self.show_thumbnail(thumbnail=self.video.thumbnail_url)
+            self.show_thumbnail(thumbnail=self.video.thumbnail_url)
         
         # Update the GUI to reflect the current selection
         #self.update_gui()
@@ -1597,6 +1610,7 @@ class MainWindow(QMainWindow):
         action_watch_downloading = QAction(QIcon(":/icons/images/icons/cil-media-play.png"), 'Watch while downloading', context_menu)
         action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-clock.png"), 'Schedule download', context_menu)
         action_cancel_schedule = QAction(QIcon(":/icons/images/icons/cil-x.png"), ' Cancel schedule!', context_menu)
+        action_file_properties = QAction(QIcon(":/icons/images/icons/cil-info.png"),'File Properties', context_menu)
 
 
         # Add actions to the context menu
@@ -1605,6 +1619,7 @@ class MainWindow(QMainWindow):
         context_menu.addAction(action_watch_downloading)
         context_menu.addAction(action_schedule_download)
         context_menu.addAction(action_cancel_schedule)
+        context_menu.addAction(action_file_properties)
 
         # Connect actions to methods
         action_open_file.triggered.connect(self.open_item)
@@ -1612,6 +1627,7 @@ class MainWindow(QMainWindow):
         action_watch_downloading.triggered.connect(self.watch_downloading)
         action_schedule_download.triggered.connect(self.schedule_download)
         action_cancel_schedule.triggered.connect(self.cancel_schedule)
+        action_file_properties.triggered.connect(self.file_properties)
         # action_view_details.triggered.connect(self.view_details)
 
         # Show the context menu at the cursor position
@@ -1691,6 +1707,29 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         
         self.selected_d.sched = None
+
+    def file_properties(self):
+        selected_row = widgets.tableWidget.currentRow()
+
+            
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        d = self.selected_d
+        if d:
+            text = f'Name: {d.name} \n' \
+                    f'Folder: {d.folder} \n' \
+                    f'Progress: {d.progress}% \n' \
+                    f'Downloaded: {size_format(d.downloaded)} \n' \
+                    f'Total size: {size_format(d.total_size)} \n' \
+                    f'Status: {d.status} \n' \
+                    f'Resumable: {d.resumable} \n' \
+                    f'Type: {d.type} \n' \
+                    f'Protocol: {d.protocol} \n' \
+                    f'Webpage url: {d.url}'
+            self.show_information("File Properties", inform="", msg=f"{text}")
+
         
     # endregion
 
@@ -1698,7 +1737,6 @@ class MainWindow(QMainWindow):
     def settings_folder(self):
         # Get the currently selected value in the combo box
         selected = widgets.combo_setting.currentText()
-        widgets.ytdlp_version_label.setText(f"YT-DLP Version: {config.ytdl_VERSION}")
         if selected == "Local":
             # Choose local folder as the settings folder
             config.sett_folder = config.current_directory

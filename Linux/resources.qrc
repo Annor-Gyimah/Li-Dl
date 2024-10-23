@@ -267,5 +267,6 @@
     <file>images/icons/cil-refresh.png</file>
     <file>images/icons/cil-delete_all.png</file>
     <file>images/icons/thumbnail-default.png</file>
+    <file>images/icons/icon_info.svg</file>
   </qresource>
 </RCC>
