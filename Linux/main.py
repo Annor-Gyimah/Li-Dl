@@ -1418,8 +1418,8 @@ class MainWindow(QMainWindow):
         self.url_text_change()
 
         widgets.home_folder_path_lineEdit.setText(config.download_folder)
-        widgets.stackedWidget.setCurrentWidget(widgets.home)
-
+        self.change_page(btn=widgets.btn_home, btnName="btn_home", page=widgets.home)
+        
     def download_window(self):
         selected_row = widgets.tableWidget.currentRow()
         
