@@ -1550,6 +1550,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
 
         # Table widget setup
+
+
+        
+
         self.tableWidget = QTableWidget(self.frame2)
         self.tableWidget.setObjectName(u"tableWidget")
 
@@ -1590,6 +1594,19 @@ class Ui_MainWindow(object):
 
         # Add the new page to the stacked widget
         self.stackedWidget.addWidget(self.widgets)
+
+        # Apply style sheet to change context menu background to black
+        self.tableWidget.setStyleSheet("""
+
+        QTableWidget QMenu {
+                background-color: black;
+                color: white;
+        }
+        QTableWidget QMenu::item:selected {
+                background-color: rgb(53, 57, 63);
+                color: white;
+        }
+        """)
 
 
 

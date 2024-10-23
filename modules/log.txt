@@ -3,5 +3,5 @@
 >> current working directory: /home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/modules
 >> Load Application setting from /home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/modules
 >> Load previous download items from /home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/modules
->> youtube-dl load_time= 0.40044403076171875
->> days since last check for update: 0 day(s).
+>> youtube-dl load_time= 0.45208740234375
+>> days since last check for update: 1 day(s).
