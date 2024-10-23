@@ -1575,7 +1575,7 @@ class Ui_MainWindow(object):
         
 
         # Make the horizontal header visible and ensure columns resize appropriately
-        self.tableWidget.horizontalHeader().setVisible(True)
+        #self.tableWidget.horizontalHeader().setVisible(True)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
