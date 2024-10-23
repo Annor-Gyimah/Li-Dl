@@ -87,13 +87,15 @@ else:
 sys.path.insert(0, os.path.dirname(current_directory))
 sys.path.insert(0, current_directory)
 
-# sett_folder = None
+#sett_folder = None
 sett_folder = os.path.dirname(os.path.abspath(__file__))
 global_sett_folder = None
 download_folder = DEFAULT_DOWNLOAD_FOLDER
 
 # ffmpeg
-ffmpeg_actual_path = None
+#ffmpeg_actual_path = None
+#ffmpeg_actual_path = "/usr/bin/ffmpeg"
+ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg/ffmpeg")
 ffmpeg_download_folder = sett_folder
 
 # downloads

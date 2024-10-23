@@ -158,12 +158,8 @@
    "value": "PyQt5"
   },
   {
-   "optionDest": "excludes",
-   "value": "libncursesw.so.6"
-  },
-  {
-   "optionDest": "excludes",
-   "value": "libgcc_s.so.1"
+   "optionDest": "binaries",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/ffmpeg/ffmpeg:."
   }
  ],
  "nonPyinstallerOptions": {
