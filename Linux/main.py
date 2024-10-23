@@ -112,8 +112,7 @@ class MainWindow(QMainWindow):
         # current download_item
         self.d = DownloadItem()
 
-        
-
+        self.dragPos = None
         # download windows
         self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
 
@@ -269,6 +268,11 @@ class MainWindow(QMainWindow):
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
+        # widgets.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        # #widgets.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
+        # widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
+        # widgets.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
         
         
 
@@ -383,13 +387,18 @@ class MainWindow(QMainWindow):
     # ///////////////////////////////////////////////////////////////
     def mousePressEvent(self, event):
         # SET DRAG POS WINDOW
-        self.dragPos = event.globalPos()
+        self.dragPos = event.globalPosition().toPoint()  # Use globalPosition() and convert to QPoint
 
-    #     # PRINT MOUSE EVENTS
-    #     if event.buttons() == Qt.LeftButton:
-    #         print('Mouse click: LEFT CLICK')
-    #     if event.buttons() == Qt.RightButton:
-    #         print('Mouse click: RIGHT CLICK')
+        # PRINT MOUSE EVENTS
+        # if event.button() == Qt.LeftButton:
+        #     print('Mouse click: LEFT CLICK')
+        # elif event.button() == Qt.RightButton:
+        #     print('Mouse click: RIGHT CLICK')
+
+        # # Call parent class to ensure default behavior
+        # super(MainWindow, self).mousePressEvent(event)
+
+
 
     def setup(self):
         """initial setup"""
