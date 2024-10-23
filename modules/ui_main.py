@@ -1550,6 +1550,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
 
         # Table widget setup
+
+
+        
+
         self.tableWidget = QTableWidget(self.frame2)
         self.tableWidget.setObjectName(u"tableWidget")
 
@@ -1590,6 +1594,19 @@ class Ui_MainWindow(object):
 
         # Add the new page to the stacked widget
         self.stackedWidget.addWidget(self.widgets)
+
+        # Apply style sheet to change context menu background to black
+        self.tableWidget.setStyleSheet("""
+
+        QTableWidget QMenu {
+                background-color: black;
+                color: white;
+        }
+        QTableWidget QMenu::item:selected {
+                background-color: rgb(53, 57, 63);
+                color: white;
+        }
+        """)
 
 
 
@@ -1912,7 +1929,7 @@ class Ui_MainWindow(object):
         self.proxyRowLayout.addLayout(self.proxyTopRowLayout)
 
         # Add a spacer to create separation between the rows
-        self.proxyRowLayout.addSpacerItem(QSpacerItem(10, 10, QSizePolicy.Minimum, QSizePolicy.Fixed))
+        self.proxyRowLayout.addSpacerItem(QSpacerItem(10, 2, QSizePolicy.Minimum, QSizePolicy.Fixed))
 
         # Label for additional information, added below the combo box
         self.label_proxy_info = QLabel(self.proxySettingsRow)
@@ -1945,6 +1962,71 @@ class Ui_MainWindow(object):
         self.label_updates.setFont(QFont("Arial", 12, QFont.Bold))
 
         self.updateLayout.addWidget(self.label_updates)
+
+        # --- First new row: Check for updates ---
+        
+        self.checkforupdateRow = QFrame(self.updateFrame)
+        self.checkforupdateRow.setObjectName(u"concurrentDownloadsRow")
+        self.checkupdateRowLayout = QHBoxLayout(self.checkforupdateRow)
+        self.checkupdateRowLayout.setSpacing(10)
+        self.checkupdateRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Label for Max Concurrent Downloads
+        self.label_check_every = QLabel(self.checkforupdateRow)
+        self.label_check_every.setText("Check for update \n every:")
+
+        # Combo box for Max Concurrent Downloads (1 to 100)
+        self.combo_check_update = QComboBox(self.checkforupdateRow)
+        self.combo_check_update.addItems(['1', '7', '30'])  # Values from 1 to 100
+
+        # Add to row layout
+        self.checkupdateRowLayout.addWidget(self.label_check_every)
+        self.checkupdateRowLayout.addWidget(self.combo_check_update)
+
+        # Add row to connection layout
+        self.updateLayout.addWidget(self.checkforupdateRow)
+
+
+
+        # --- Second new row: Update button --------
+        self.updatebuttonRow = QFrame(self.updateFrame)
+        self.updatebuttonRowLayout = QHBoxLayout(self.updatebuttonRow)
+        self.updatebuttonRowLayout.setSpacing(10)
+        self.updatebuttonRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Version label
+        self.version_label = QLabel(self.updateFrame)
+        self.updateLayout.addWidget(self.version_label)
+
+        self.update_button = QPushButton('Check for update', self.updatebuttonRow)
+        self.update_button.setMinimumSize(QSize(80, 25))
+        self.update_button.setFont(font)
+        self.update_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.update_button.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        
+        self.updatebuttonRowLayout.addWidget(self.update_button)
+        self.updateLayout.addWidget(self.updatebuttonRow)
+
+        # --- Third new row: YT-DLP Update button --------
+        self.ytdlp_updatebuttonRow = QFrame(self.updateFrame)
+        self.ytdlp_updatebuttonRowLayout = QHBoxLayout(self.ytdlp_updatebuttonRow)
+        self.ytdlp_updatebuttonRowLayout.setSpacing(10)
+        self.ytdlp_updatebuttonRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Version label
+        self.ytdlp_version_label = QLabel(self.updateFrame)
+        self.updateLayout.addWidget(self.ytdlp_version_label)
+
+        self.ytdlp_update_button = QPushButton('Check for update', self.ytdlp_updatebuttonRow)
+        self.ytdlp_update_button.setMinimumSize(QSize(80, 25))
+        self.ytdlp_update_button.setFont(font)
+        self.ytdlp_update_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.ytdlp_update_button.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        
+        self.ytdlp_updatebuttonRowLayout.addWidget(self.ytdlp_update_button)
+        self.updateLayout.addWidget(self.ytdlp_updatebuttonRow)
+
+
 
         # Add the third frame to the right sidebar layout
         self.verticalLayout_7.addWidget(self.updateFrame)
