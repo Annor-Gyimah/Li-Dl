@@ -1136,8 +1136,8 @@ class Ui_MainWindow(object):
 
         # Add other widgets (e.g., labels, buttons) to the layout as needed
         # Example: Adding a label
-        self.label_example = QLabel("Example Label", self.home_row_2)
-        self.home_verticalLayout_2.addWidget(self.label_example)
+        # self.label_example = QLabel("Example Label", self.home_row_2)
+        # self.home_verticalLayout_2.addWidget(self.label_example)
 
 
         # Create the progress bar
