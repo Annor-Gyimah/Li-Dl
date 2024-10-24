@@ -3,55 +3,23 @@
 >> current working directory: /home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules
 >> Load Application setting from /home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules
 >> Load previous download items from /home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules
->> youtube-dl load_time= 0.4108755588531494
->> days since last check for update: 1 day(s).
->> Internet is on
->> Internet is on
->> donwload item 2 already in list, check resume availability
->> resuming
->> resume is possible
->> ----------------------------------------------------------------------------------------------------
->> start downloading file: "Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv", size: 252.9 MB, to: /home/gyimah/Desktop
->> >> 'worker' 0 'start seg:' '0' 'range:' '0-524287' 'size:' 524288 'SL=' 0
->> >> 'worker' 1 'start seg:' '1' 'range:' '524288-1048575' 'size:' 524288 'SL=' 0
->> >> 'worker' 2 'start seg:' '2' 'range:' '1048576-1572863' 'size:' 524288 'SL=' 0
->> >> 'worker' 3 'start seg:' '3' 'range:' '1572864-2097151' 'size:' 524288 'SL=' 0
->> >> 'worker' 4 'start seg:' '4' 'range:' '2097152-2621439' 'size:' 524288 'SL=' 0
->> >> 'worker' 5 'start seg:' '5' 'range:' '2621440-3145727' 'size:' 524288 'SL=' 0
->> >> 'worker' 6 'start seg:' '6' 'range:' '3145728-3670015' 'size:' 524288 'SL=' 0
->> >> 'worker' 7 'start seg:' '7' 'range:' '3670016-4194303' 'size:' 524288 'SL=' 0
->> >> 'worker' 8 'start seg:' '8' 'range:' '4194304-4718591' 'size:' 524288 'SL=' 0
->> >> 'worker' 9 'start seg:' '9' 'range:' '4718592-5242879' 'size:' 524288 'SL=' 0
->> >> 'worker' 9 'start seg:' '10' 'range:' '5242880-5767167' 'size:' 524288 'SL=' 0
->> >> 'worker' 7 'start seg:' '11' 'range:' '5767168-6291455' 'size:' 524288 'SL=' 0
->> >> 'worker' 5 'start seg:' '12' 'range:' '6291456-6815743' 'size:' 524288 'SL=' 0
->> >> 'worker' 3 'start seg:' '13' 'range:' '6815744-7340031' 'size:' 524288 'SL=' 0
->> >> 'worker' 1 'start seg:' '14' 'range:' '7340032-7864319' 'size:' 524288 'SL=' 0
->> >> 'worker' 6 'start seg:' '15' 'range:' '7864320-8388607' 'size:' 524288 'SL=' 0
->> >> 'worker' 2 'start seg:' '16' 'range:' '8388608-8912895' 'size:' 524288 'SL=' 0
->> >> 'worker' 4 'start seg:' '17' 'range:' '8912896-9437183' 'size:' 524288 'SL=' 0
->> >> 'worker' 8 'start seg:' '18' 'range:' '9437184-9961471' 'size:' 524288 'SL=' 0
->> file_manager 2: quitting
->> brain 2: Cancelled download
->> brain 2: quitting
->> thread_manager 2: quitting
->> worker 0 terminated by user
->> >> 'worker' 0 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/0' 'downloaded' 212400 'target size:' 524288 'remaining:' 311888
->> worker 9 terminated by user
->> >> 'worker' 9 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/10' 'downloaded' 228777 'target size:' 524288 'remaining:' 295511
->> worker 7 terminated by user
->> >> 'worker' 7 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/11' 'downloaded' 228777 'target size:' 524288 'remaining:' 295511
->> worker 1 terminated by user
->> >> 'worker' 1 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/14' 'downloaded' 196009 'target size:' 524288 'remaining:' 328279
->> worker 3 terminated by user
->> >> 'worker' 3 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/13' 'downloaded' 64937 'target size:' 524288 'remaining:' 459351
->> worker 5 terminated by user
->> >> 'worker' 5 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/12' 'downloaded' 97705 'target size:' 524288 'remaining:' 426583
->> worker 2 terminated by user
->> >> 'worker' 2 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/16' 'downloaded' 81321 'target size:' 524288 'remaining:' 442967
->> worker 6 terminated by user
->> >> 'worker' 6 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/15' 'downloaded' 81321 'target size:' 524288 'remaining:' 442967
->> worker 4 terminated by user
->> >> 'worker' 4 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/17' 'downloaded' 81321 'target size:' 524288 'remaining:' 442967
->> worker 8 terminated by user
->> >> 'worker' 8 'did not complete' '/home/gyimah/Desktop/_temp_Gyeongseong.Creature.E02.540p.NF.WEB-DL.FlixDrama.mkv_parts_/18' 'downloaded' 64937 'target size:' 524288 'remaining:' 459351
+>> youtube-dl load_time= 0.37822532653808594
+>> days since last check for update: 2 day(s).
+>> Extracting info for URL: https://www.xnxx2.com/video-1c566d93/horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor
+>> [generic] Extracting URL: https://www.xnxx2.com/video-1c566d93/horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor
+>> [generic] horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor: Extracting information
+>> Media info: {'_type': 'url_transparent', 'url': 'https://cdn77-vid-mp4.xnxx-cdn.com/aX3QJbHwRBZO5iBp-tNXew==,1729793469/videos/mp4/f/6/9/xvideos.com_f690eab0c210bb5a6c8037328c8890ca.mp4?ui=MTU0LjE2MS4xMS4xMDQtLS92aWRlby0xYzU2NmQ5My9ob3JueV9ibGFja19ndQ==#__youtubedl_smuggle=%7B%22force_videoid%22%3A+%22horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor%22%2C+%22to_generic%22%3A+true%2C+%22referer%22%3A+%22https%3A%2F%2Fwww.xnxx2.com%2Fvideo-1c566d93%2Fhorny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor%22%7D', 'title': 'Horny black guy fucking the hell out of his hot milf neighbor', 'description': 'Horny black guy fucking the hell out of his hot milf neighbor', 'thumbnails': [{'url': 'https://cdn77-pic.xnxx-cdn.com/videos/thumbs169xnxxll/f6/90/ea/f690eab0c210bb5a6c8037328c8890ca/f690eab0c210bb5a6c8037328c8890ca.30.jpg'}], 'duration': 300.0, 'timestamp': 1714176834, 'view_count': 1976498, 'id': 'horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor', 'thumbnail': 'https://cdn77-pic.xnxx-cdn.com/videos/thumbs169xnxxll/f6/90/ea/f690eab0c210bb5a6c8037328c8890ca/f690eab0c210bb5a6c8037328c8890ca.30.jpg', 'age_limit': 18, 'webpage_url': 'https://www.xnxx2.com/video-1c566d93/horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor', 'original_url': 'https://www.xnxx2.com/video-1c566d93/horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor', 'webpage_url_basename': 'horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor', 'webpage_url_domain': 'xnxx2.com', 'extractor': 'generic', 'extractor_key': 'Generic'}
+>> [generic] Extracting URL: https://www.xnxx2.com/video-1c566d93/horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor
+>> [generic] horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor: Extracting information
+>> [generic] Extracting URL: https://cdn77-vid-mp4.xnxx-cdn.com/BA1uEEGllCGqxgKpvcvWBA==,1729793473/videos/mp4/f/6/9/xvideos.c..._milf_neighbor%22%7D
+>> [generic] horny_black_guy_fucking_the_hell_out_of_his_hot_milf_neighbor: Downloading webpage
+>> Updating playlist menu
+>> Updating stream menu
+>> Updating stream menu
+>> download()> downloading https://cdn77-pic.xnxx-cdn.com/videos/thumbs169xnxxll/f6/90/ea/f690eab0c210bb5a6c8037328c8890ca/f690eab0c210bb5a6c8037328c8890ca.30.jpg 
+
+>> download(): done downloading
