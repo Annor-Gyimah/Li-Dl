@@ -112,6 +112,33 @@ class UpdateAppThread(QThread):
         self.app_update.emit()
 
 
+class FileOpenThread(QThread):
+    # Define a signal to communicate with the main window
+    critical_signal = Signal(str, str)
+
+    def __init__(self, file_path, parent=None):
+        super(FileOpenThread, self).__init__(parent)
+        self.file_path = file_path
+
+    def run(self):
+        try:
+            if not os.path.exists(self.file_path):
+                # Emit the signal if the file doesn't exist, sending the title and message
+                self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.")
+                return  # Exit the thread if the file doesn't exist
+
+            # Opening the file
+            if config.operating_system == 'Windows':
+                os.startfile(self.file_path)
+            elif config.operating_system == 'Linux':
+                run_command(f'xdg-open "{self.file_path}"', verbose=False)
+            elif config.operating_system == 'Darwin':
+                run_command(f'open "{self.file_path}"', verbose=False)
+
+        except Exception as e:
+            print(f'Error opening file: {e}')
+
+
 
 class MainWindow(QMainWindow):
     update_gui_signal = Signal(dict)
@@ -1639,12 +1666,21 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         try:
             if self.selected_d.status == config.Status.completed:
-                open_file(self.selected_d.target_file)
+                # Create and start the file opening thread
+                self.file_open_thread = FileOpenThread(self.selected_d.target_file, self)
+
+                # Connect the thread's signal to a slot in the main window to show the message
+                self.file_open_thread.critical_signal.connect(self.show_critical)
+
+                # Start the thread
+                self.file_open_thread.start()
                 log(f"Opening completed file: {self.selected_d.target_file}")
             else:
-                self.show_warning("Warning","This download is not yet completed")
+                self.show_warning("Warning", "This download is not yet completed")
         except Exception as e:
             log(f"Error opening file: {e}")
+
+           
 
 
     def watch_downloading(self):
@@ -1654,7 +1690,9 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         try:
             # Always open the temporary file for in-progress downloads
-            open_file(self.selected_d.temp_file)
+            #open_file(self.selected_d.temp_file)
+            self.file_open_thread = FileOpenThread(self.selected_d.temp_file, self)
+            self.file_open_thread.start()
             log(f"Watching in-progress download: {self.selected_d.temp_file}")
         except Exception as e:
             log(f"Error watching in-progress download: {e}")
