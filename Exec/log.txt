@@ -1,0 +1,7 @@
+>> Starting Li-DL version: 2020.3.22 Frozen
+>> operating system: Linux-6.8.0-45-generic-x86_64-with-glibc2.39 - x86_64
+>> current working directory: /home/gyimah/Desktop/Qt/Exec
+>> Load Application setting from /home/gyimah/Desktop/Qt/Exec
+>> Load previous download items from /home/gyimah/Desktop/Qt/Exec
+>> days since last check for update: 0 day(s).
+>> youtube-dl load_time= 1.5126843452453613
