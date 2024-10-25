@@ -49,7 +49,7 @@ from PySide6.QtGui import QAction, QIcon, QPixmap, QImage
 
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
-                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView)
+                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 
 class YouTubeThread(QThread):
@@ -301,6 +301,7 @@ class MainWindow(QMainWindow):
         widgets.stop_all.clicked.connect(self.stop_all_downloads)
         widgets.delete_all.clicked.connect(self.delete_all_downloads)
         widgets.update_button.clicked.connect(self.start_update)
+        widgets.playlist_button.clicked.connect(self.download_playlist)
         #widgets.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -1231,7 +1232,159 @@ class MainWindow(QMainWindow):
         self.video.selected_stream = self.video.streams[selected_stream]  # Set the selected stream
         #self.update_gui()  # Update the GUI to reflect the selected stream
 
+    def download_playlist(self):
+        """Download playlist with video stream selection using PyQt."""
 
+        # Check if there is a video file or quit
+        if not self.video:
+            self.show_information("Play Download", "Please check the url",  "Playlist is empty, nothing to download :", )
+            #QMessageBox.information(self, "Playlist Download", "Playlist is empty, nothing to download :)")
+            return
+
+        # Prepare lists for video and audio streams
+        mp4_videos = {}
+        other_videos = {}
+        audio_streams = {}
+
+        # Collect streams from all videos in playlist
+        for video in self.playlist:
+            mp4_videos.update({stream.raw_name: stream for stream in video.mp4_videos.values()})
+            other_videos.update({stream.raw_name: stream for stream in video.other_videos.values()})
+            audio_streams.update({stream.raw_name: stream for stream in video.audio_streams.values()})
+
+        # Sort streams based on quality
+        mp4_videos = {k: v for k, v in sorted(mp4_videos.items(), key=lambda item: item[1].quality, reverse=True)}
+        other_videos = {k: v for k, v in sorted(other_videos.items(), key=lambda item: item[1].quality, reverse=True)}
+        audio_streams = {k: v for k, v in sorted(audio_streams.items(), key=lambda item: item[1].quality, reverse=True)}
+
+        raw_streams = {**mp4_videos, **other_videos, **audio_streams}
+
+        # Create a QDialog
+        dialog = QDialog(self)
+        dialog.setStyleSheet("""
+            QWidget {
+                background-color: rgb(33, 37, 43);
+                color: white;
+                
+            }
+        """)
+        
+        dialog.setWindowTitle('Playlist Download')
+        layout = QVBoxLayout(dialog)
+
+        # Master stream combo box
+        master_stream_menu = ['● Video streams:'] + list(mp4_videos.keys()) + list(other_videos.keys()) + \
+                            ['', '● Audio streams:'] + list(audio_streams.keys())
+        master_stream_combo = QComboBox()
+        master_stream_combo.addItems(master_stream_menu)
+
+        # General options layout
+        select_all_checkbox = QCheckBox('Select All')
+        general_options_layout = QHBoxLayout()
+        general_options_layout.addWidget(select_all_checkbox)
+        general_options_layout.addWidget(QLabel('Choose quality for all videos:'))
+        general_options_layout.addWidget(master_stream_combo)
+
+        layout.addLayout(general_options_layout)
+
+        # Video layout inside a scrollable area
+        scroll_area = QScrollArea(dialog)
+        scroll_content = QFrame()
+        scroll_layout = QVBoxLayout(scroll_content)
+
+        video_checkboxes = []
+        stream_combos = []
+
+        for num, video in enumerate(self.playlist):
+            # Create a checkbox for each video
+            video_checkbox = QCheckBox(video.title[:40], scroll_content)
+            video_checkbox.setToolTip(video.title)
+            video_checkboxes.append(video_checkbox)
+
+            # Create a combo box for stream selection
+            stream_combo = QComboBox(scroll_content)
+            stream_combo.addItems(video.raw_stream_menu)
+            stream_combos.append(stream_combo)
+
+            # Size label
+            size_label = QLabel(size_format(video.total_size), scroll_content)
+
+            # Create a row for each video
+            video_row = QHBoxLayout()
+            video_row.addWidget(video_checkbox)
+            video_row.addWidget(stream_combo)
+            video_row.addWidget(size_label)
+
+            scroll_layout.addLayout(video_row)
+
+        scroll_content.setLayout(scroll_layout)
+        scroll_area.setWidget(scroll_content)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFixedHeight(250)
+
+        layout.addWidget(scroll_area)
+
+        # OK and Cancel buttons
+        button_layout = QHBoxLayout()
+        ok_button = QPushButton('OK', dialog)
+        cancel_button = QPushButton('Cancel', dialog)
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(cancel_button)
+
+        layout.addLayout(button_layout)
+
+        dialog.setLayout(layout)
+
+        # Handle button actions
+        def on_ok():
+            chosen_videos = []
+            for num, video in enumerate(self.playlist):
+                selected_text = stream_combos[num].currentText()
+                video.selected_stream = video.raw_streams[selected_text]
+                print("Available keys in raw_streams:", video.raw_streams.keys())
+                print("Selected text:", selected_text)
+
+                if video_checkboxes[num].isChecked():
+                    chosen_videos.append(video)
+
+            dialog.accept()
+
+            # Start download for the selected videos
+            for video in chosen_videos:
+                video.folder = config.download_folder
+                self.start_download(video, silent=True)
+
+        def on_cancel():
+            dialog.reject()
+
+        # Connect button actions
+        ok_button.clicked.connect(on_ok)
+        cancel_button.clicked.connect(on_cancel)
+
+        # Select All functionality
+        def on_select_all():
+            for checkbox in video_checkboxes:
+                checkbox.setChecked(select_all_checkbox.isChecked())
+
+        select_all_checkbox.stateChanged.connect(on_select_all)
+
+        # Master stream selection changes all streams
+        def on_master_stream_combo_change():
+            selected_text = master_stream_combo.currentText()
+            if selected_text in raw_streams:
+                for num, stream_combo in enumerate(stream_combos):
+                    video = self.playlist[num]
+                    if selected_text in video.raw_streams:
+                        stream_combo.setCurrentText(selected_text)
+                        video.selected_stream = video.raw_streams[selected_text]
+
+        master_stream_combo.currentTextChanged.connect(on_master_stream_combo_change)
+
+        # Show the dialog and process result
+        if dialog.exec():
+            self.change_page(btn=widgets.btn_widgets, btnName="btn_downloads", page=widgets.widgets)
+   
+   
     def ffmpeg_check(self):
         """Check if ffmpeg is available, if not, prompt user to download."""
         
