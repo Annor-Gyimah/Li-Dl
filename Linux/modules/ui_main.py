@@ -1391,6 +1391,14 @@ class Ui_MainWindow(object):
         """)
         self.home_combobox_layout.addWidget(self.stream_combo)
 
+        self.playlist_button = QPushButton("Playlist",self.home_row_6)
+        
+        self.playlist_button.setObjectName(u"PlayList")
+        self.playlist_button.setCursor(QCursor(Qt.PointingHandCursor))
+        self.playlist_button.setStyleSheet(u"")
+        self.playlist_button.setMinimumSize(QSize(150, 50))
+        self.home_combobox_layout.addWidget(self.playlist_button)
+
         # Add the combo box layout to the horizontal layout
         self.home_horizontalLayout_row_6.addSpacing(10)  # Add space between thumbnail and combo boxes
         self.home_horizontalLayout_row_6.addLayout(self.home_combobox_layout)
