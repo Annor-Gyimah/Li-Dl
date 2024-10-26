@@ -1,0 +1,165 @@
+{
+ "version": "auto-py-to-exe-configuration_v1",
+ "pyinstallerOptions": [
+  {
+   "optionDest": "noconfirm",
+   "value": true
+  },
+  {
+   "optionDest": "filenames",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/main.py"
+  },
+  {
+   "optionDest": "onefile",
+   "value": true
+  },
+  {
+   "optionDest": "console",
+   "value": false
+  },
+  {
+   "optionDest": "clean_build",
+   "value": false
+  },
+  {
+   "optionDest": "strip",
+   "value": false
+  },
+  {
+   "optionDest": "noupx",
+   "value": false
+  },
+  {
+   "optionDest": "disable_windowed_traceback",
+   "value": false
+  },
+  {
+   "optionDest": "uac_admin",
+   "value": false
+  },
+  {
+   "optionDest": "uac_uiaccess",
+   "value": false
+  },
+  {
+   "optionDest": "argv_emulation",
+   "value": false
+  },
+  {
+   "optionDest": "bootloader_ignore_signals",
+   "value": false
+  },
+  {
+   "optionDest": "excludes",
+   "value": "PyQt5"
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/ChangeLog.txt:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/setup.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/widgets/custom_grips/custom_grips.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/app_functions.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/app_settings.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/brain.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/config.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/controller.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/downloaditem.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/downloads.cfg:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/iconsbase64.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/log.txt:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/resources_rc.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/retrans.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/setting.cfg:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/setting.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/ui_functions.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/ui_main.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/update.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/utils.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/version.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/video.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/worker.py:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/themes/py_dracula_dark.qss:."
+  },
+  {
+   "optionDest": "datas",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/themes/py_dracula_light.qss:."
+  },
+  {
+   "optionDest": "binaries",
+   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/ffmpeg/ffmpeg:."
+  }
+ ],
+ "nonPyinstallerOptions": {
+  "increaseRecursionLimit": true,
+  "manualArguments": ""
+ }
+}
