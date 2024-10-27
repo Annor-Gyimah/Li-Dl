@@ -314,7 +314,7 @@ def download_ffmpeg(destination=config.sett_folder):
         url = 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-win-64.zip'
     else:
         # 32 bit link
-        url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/ffmpeg_32bit.zip'
+        url = 'https://www.videohelp.com/download/ffmpeg-4.3.1-win32-static.zip'
 
     log('downloading: ', url)
 

@@ -311,10 +311,10 @@ def download_ffmpeg(destination=config.sett_folder):
     # ends with 86 for 32 bit and 64 for 64 bit i.e. Win7-64: AMD64 and Vista-32: x86
     if platform.machine().endswith('64'):
         # 64 bit link
-        url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/ffmpeg.zip'
+        url = 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz'
     else:
         # 32 bit link
-        url = 'https://github.com/pyIDM/pyIDM/releases/download/extra/ffmpeg_32bit.zip'
+        url = 'https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-i686-static.tar.xz'
 
     log('downloading: ', url)
 
