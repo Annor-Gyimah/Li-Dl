@@ -302,10 +302,12 @@ class MainWindow(QMainWindow):
         widgets.delete_all.clicked.connect(self.delete_all_downloads)
         widgets.update_button.clicked.connect(self.start_update)
         widgets.playlist_button.clicked.connect(self.download_playlist)
-        #widgets.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
+        widgets.clearButton.clicked.connect(self.clear_log)
+        widgets.tableWidget.itemClicked.connect(self.update_item_label)
+
         # widgets.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         # #widgets.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
@@ -742,6 +744,9 @@ class MainWindow(QMainWindow):
                     self.pending_jobs()
                 elif key == 'check_update_frequency':
                     self.check_update_frequency()
+                elif key == 'set_log':
+                    self.set_log()
+               
                
             # Save settings (consider if this needs to be done every update)
             setting.save_setting()
@@ -777,13 +782,21 @@ class MainWindow(QMainWindow):
         self.queue_update('proxy_settings', None)
         self.queue_update('pending_jobs', None)
         self.queue_update('check_update_frequency', None)
+        self.queue_update('set_log', None)
         #self.queue_update('thumbnail', None)
     
     
     
 
         
+     # Clear Log
+    def clear_log(self):
+        widgets.logDisplay.clear()
 
+    # Set Log level 
+    def set_log(self):
+        config.log_level = int(widgets.logLevelComboBox.currentText())
+        #log('Log Level changed to:', config.log_level)
 
 
     # region Start download
@@ -1898,6 +1911,14 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         
         self.selected_d.sched = None
+
+     # Updating `self.itemLabel` text when an item in the table is clicked
+    def update_item_label(self):
+        selected_row = widgets.tableWidget.currentRow()
+        self.selected_row_num = selected_row
+        d = self.selected_d
+
+        widgets.itemLabel.setText(f"Download Item: {d.name}")
 
     def file_properties(self):
         selected_row = widgets.tableWidget.currentRow()

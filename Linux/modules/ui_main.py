@@ -1544,6 +1544,31 @@ class Ui_MainWindow(object):
         # Add the first frame (buttons frame) to the main vertical layout
         self.verticalLayout.addWidget(self.frame1)
 
+        self.name_frame = QFrame(self.widgets)
+        self.name_frame.setObjectName("name_frame")
+        self.name_frame.setFrameShape(QFrame.StyledPanel)
+        self.name_frame.setStyleSheet("border: none;")
+
+        # Horizontal layout for name_frame to hold the item label
+        self.nameLayout = QHBoxLayout(self.name_frame)
+        self.nameLayout.setSpacing(10)
+        self.nameLayout.setContentsMargins(10, 10, 10, 10)
+
+        # Label to display the selected item name
+        self.itemLabel = QLabel("Download Item: ", self.name_frame)
+        self.itemLabel.setObjectName("itemLabel")
+        font = QFont()
+        font.setPointSize(14)
+        font.setBold(True)
+        self.itemLabel.setFont(font)
+        self.itemLabel.setStyleSheet("color: white;")
+
+        # Add the item label to name_frame layout
+        self.nameLayout.addWidget(self.itemLabel)
+
+        # Adding name_frame to the main vertical layout between frame1 and frame2
+        self.verticalLayout.addWidget(self.name_frame)
+
         # Adjusting the frame2 where the table will reside
         self.frame2 = QFrame(self.widgets)
         self.frame2.setObjectName(u"frame2")
@@ -1654,6 +1679,40 @@ class Ui_MainWindow(object):
 
         # Add the label to the frame's layout
         self.horizontalLayout_1.addWidget(self.detailedEventsLabel)
+
+        # Spacer to control spacing between Detailed Events label and log level
+        spacer = QSpacerItem(350, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.horizontalLayout_1.addItem(spacer)
+
+        # Log level label
+        self.logLevelLabel = QLabel("Log Level", self.frame1)
+        self.logLevelLabel.setFont(font)
+        self.horizontalLayout_1.addWidget(self.logLevelLabel)
+
+
+        self.logLevelComboBox = QComboBox(self.frame1)
+        self.logLevelComboBox.setObjectName(u"logLevelComboBox")
+        self.logLevelComboBox.setMaximumSize(QSize(120, 30))
+        self.logLevelComboBox.addItems(["1", "2", "3"])  # Add log level items
+        self.horizontalLayout_1.addWidget(self.logLevelComboBox)
+
+        # Another small spacer between combo box and button
+        spacer2 = QSpacerItem(2, 0, QSizePolicy.Fixed, QSizePolicy.Minimum)
+        self.horizontalLayout_1.addItem(spacer2)
+
+        # Clear button with a minimum size
+        
+        icon20 = QIcon()
+        icon20.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.clearButton = QPushButton(self.frame1)
+        self.clearButton.setObjectName(u"clearButton")
+        self.clearButton.setFont(font)
+        self.clearButton.setText("Clear")
+        self.clearButton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        self.clearButton.setCursor(QCursor(Qt.PointingHandCursor))
+        self.clearButton.setMaximumSize(QSize(150, 30))  # Adjust button size
+        self.clearButton.setIcon(icon20)
+        self.horizontalLayout_1.addWidget(self.clearButton)
 
         # Add the first frame to the page layout
         self.verticalLayout_20.addWidget(self.frame1)
