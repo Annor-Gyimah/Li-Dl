@@ -302,6 +302,7 @@ class MainWindow(QMainWindow):
         widgets.delete_all.clicked.connect(self.delete_all_downloads)
         widgets.update_button.clicked.connect(self.start_update)
         widgets.playlist_button.clicked.connect(self.download_playlist)
+        #widgets.logDisplay.setStyleSheet("background-color: black; color: blue;")
         #widgets.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)

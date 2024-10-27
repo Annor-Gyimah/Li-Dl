@@ -1663,7 +1663,7 @@ class Ui_MainWindow(object):
         self.frame2.setObjectName(u"frame2")
         self.frame2.setFrameShape(QFrame.StyledPanel)
         self.frame2.setFrameShadow(QFrame.Raised)
-        self.frame2.setStyleSheet("background-color: black;")  # Set the background to black
+        self.frame2.setStyleSheet("background-color: black; border: none;")  # Set the background to black
         self.frame2.setMinimumSize(QSize(0, 200))  # Adjust the minimum size for the terminal
 
         # Layout for the second frame (Terminal-style display)
@@ -1675,7 +1675,18 @@ class Ui_MainWindow(object):
         #self.logDisplay.insertPlainText("This is me")
         self.logDisplay.setObjectName(u"logDisplay")
         self.logDisplay.setReadOnly(True)  # Make it read-only since it's a log display
-        self.logDisplay.setStyleSheet("color: white; background-color: black;")  # White text on black background
+        # self.logDisplay.viewport().setStyleSheet("background-color: black; color: white;")
+        self.logDisplay.viewport().setStyleSheet("""
+        background-color: black;
+        color: white;
+        border: none;  /* Removes the outline/border */
+        padding: 0px;  /* Removes any internal padding */
+        margin: 0px;   /* Removes any internal margins */
+        """)
+
+
+
+
 
         # Add the log display to the second frame
         self.verticalLayout_terminal.addWidget(self.logDisplay)
