@@ -1,7 +1,7 @@
 >> Starting Li-DL version: 2020.3.22 Non-Frozen
->> operating system: Windows-10-10.0.18363-SP0 - AMD64
->> current working directory: C:\Users\Annorion\Desktop\Qt\Li-Dl\Linux\modules
->> Load Application setting from C:\Users\Annorion\Desktop\Qt\Li-Dl\Linux\modules
->> Load previous download items from C:\Users\Annorion\Desktop\Qt\Li-Dl\Linux\modules
->> youtube-dl load_time= 0.5631980895996094
->> days since last check for update: 4 day(s).
+>> operating system: Linux-6.8.0-47-generic-x86_64-with-glibc2.39 - x86_64
+>> current working directory: /home/annorion/Desktop/Apps/Li-Dl/Linux/modules
+>> Load Application setting from /home/annorion/Desktop/Apps/Li-Dl/Linux/modules
+>> Load previous download items from /home/annorion/Desktop/Apps/Li-Dl/Linux/modules
+>> youtube-dl load_time= 0.5867719650268555
+>> days since last check for update: 6 day(s).

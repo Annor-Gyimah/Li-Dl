@@ -45,8 +45,8 @@ from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmp
 
 from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl
 
-from PySide6.QtGui import QAction, QIcon, QPixmap, QImage
-
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
+from typing import Optional
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
                                QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox)
@@ -137,6 +137,42 @@ class FileOpenThread(QThread):
 
         except Exception as e:
             print(f'Error opening file: {e}')
+
+class LogRecorderThread(QThread):
+    error_signal = Signal(str)  # Signal to report errors to main thread
+    
+    def __init__(self):
+        super().__init__()
+        self.buffer = ''
+        self.file = os.path.join(config.sett_folder, 'log.txt')
+        
+        # Clear previous file
+        try:
+            with open(self.file, 'w') as f:
+                f.write(self.buffer)
+        except Exception as e:
+            self.error_signal.emit(f'Failed to clear log file: {str(e)}')
+    
+    def run(self):
+        while not config.terminate:
+            try:
+                # Read log messages from queue
+                q = config.log_recorder_q
+                for _ in range(q.qsize()):
+                    self.buffer += q.get()
+                
+                # Write buffer to file
+                if self.buffer:
+                    with open(self.file, 'a', encoding="utf-8", errors="ignore") as f:
+                        f.write(self.buffer)
+                        self.buffer = ''  # Reset buffer
+                
+                # Sleep briefly to prevent high CPU usage
+                self.msleep(100)  # QThread's msleep is more precise than time.sleep
+                
+            except Exception as e:
+                self.error_signal.emit(f'Log recorder error: {str(e)}')
+                self.msleep(100)
 
 
 
@@ -238,6 +274,8 @@ class MainWindow(QMainWindow):
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
         #widgets.btn_save.clicked.connect(self.buttonClick)
+
+        
         
 
         # EXTRA LEFT BOX
@@ -277,10 +315,22 @@ class MainWindow(QMainWindow):
         # self.retry_button = widgets.home_retry_pushbutton  # Assuming this is defined in your UI
         # self.retry_button.clicked.connect(self.on_retry_clicked)  # Connect to the event handler
 
+        # Initialize and start log recorder thread
+        self.log_recorder_thread = LogRecorderThread()
+        self.log_recorder_thread.error_signal.connect(self.handle_log_error)
+        self.log_recorder_thread.start()
+
+        # Setup clipboard monitoring
+        self.clipboard = QApplication.clipboard()
+        self.clipboard.dataChanged.connect(self.on_clipboard_change)
+        self.old_clipboard_data = ''
+
+
+
         # Initialize the PyQt run loop with a timer (to replace the PySimpleGUI event loop)
         self.run_timer = QTimer(self)
         self.run_timer.timeout.connect(self.run)
-        self.run_timer.start(800)  # Runs every 500ms
+        self.run_timer.start(900)  # Runs every 500ms
 
         # self.retry_button_clicked = False
         # Flag to indicate if the filename is being updated programmatically
@@ -310,7 +360,7 @@ class MainWindow(QMainWindow):
 
         # widgets.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
-        # #widgets.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
+        #widgets.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
         # widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
         # widgets.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
         
@@ -374,6 +424,7 @@ class MainWindow(QMainWindow):
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
         self.one_time = True
+        
 
         
 
@@ -411,11 +462,6 @@ class MainWindow(QMainWindow):
             UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
 
-        # if btnName == "btn_save":
-        #     print("Save BTN clicked!")
-
-        # # PRINT BTN NAME
-        # print(f'Button "{btnName}" pressed!')
 
     # RESIZE EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -429,15 +475,47 @@ class MainWindow(QMainWindow):
         # SET DRAG POS WINDOW
         self.dragPos = event.globalPosition().toPoint()  # Use globalPosition() and convert to QPoint
 
-        # PRINT MOUSE EVENTS
-        # if event.button() == Qt.LeftButton:
-        #     print('Mouse click: LEFT CLICK')
-        # elif event.button() == Qt.RightButton:
-        #     print('Mouse click: RIGHT CLICK')
 
-        # # Call parent class to ensure default behavior
-        # super(MainWindow, self).mousePressEvent(event)
 
+    def on_clipboard_change(self):
+        try:
+            new_data = self.clipboard.text()
+            
+            # Check for instance message
+            if new_data == 'any one there?':
+                self.clipboard.setText('yes')
+                self.show()
+                self.raise_()
+                return
+            
+            # Check for URLs if monitoring is active
+            if config.monitor_clipboard and new_data != self.old_clipboard_data:
+                if new_data.startswith('http') and ' ' not in new_data:
+                    config.main_window_q.put(('url', new_data))
+                
+                self.old_clipboard_data = new_data
+                
+        except Exception as e:
+            print(f'Clipboard error: {str(e)}')
+    
+    # def show_window(self):
+    #     """Show and raise window"""
+    #     self.show()
+    #     self.raise_()
+    
+    def handle_clipboard_error(self, error_msg: str):
+        """Handle clipboard errors"""
+        log(error_msg)
+    
+    def handle_log_error(self, error_msg: str):
+        """Handle log errors"""
+        log(error_msg)
+        
+    def closeEvent(self, event):
+        # Ensure clean shutdown of all threads
+        config.terminate = True
+        self.log_recorder_thread.wait()
+        super().closeEvent(event)
 
 
     def setup(self):
@@ -451,7 +529,6 @@ class MainWindow(QMainWindow):
         """Read from the queue and update the GUI."""
         while not config.main_window_q.empty():
             k, v = config.main_window_q.get()
-            #print(f"Processing queue: {k} -> {v}")
 
             if k == 'log':
                 try:
@@ -489,7 +566,7 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     log(f"{e}")
 
-                self.set_status(v.strip('\n'))
+                
 
             elif k == 'url':
                 # Update the QLineEdit with the new URL
@@ -507,17 +584,9 @@ class MainWindow(QMainWindow):
 
                 
 
-            
-
-
     def run(self):
         """Handle the event loop."""
         try:
-
-            # if self.retry_button_clicked:  # Check if the retry button was clicked
-            #     print("Retry Executed")
-            #     self.retry()  # Call the retry function when the retry event is detected
-            #     self.retry_button_clicked = False  # Reset it back to False after processing
 
             self.read_q()
             self.queue_updates()  # You can also update the GUI components based on certain conditions
@@ -531,7 +600,6 @@ class MainWindow(QMainWindow):
 
                 try:
                     days_since_last_update = today - config.last_update_check
-                    print(days_since_last_update, today, config.last_update_check)
                     log('days since last check for update:', days_since_last_update, 'day(s).')
 
                     if days_since_last_update >= config.update_frequency:
@@ -579,9 +647,6 @@ class MainWindow(QMainWindow):
             # Update the progress bar in the main thread
             self.update_progress_bar_value(step)
             
-            # widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-        #widgets.size_value_label.setText(size_format(self.d.protocol))
-        #self.update_gui()
 
 
     def update_progress_bar_value(self, value):
@@ -602,17 +667,10 @@ class MainWindow(QMainWindow):
         self.d = DownloadItem()
 
         # reset some values
-        self.set_status('')
         self.playlist = []
         self.video = None
 
 
-    def set_status(self, text):
-        """update status bar text widget"""
-        try:
-            self.window['status_bar'](text)
-        except:
-            pass
 
     def update_progress_bar(self):
         """Update the progress bar based on URL processing."""
@@ -2602,52 +2660,46 @@ def ask_for_sched_time(msg=''):
 
 # Define clipboard_listener and singleApp functions here
 
-def clipboard_listener():
-    old_data = ''
+# def clipboard_listener():
+#     old_data = ''
     
-    while True:
-        # Read from the clipboard
-        new_data = clipboard_read()
-        #print(f"Clipboard data: {new_data}")
+#     while True:
+#         # Read from the clipboard
+#         new_data = clipboard_read()
+#         #print(f"Clipboard data: {new_data}")
 
-        # Check if a message is received from another instance
-        if new_data == 'any one there?':  
-            clipboard_write('yes')  # Reply to the instance
-            config.main_window_q.put(('visibility', 'show'))  # Request main window visibility
+#         # Check if a message is received from another instance
+#         if new_data == 'any one there?':  
+#             clipboard_write('yes')  # Reply to the instance
+#             config.main_window_q.put(('visibility', 'show'))  # Request main window visibility
 
-        # Check if clipboard monitoring is active and the content has changed
-        if config.monitor_clipboard and new_data != old_data:
-            if new_data.startswith('http') and ' ' not in new_data:
-                # Send the URL to the main window queue
-                config.main_window_q.put(('url', new_data))
+#         # Check if clipboard monitoring is active and the content has changed
+#         if config.monitor_clipboard and new_data != old_data:
+#             if new_data.startswith('http') and ' ' not in new_data:
+#                 # Send the URL to the main window queue
+#                 config.main_window_q.put(('url', new_data))
             
-            old_data = new_data
-            #print(f"Updated clipboard data: {old_data}")
+#             old_data = new_data
+#             #print(f"Updated clipboard data: {old_data}")
 
-        # Stop the clipboard listener if needed
-        if config.terminate:
-            break
+#         # Stop the clipboard listener if needed
+#         if config.terminate:
+#             break
 
-        # Sleep briefly to avoid busy-waiting
-        time.sleep(0.2)
+#         # Sleep briefly to avoid busy-waiting
+#         time.sleep(0.2)
 
 
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon("icon.ico"))
     
     # Create the main window
     window = MainWindow(config.d_list)
     window.show()
-    
-    Thread(target=video.import_ytdl, daemon=True).start()
-        
-    # Start the clipboard listener in a separate thread
-    Thread(target=clipboard_listener, daemon=True).start()
-    # Start logging
-    Thread(target=log_recorder, daemon=True).start()
-
+    QTimer.singleShot(0, video.import_ytdl)
 
     
     # Start the event loop
