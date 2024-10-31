@@ -3,5 +3,5 @@
 >> current working directory: /home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules
 >> Load Application setting from /home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules
 >> Load previous download items from /home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules
->> youtube-dl load_time= 0.33297085762023926
+>> youtube-dl load_time= 0.3612360954284668
 >> days since last check for update: 2 day(s).
