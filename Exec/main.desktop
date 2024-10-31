@@ -4,7 +4,7 @@
 Type=Application
 
 # The application name.
-Name=Ninja DM
+Name=PyIconic
 
 # Tooltip comment to show in menus.
 Comment= An open source (Internet Download Manager) with multi-connections and high speed engine.

@@ -1,6 +1,6 @@
 -C package
 -s dir
 -t deb
--n "hello-world"
--v 0.1.0
--p hello-world.deb
+-n "pyiconic"
+-v 2024.10.29
+-p pyiconic.deb
