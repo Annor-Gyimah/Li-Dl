@@ -1,3 +1,9 @@
+2025.1.21:
+- Changed the retry button, github issue #40
+
+2024.10.29:
+- Fixed the responsive issues, github issue #39
+
 2020.3.22:
 - Quick bug fix for unrecognized pillow module, github issue #60
 

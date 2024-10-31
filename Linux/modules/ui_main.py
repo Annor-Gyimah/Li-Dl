@@ -1108,6 +1108,7 @@ class Ui_MainWindow(object):
         self.home_retry_pushbutton.setObjectName(u"btn_retry")
         self.home_retry_pushbutton.setCursor(QCursor(Qt.PointingHandCursor))
         self.home_retry_pushbutton.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        #self.home_retry_pushbutton.setStyleSheet(u"background-color: green;")
         icon1 = QIcon()
         icon1.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
         self.home_retry_pushbutton.setIcon(icon1)

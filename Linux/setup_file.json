@@ -7,7 +7,7 @@
   },
   {
    "optionDest": "filenames",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/main.py"
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/main.py"
   },
   {
    "optionDest": "onefile",
@@ -55,107 +55,103 @@
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/ChangeLog.txt:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/ChangeLog.txt:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/setup.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/resources.qrc:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/widgets/custom_grips/custom_grips.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/widgets/custom_grips/custom_grips.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/app_functions.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/themes/py_dracula_dark.qss:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/app_settings.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/themes/py_dracula_light.qss:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/brain.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/app_functions.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/config.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/app_settings.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/controller.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/brain.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/downloaditem.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/config.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/downloads.cfg:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/controller.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/iconsbase64.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/downloaditem.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/log.txt:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/downloads.cfg:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/resources_rc.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/log.txt:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/retrans.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/resources_rc.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/setting.cfg:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/retrans.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/setting.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/setting.cfg:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/ui_functions.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/setting.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/ui_main.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/ui_functions.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/update.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/ui_main.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/utils.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/update.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/version.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/utils.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/video.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/version.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/modules/worker.py:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/video.py:."
   },
   {
    "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/themes/py_dracula_dark.qss:."
-  },
-  {
-   "optionDest": "datas",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/themes/py_dracula_light.qss:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules/worker.py:."
   },
   {
    "optionDest": "binaries",
-   "value": "/home/gyimah/Desktop/Qt/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/Linux/ffmpeg/ffmpeg:."
+   "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/ffmpeg/ffmpeg:."
   }
  ],
  "nonPyinstallerOptions": {

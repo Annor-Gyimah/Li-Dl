@@ -22,6 +22,7 @@ import re
 import time
 import copy
 import subprocess
+import shutil
 from threading import Thread, Barrier, Timer, Lock
 from collections import deque
 
@@ -101,15 +102,68 @@ class YouTubeThread(QThread):
             self.finished.emit(None)
     
         
+# class UpdateAppThread(QThread):
+#     app_update = Signal()
+#     def __ini__(self, remote=True):
+#         super().__init__()
+#         self.remote = remote
+    
+#     def run(self):
+        
+#         self.app_update.emit()
 class UpdateAppThread(QThread):
-    app_update = Signal()
-    def __ini__(self, remote=True):
+    app_update = Signal(bool)  # Emits True if a new version is available
+
+    def __init__(self, remote=True):
         super().__init__()
         self.remote = remote
-    
+        self.new_version_available = False
+        self.new_version_description = None
+
     def run(self):
-        
-        self.app_update.emit()
+        # Call the check_for_update function in this thread
+        self.check_for_update()
+        # Emit the app_update signal with the result
+        self.app_update.emit(self.new_version_available)
+
+    def check_for_update(self):
+        # Change cursor to busy
+        self.change_cursor('busy')
+
+        # Retrieve current version and changelog information
+        current_version = config.APP_VERSION
+        info = update.get_changelog()
+
+        if info:
+            latest_version, version_description = info
+
+            # Compare versions
+            newer_version = compare_versions(current_version, latest_version)
+            # print(newer_version, latest_version, version_description)
+            if not newer_version or newer_version == current_version:
+                self.new_version_available = False
+            else:  # newer_version == latest_version
+                self.new_version_available = True
+
+            # Update global values
+            config.APP_LATEST_VERSION = latest_version
+            
+            self.new_version_description = version_description
+        else:
+            self.new_version_available = False
+            self.new_version_description = None
+
+        # Revert cursor to normal
+        self.change_cursor('normal')
+
+    def change_cursor(self, cursor_type):
+        """Change cursor to busy or normal."""
+        if cursor_type == 'busy':
+            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        elif cursor_type == 'normal':
+            QApplication.restoreOverrideCursor()  # Restore normal cursor
+
+    
 
 
 class FileOpenThread(QThread):
@@ -411,6 +465,7 @@ class MainWindow(QMainWindow):
         widgets.lineEdit_proxy.setText(config.proxy if config.enable_proxy == True else "")
         widgets.combo_proxy_type.setCurrentText(config.proxy_type)
         widgets.combo_check_update.setCurrentText(str(config.update_frequency))
+        widgets.logLevelComboBox.setCurrentText(str(config.log_level))
         #widgets.label_proxy_info.setText(config.proxy == '' if config.enable_proxy)
         
 
@@ -581,8 +636,7 @@ class MainWindow(QMainWindow):
             
             elif k == 'show_update_gui':  # show update gui
                 self.show_update_gui()
-
-                
+            
 
     def run(self):
         """Handle the event loop."""
@@ -872,9 +926,9 @@ class MainWindow(QMainWindow):
             self.start_download(self.pending.popleft(), silent=True)
     
     def start_download(self, d, silent=False, downloader=None):
-        if not self.check_internet():
-            self.show_warning("No Internet","Please check your internet connection and try again")
-            return
+        # if not self.check_internet():
+        #     self.show_warning("No Internet","Please check your internet connection and try again")
+        #     return
         
 
         if d is None:
@@ -1515,7 +1569,7 @@ class MainWindow(QMainWindow):
                 cancel_button.clicked.connect(on_cancel)
 
                 # Execute the dialog
-                dialog.exec_()
+                dialog.exec()
 
             else:
                 # Show error popup for non-Windows systems
@@ -2240,30 +2294,46 @@ class MainWindow(QMainWindow):
         self.change_cursor('normal')
 
     def start_update(self):
-      
-        self.startupdate = UpdateAppThread()
-        self.startupdate.app_update.connect(self.update_app)
-        
-        self.startupdate.start()
+        # Initialize and start the update thread
+        self.start_update_thread = UpdateAppThread()
+        self.start_update_thread.app_update.connect(self.update_app)
+        self.start_update_thread.start()
 
-    def update_app(self, remote=True):
-        """show changelog with latest version and ask user for update
-        :param remote: bool, check remote server for update"""
+    def update_app(self, new_version_available):
+        """Show changelog with latest version and ask user for update."""
+        if new_version_available:
+            config.main_window_q.put(('show_update_gui', ''))
+        else:
+            self.show_information(
+                title="App Update",
+                inform=f"App is up-to-date",
+                msg=f"Current version: {config.APP_VERSION}\nServer version: {config.APP_LATEST_VERSION}"
+            )
+
+            if not self.start_update_thread.new_version_description:
+                self.show_information(
+                    title="App Update",
+                    inform="Check your internet connection",
+                    msg="Couldn't check for update"
+                )
+    # def update_app(self, remote=True):
+    #     """show changelog with latest version and ask user for update
+    #     :param remote: bool, check remote server for update"""
         
-        if remote:
-            Thread(target=self.check_for_update, daemon=True).start()
-            #self.check_for_update()
+    #     if remote:
+    #         Thread(target=self.check_for_update, daemon=True).start()
+    #         #self.check_for_update()
             
 
-        if self.new_version_available:
-            config.main_window_q.put(('show_update_gui', ''))
-            # self.show_update_gui()
-        else:
-            self.show_information(title="App Update", inform=f"App. is up-to-date \n", msg=f"Current version: {config.APP_VERSION} \n Server version:  {config.APP_LATEST_VERSION} \n")
-            if self.new_version_description:
-                pass
-            else:
-                self.show_information(title="App Update", inform="Check your internet connection", msg="Couldnt check for update")
+    #     if self.new_version_available:
+    #         config.main_window_q.put(('show_update_gui', ''))
+    #         # self.show_update_gui()
+    #     else:
+    #         self.show_information(title="App Update", inform=f"App. is up-to-date \n", msg=f"Current version: {config.APP_VERSION} \n Server version:  {config.APP_LATEST_VERSION} \n")
+    #         if self.new_version_description:
+    #             pass
+    #         else:
+    #             self.show_information(title="App Update", inform="Check your internet connection", msg="Couldnt check for update")
         
         
                 
@@ -2283,15 +2353,15 @@ class MainWindow(QMainWindow):
 
         # Add a QTextEdit to show the new version description (read-only)
         description_edit = QTextEdit()
-        description_edit.setText(self.new_version_description)  # Assuming self.new_version_description is a string
+        description_edit.setText(self.start_update_thread.new_version_description or "")
         description_edit.setReadOnly(True)
         description_edit.setFixedSize(400, 200)  # Set the size similar to size=(50, 10) in PySimpleGUI
         layout.addWidget(description_edit)
 
         # Create buttons for "Update" and "Cancel"
         button_layout = QHBoxLayout()
-        update_button = QPushButton('Update')
-        cancel_button = QPushButton('Cancel')
+        update_button = QPushButton('Update', dialog)
+        cancel_button = QPushButton('Cancel', dialog)
         button_layout.addWidget(update_button)
         button_layout.addWidget(cancel_button)
 
@@ -2300,10 +2370,19 @@ class MainWindow(QMainWindow):
 
         # Set the main layout of the dialog
         dialog.setLayout(layout)
-
+        
         # Connect buttons to actions
-        update_button.clicked.connect(self.handle_update)  # Call the update function when "Update" is clicked
-        cancel_button.clicked.connect(dialog.close)  # Close the dialog when "Cancel" is clicked
+        def on_ok():
+            dialog.accept()
+            self.handle_update()
+            dialog.close()
+
+        def on_cancel():
+            dialog.reject()
+            dialog.close()
+
+        update_button.clicked.connect(on_ok)  # Call the update function when "Update" is clicked
+        cancel_button.clicked.connect(on_cancel)  # Close the dialog when "Cancel" is clicked
 
         # Show the dialog
         dialog.exec()
@@ -2372,7 +2451,7 @@ class MainWindow(QMainWindow):
               
     # endregion
 
-    
+   
 
 class DownloadWindow(QWidget):
     def __init__(self, d=None):
@@ -2690,17 +2769,15 @@ def ask_for_sched_time(msg=''):
 #         time.sleep(0.2)
 
 
-
-
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("icon.ico"))
-    
+    #app.aboutToQuit.connect(update.schedule_update)
+
     # Create the main window
     window = MainWindow(config.d_list)
     window.show()
     QTimer.singleShot(0, video.import_ytdl)
 
-    
     # Start the event loop
     sys.exit(app.exec())
