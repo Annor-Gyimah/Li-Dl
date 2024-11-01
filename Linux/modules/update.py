@@ -19,6 +19,7 @@ import subprocess
 from . import config
 import os
 import time
+import tempfile
 
 from . import video
 from .downloaditem import DownloadItem
@@ -89,13 +90,15 @@ def update():
     main_tar_url = "http://localhost/lite/pyiconic/main.tar.gz"     # URL for main.tar.gz
 
     # Define paths on the Desktop for downloading
-    desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-    download_path = os.path.join(desktop_path, "AppUpdate", "main.tar.gz")
-    update_script_path = os.path.join(desktop_path, "AppUpdate", "update.sh")
-    extract_path = os.path.join(desktop_path, "AppUpdate")
-
-    # Ensure AppUpdate directory exists
-    os.makedirs(extract_path, exist_ok=True)
+    temp_dir = os.path.join(os.path.expanduser("~"), "Desktop", "temp")
+    if os.path.exists(temp_dir):
+        pass
+    else:
+        os.mkdir(temp_dir)
+    download_path = os.path.join(temp_dir, "main.tar.gz")
+    update_script_path = os.path.join(temp_dir, "update.sh")
+    
+    
 
     try:
         # Download update files
@@ -107,43 +110,45 @@ def update():
         # Extract the downloaded tar.gz file
         log("Extracting update package...")
         with tarfile.open(download_path, 'r:gz') as tar_ref:
-            tar_ref.extractall(extract_path)
+            tar_ref.extractall(temp_dir)
         log("Extraction completed.")
         os.chmod(update_script_path, 0o755) 
         schedule_update()
+        
+        # Schedule update.sh to run at the next reboot
+        # Use `sudo crontab -u root` to add job directly to root's crontab
+        # cron_job = f"@reboot /bin/bash {update_script_path} {temp_dir} && rm -rf {temp_dir}"  # delete temp folder after execution
+        # try:
+        #     subprocess.run(f'(crontab -l; echo "{cron_job}") | crontab -', shell=True, check=True)
+        #     log("Update scheduled to run on the next reboot.")
+        # except subprocess.CalledProcessError as e:
+        #     log(f"Failed to schedule update: {e}")
+
 
         # # Define the path to the new 'main' file (adjust as necessary)
         # new_main_path = os.path.join(extract_path, "main")  # Adjust if main file is in a different location
 
-        # # Ensure the new main file exists before running the script
-        # if os.path.exists(new_main_path):
-        #     subprocess.Popen(["bash", update_script_path, new_main_path])
-        #     log("Update script executed.")
-        # else:
-        #     log(f"Error: New main file not found at {new_main_path}")
+       
 
     except Exception as e:
         log(f"An error occurred during update: {e}")
-    # finally:
-    #     # Cleanup downloaded and extracted files on the Desktop
-    #     delete_file(download_path)
-    #     delete_file(update_script_path)
-    #     log("Temporary update files removed.")
+    
 
 
 def schedule_update():
-    source_file = "/home/annorion/Desktop/AppUpdate/main"
-    update_script = "/home/annorion/Desktop/AppUpdate/update.sh"
+    source_file = os.path.join(os.path.expanduser("~"), "Desktop", "temp", "main")
+    update_script = os.path.join(os.path.expanduser("~"), "Desktop", "temp", "update.sh")
 
     # Define the cron job with explicit `root` crontab
     cron_job = f"@reboot /bin/bash {update_script} {source_file}"
     
     # Use `sudo crontab -u root` to add job directly to root's crontab
     try:
-        subprocess.run(f'(sudo crontab -u root -l; echo "{cron_job}") | sudo crontab -u root -', shell=True, check=True)
+        
+        subprocess.run(f'(pkexec crontab -u root -l; echo "{cron_job}") | pkexec crontab -u root -', shell=True, check=True)
         log("Update scheduled to run on the next reboot.")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to schedule update: {e}")
+        log(f"Failed to schedule update: {e}")
 
 def on_exit():
     log("Preparing to start updater service...")
