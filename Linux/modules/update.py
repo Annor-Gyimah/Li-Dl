@@ -83,55 +83,92 @@ def get_changelog():
         log("check_for_update() --> couldn't check for update, url is unreachable")
         return None
 
-
 def update():
     url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-    update_script_url = "http://localhost/lite/pyiconic/update.sh"  # URL for update.sh script
+    update_script_url = "http://localhost/lite/pyiconic/update.sh"  # URL for update.sh
     main_tar_url = "http://localhost/lite/pyiconic/main.tar.gz"     # URL for main.tar.gz
 
-    # Define paths on the Desktop for downloading
-    temp_dir = os.path.join(os.path.expanduser("~"), "Desktop", "temp")
-    if os.path.exists(temp_dir):
-        pass
-    else:
-        os.mkdir(temp_dir)
+    # Create a hidden temporary directory in the user's home directory
+    temp_dir = tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))
     download_path = os.path.join(temp_dir, "main.tar.gz")
     update_script_path = os.path.join(temp_dir, "update.sh")
-    
-    
 
     try:
-        # Download update files
+        # Download update files to the temporary directory
         log("Downloading update files...")
         wget.download(update_script_url, update_script_path)
         wget.download(main_tar_url, download_path)
         log("\nDownload completed.")
 
-        # Extract the downloaded tar.gz file
+        # Extract the downloaded tar.gz file in the temporary directory
         log("Extracting update package...")
         with tarfile.open(download_path, 'r:gz') as tar_ref:
             tar_ref.extractall(temp_dir)
         log("Extraction completed.")
-        os.chmod(update_script_path, 0o755) 
-        schedule_update()
-        
-        # Schedule update.sh to run at the next reboot
-        # Use `sudo crontab -u root` to add job directly to root's crontab
-        # cron_job = f"@reboot /bin/bash {update_script_path} {temp_dir} && rm -rf {temp_dir}"  # delete temp folder after execution
-        # try:
-        #     subprocess.run(f'(crontab -l; echo "{cron_job}") | crontab -', shell=True, check=True)
-        #     log("Update scheduled to run on the next reboot.")
-        # except subprocess.CalledProcessError as e:
-        #     log(f"Failed to schedule update: {e}")
 
+        # Make the update script executable
+        os.chmod(update_script_path, 0o755)
+        source_file = os.path.join(temp_dir, "main")
 
-        # # Define the path to the new 'main' file (adjust as necessary)
-        # new_main_path = os.path.join(extract_path, "main")  # Adjust if main file is in a different location
-
-       
+        # Schedule update.sh to run at next reboot with cron
+        cron_job = f"@reboot /bin/bash {update_script_path} {source_file} && rm -rf {temp_dir}"  # remove temp folder after execution
+        try:
+            subprocess.run(f'(pkexec crontab -u root -l; echo "{cron_job}") | pkexec crontab -u root -', shell=True, check=True)
+            log("Update scheduled to run on the next reboot.")
+        except subprocess.CalledProcessError as e:
+            log(f"Failed to schedule update: {e}")
 
     except Exception as e:
         log(f"An error occurred during update: {e}")
+
+# def update():
+#     url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
+#     update_script_url = "http://localhost/lite/pyiconic/update.sh"  # URL for update.sh script
+#     main_tar_url = "http://localhost/lite/pyiconic/main.tar.gz"     # URL for main.tar.gz
+
+#     # Define paths on the Desktop for downloading
+#     temp_dir = os.path.join(os.path.expanduser("~"), "Desktop", "temp")
+#     if os.path.exists(temp_dir):
+#         pass
+#     else:
+#         os.mkdir(temp_dir)
+#     download_path = os.path.join(temp_dir, "main.tar.gz")
+#     update_script_path = os.path.join(temp_dir, "update.sh")
+    
+    
+
+#     try:
+#         # Download update files
+#         log("Downloading update files...")
+#         wget.download(update_script_url, update_script_path)
+#         wget.download(main_tar_url, download_path)
+#         log("\nDownload completed.")
+
+#         # Extract the downloaded tar.gz file
+#         log("Extracting update package...")
+#         with tarfile.open(download_path, 'r:gz') as tar_ref:
+#             tar_ref.extractall(temp_dir)
+#         log("Extraction completed.")
+#         os.chmod(update_script_path, 0o755) 
+#         schedule_update()
+        
+#         # Schedule update.sh to run at the next reboot
+#         # Use `sudo crontab -u root` to add job directly to root's crontab
+#         # cron_job = f"@reboot /bin/bash {update_script_path} {temp_dir} && rm -rf {temp_dir}"  # delete temp folder after execution
+#         # try:
+#         #     subprocess.run(f'(crontab -l; echo "{cron_job}") | crontab -', shell=True, check=True)
+#         #     log("Update scheduled to run on the next reboot.")
+#         # except subprocess.CalledProcessError as e:
+#         #     log(f"Failed to schedule update: {e}")
+
+
+#         # # Define the path to the new 'main' file (adjust as necessary)
+#         # new_main_path = os.path.join(extract_path, "main")  # Adjust if main file is in a different location
+
+       
+
+#     except Exception as e:
+#         log(f"An error occurred during update: {e}")
     
 
 
