@@ -198,20 +198,65 @@ class Video(DownloadItem):
         self.format_id = stream.format_id
         self.manifest_url = stream.manifest_url
 
-        # select an audio to embed if our stream is dash video
+        # Select an audio to embed if our stream is dash video
         if stream.mediatype == 'dash':
-            audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
-                            or (audio.extension == 'm4a' and stream.extension == 'mp4')][0]
-            self.audio_stream = audio_stream
-            self.audio_url = audio_stream.url
-            self.audio_size = audio_stream.size
-            self.audio_fragment_base_url = audio_stream.fragment_base_url
-            self.audio_fragments = audio_stream.fragments
-            self.audio_format_id = audio_stream.format_id
+            audio_stream = None
+            for audio in self.audio_streams.values():
+                # Check if the audio stream has a compatible extension and a non-zero size
+                if (audio.extension == stream.extension or (audio.extension == 'm4a' and stream.extension == 'mp4')) and audio.size > 0:
+                    audio_stream = audio
+                    break  # Stop at the first valid audio stream
+
+            if audio_stream:
+                # Assign the first valid audio stream to attributes
+                self.audio_stream = audio_stream
+                self.audio_url = audio_stream.url
+                self.audio_size = audio_stream.size
+                self.audio_fragment_base_url = audio_stream.fragment_base_url
+                self.audio_fragments = audio_stream.fragments
+                self.audio_format_id = audio_stream.format_id
+            else:
+                # Log if no suitable audio stream is found
+                log("No suitable audio stream found for DASH video", d=self)
+                self.audio_stream = None
+                self.audio_url = None
+                self.audio_size = None
+                self.audio_fragment_base_url = None
+                self.audio_fragments = None
+                self.audio_format_id = None
         else:
+            # Reset audio-related attributes for non-DASH streams
             self.audio_url = None
             self.audio_fragment_base_url = None
             self.audio_fragments = None
+
+    # def update_param(self):
+    #     # do some parameter updates
+    #     stream = self.selected_stream
+    #     self.name = self.title + '.' + stream.extension
+    #     self.eff_url = stream.url
+    #     self.type = stream.mediatype
+    #     self.size = stream.size
+    #     self.fragment_base_url = stream.fragment_base_url
+    #     self.fragments = stream.fragments
+    #     self.protocol = stream.protocol
+    #     self.format_id = stream.format_id
+    #     self.manifest_url = stream.manifest_url
+
+    #     # select an audio to embed if our stream is dash video
+    #     if stream.mediatype == 'dash':
+    #         audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
+    #                         or (audio.extension == 'm4a' and stream.extension == 'mp4')][0]
+    #         self.audio_stream = audio_stream
+    #         self.audio_url = audio_stream.url
+    #         self.audio_size = audio_stream.size
+    #         self.audio_fragment_base_url = audio_stream.fragment_base_url
+    #         self.audio_fragments = audio_stream.fragments
+    #         self.audio_format_id = audio_stream.format_id
+    #     else:
+    #         self.audio_url = None
+    #         self.audio_fragment_base_url = None
+    #         self.audio_fragments = None
 
 
 class Stream:
