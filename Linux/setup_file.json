@@ -148,6 +148,10 @@
   {
    "optionDest": "binaries",
    "value": "/home/annorion/Desktop/pyiconic/Li-Dl/Linux/ffmpeg/ffmpeg:."
+  },
+  {
+   "optionDest": "hiddenimports",
+   "value": "plyer.platforms.linux.notification"
   }
  ],
  "nonPyinstallerOptions": {
