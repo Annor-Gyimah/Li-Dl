@@ -833,7 +833,7 @@ class MainWindow(QMainWindow):
                 elif key == 'resumable':
                     widgets.resumable_value_label.setText("Yes" if value else "No")
                 elif key == 'total_speed':
-                    speed_text = f'⬇ {size_format(value, "/s")}' if value else '⬇ 0 bytes'
+                    speed_text = f'⬇⬆ {size_format(value, "/s")}' if value else '⬇⬆ 0 bytes'
                     widgets.totalSpeedValue.setText(speed_text)
                 elif key == 'populate_table':
                     self.populate_table()
