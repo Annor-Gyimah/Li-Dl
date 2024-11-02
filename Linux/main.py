@@ -101,16 +101,7 @@ class YouTubeThread(QThread):
             log('YouTubeThread error:', e)
             self.finished.emit(None)
     
-        
-# class UpdateAppThread(QThread):
-#     app_update = Signal()
-#     def __ini__(self, remote=True):
-#         super().__init__()
-#         self.remote = remote
-    
-#     def run(self):
-        
-#         self.app_update.emit()
+
 class CheckUpdateAppThread(QThread):
     app_update = Signal(bool)  # Emits True if a new version is available
 
@@ -559,7 +550,7 @@ class MainWindow(QMainWindow):
                 self.old_clipboard_data = new_data
                 
         except Exception as e:
-            print(f'Clipboard error: {str(e)}')
+            log(f'Clipboard error: {str(e)}')
     
     # def show_window(self):
     #     """Show and raise window"""
@@ -679,7 +670,7 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     log('MainWindow.run()>', e)
         except Exception as e:
-            print(f"Error in run loop: {e}")
+            log(f"Error in run loop: {e}")
 
     # region Url stuffs
     def url_text_change(self):
@@ -691,7 +682,7 @@ class MainWindow(QMainWindow):
         self.reset()
         try:
             self.d.eff_url = self.d.url = url
-            print(f"New URL set: {url}")
+            log(f"New URL set: {url}")
              
             # Update the DownloadItem with the new URL
             #self.d.update(url)
@@ -705,7 +696,7 @@ class MainWindow(QMainWindow):
             # Trigger the progress bar update and GUI refresh
             self.update_progress_bar()
         except Exception as e:
-            print(f"Error in url_text_change: {e}")
+            log(f"Error in url_text_change: {e}")
 
     def process_url(self):
         """Simulate processing the URL and update the progress bar."""
@@ -2260,7 +2251,7 @@ class MainWindow(QMainWindow):
 
             # compare with current application version
             newer_version = compare_versions(current_version, latest_version)  # return None if both equal
-            print(newer_version, current_version, latest_version)
+            
 
             if not newer_version or newer_version == current_version:
                 self.new_version_available = False
@@ -2281,35 +2272,35 @@ class MainWindow(QMainWindow):
         self.change_cursor('normal')
 
 
-    def check_for_update(self):
-        self.change_cursor('busy')
+    # def check_for_update(self):
+    #     self.change_cursor('busy')
 
-        # check for update
-        current_version = config.APP_VERSION
-        info = update.get_changelog()
+    #     # check for update
+    #     current_version = config.APP_VERSION
+    #     info = update.get_changelog()
 
-        if info:
-            latest_version, version_description = info
+    #     if info:
+    #         latest_version, version_description = info
 
-            # compare with current application version
-            newer_version = compare_versions(current_version, latest_version)  # return None if both equal
-            print(newer_version, current_version, latest_version)
+    #         # compare with current application version
+    #         newer_version = compare_versions(current_version, latest_version)  # return None if both equal
+    #         print(newer_version, current_version, latest_version)
 
-            if not newer_version or newer_version == current_version:
-                self.new_version_available = False
-                log("check_for_update() --> App. is up-to-date, server version=", latest_version)
-            else:  # newer_version == latest_version
-                self.new_version_available = True
+    #         if not newer_version or newer_version == current_version:
+    #             self.new_version_available = False
+    #             log("check_for_update() --> App. is up-to-date, server version=", latest_version)
+    #         else:  # newer_version == latest_version
+    #             self.new_version_available = True
                 
 
-            # updaet global values
-            config.APP_LATEST_VERSION = latest_version
-            self.new_version_description = version_description
-        else:
-            self.new_version_description = None
-            self.new_version_available = False
+    #         # updaet global values
+    #         config.APP_LATEST_VERSION = latest_version
+    #         self.new_version_description = version_description
+    #     else:
+    #         self.new_version_description = None
+    #         self.new_version_available = False
 
-        self.change_cursor('normal')
+    #     self.change_cursor('normal')
 
     def start_update(self):
         # Initialize and start the update thread

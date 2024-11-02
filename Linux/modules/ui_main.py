@@ -1707,7 +1707,7 @@ class Ui_MainWindow(object):
         # Clear button with a minimum size
         
         icon20 = QIcon()
-        icon20.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon20.addFile(u":/icons/images/icons/cil-remove.png", QSize(), QIcon.Normal, QIcon.Off)
         self.clearButton = QPushButton(self.frame1)
         self.clearButton.setObjectName(u"clearButton")
         self.clearButton.setFont(font)
