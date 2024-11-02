@@ -25,4 +25,6 @@ https://www.youtube.com/watch?v=2Oc7tirkpvg
 
 
 https://youtu.be/ozmSqvEXxbA
+sudo apt-get install libdbus-glib-1-dev libdbus-1-dev
+pip install dbus-python
 pyside6-rcc resources.qrc -o resources_rc.py

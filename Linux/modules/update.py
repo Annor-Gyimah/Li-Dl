@@ -23,7 +23,7 @@ import tempfile
 
 from . import video
 from .downloaditem import DownloadItem
-from .utils import log, download, run_command, delete_folder, delete_file
+from .utils import log, download, run_command, delete_folder, delete_file, popup
 import webbrowser
 
 
@@ -113,10 +113,14 @@ def update():
         # Schedule update.sh to run at next reboot with cron
         cron_job = f"@reboot /bin/bash {update_script_path} {source_file} && rm -rf {temp_dir}"  # remove temp folder after execution
         try:
+            popup(msg="Please authenticate to install updates on reboot", title=config.APP_NAME, type_="info")
             subprocess.run(f'(pkexec crontab -u root -l; echo "{cron_job}") | pkexec crontab -u root -', shell=True, check=True)
             log("Update scheduled to run on the next reboot.")
+            config.confirm_update = True
+
         except subprocess.CalledProcessError as e:
             log(f"Failed to schedule update: {e}")
+            config.confirm_update = False
 
     except Exception as e:
         log(f"An error occurred during update: {e}")

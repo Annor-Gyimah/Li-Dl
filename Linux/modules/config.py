@@ -64,6 +64,7 @@ max_connections = DEFAULT_CONNECTIONS
 update_frequency = 7  # 'every day'=1, every week=7, every month=30 and so on
 last_update_check = 0  # day number in the year range from 1 to 366
 update_frequency_map = {'every day': 1, 'every week': 7, 'every month': 30}
+confirm_update = False
 
 # proxy
 proxy = ''  # must be string example: 127.0.0.1:8080
@@ -108,7 +109,7 @@ main_window_q = Queue()  # queue for Main application window
 # settings parameters to be saved on disk
 settings_keys = ['current_theme', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
                  'segment_size', 'show_thumbnail', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
-                 'update_frequency', 'last_update_check', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
+                 'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
                  'log_level', 'download_folder']
 
 # -------------------------------------------------------------------------------------
