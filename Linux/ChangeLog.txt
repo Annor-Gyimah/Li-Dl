@@ -1,8 +1,6 @@
-2025.5.21:
-- Changed the retry button, github issue #49
-
-2025.4.21:
-- Changed the retry button, github issue #49
+2025.4.31:
+- Worked on the Updates, github issue #45
+- Added new updates
 
 2025.3.21:
 - Changed the retry button, github issue #46

@@ -39,7 +39,7 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 widgets = None
 
 from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, compare_versions, 
-                           log, log_recorder, delete_file, time_format, truncate, notify, open_file, run_command, handle_exceptions)
+                           log, log_recorder, delete_file, time_format, truncate, notify, popup, open_file, run_command, handle_exceptions)
 from modules import config, brain, setting, video, update
 
 from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
@@ -111,7 +111,7 @@ class YouTubeThread(QThread):
 #     def run(self):
         
 #         self.app_update.emit()
-class UpdateAppThread(QThread):
+class CheckUpdateAppThread(QThread):
     app_update = Signal(bool)  # Emits True if a new version is available
 
     def __init__(self, remote=True):
@@ -164,7 +164,15 @@ class UpdateAppThread(QThread):
             QApplication.restoreOverrideCursor()  # Restore normal cursor
 
     
+class UpdateThread(QThread):
+    update_finished = Signal()  # Signal to indicate that the update is finished
 
+    def run(self):
+        update.update()  # Perform the update here
+        if config.confirm_update == True:
+            self.update_finished.emit()  # Emit the signal when done
+        else:
+            pass
 
 class FileOpenThread(QThread):
     # Define a signal to communicate with the main window
@@ -636,6 +644,14 @@ class MainWindow(QMainWindow):
             
             elif k == 'show_update_gui':  # show update gui
                 self.show_update_gui()
+            
+            elif k == 'popup':
+                type_ = v['type_']
+                if type_ == 'info':
+                    self.show_information(title=v['title'], inform="", msg=v['msg'])
+                else:
+                    self.show_critical(title=v['title'], msg=v['msg'])
+                
             
 
     def run(self):
@@ -1228,7 +1244,7 @@ class MainWindow(QMainWindow):
                 open_website_btn.clicked.connect(on_open_website)
                 cancel_btn.clicked.connect(on_cancel)
 
-                dialog.exec_()
+                dialog.exec()
 
                 return  # exit if youtube-dl is missing
         else:
@@ -1802,7 +1818,7 @@ class MainWindow(QMainWindow):
         confirmation_box.setText(msg)
         confirmation_box.setIcon(QMessageBox.Question)
         confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        reply = confirmation_box.exec_()
+        reply = confirmation_box.exec()
 
         if reply != QMessageBox.Yes:
             return
@@ -1822,8 +1838,10 @@ class MainWindow(QMainWindow):
             widgets.tableWidget.removeRow(selected_row)
 
             notification = f"File: {d.name} has been deleted."
-            notify(notification, title=f'{config.APP_NAME} - Download completed')
+            notify(notification, title=f'{config.APP_NAME}')
+            # popup(msg=notification, title=f'{config.APP_NAME}')
             d.delete_tempfiles()
+            os.remove(f"{d.folder}/{d.name}")
 
         except Exception as e:
             log(f"Error deleting item: {e}")
@@ -2295,7 +2313,7 @@ class MainWindow(QMainWindow):
 
     def start_update(self):
         # Initialize and start the update thread
-        self.start_update_thread = UpdateAppThread()
+        self.start_update_thread = CheckUpdateAppThread()
         self.start_update_thread.app_update.connect(self.update_app)
         self.start_update_thread.start()
 
@@ -2388,7 +2406,17 @@ class MainWindow(QMainWindow):
         dialog.exec()
 
     def handle_update(self):
-        update.update()  # Call the update method
+        self.update_thread = UpdateThread()  # Create an instance of the UpdateThread
+        self.update_thread.update_finished.connect(self.on_update_finished)  # Connect the signal
+        self.update_thread.start()  # Start the thread
+
+    def on_update_finished(self):
+        self.show_information(title=config.APP_NAME, inform="Update scheduled to run on the next reboot.", msg="Please you can reboot now to install updates.")
+        # Handle what happens after the update finishes
+        # print("Update completed!")  # Replace with your logic (e.g., notifying the user)
+
+    # def handle_update(self):
+    #     update.update()  # Call the update method
 
 
     def animate_update_note(self):
@@ -2439,7 +2467,7 @@ class MainWindow(QMainWindow):
                 confirmation_box.setText(msg)
                 confirmation_box.setIcon(QMessageBox.Question)
                 confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                reply = confirmation_box.exec_()
+                reply = confirmation_box.exec()
 
                 if reply == QMessageBox.Yes:
                     try:
