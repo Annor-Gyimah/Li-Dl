@@ -3,5 +3,13 @@
 >> current working directory: C:\Users\Annorion\Desktop\Qt\Li-Dl\Windows\modules
 >> Load Application setting from C:\Users\Annorion\Desktop\Qt\Li-Dl\Windows\modules
 >> Load previous download items from C:\Users\Annorion\Desktop\Qt\Li-Dl\Windows\modules
->> days since last check for update: 4 day(s).
->> youtube-dl load_time= 0.8645925521850586
+>> youtube-dl load_time= 0.5794820785522461
+>> days since last check for update: 0 day(s).
+>> download()> downloading http://localhost/lite/ChangeLog.txt 
+
+>> download(): done downloading
+>> Downloading update files...
+>> 
+Download completed.
+>> Extracting update package...
+>> Extraction completed.

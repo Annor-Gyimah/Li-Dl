@@ -26,8 +26,8 @@ DEFAULT_THEME = 'DarkGrey2'
 DEFAULT_CONNECTIONS = 10
 DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
-APP_URL = 'http://localhost/lite/Modern_GUI_PyDracula_PySide6_or_PyQt6-master'
-LATEST_RELEASE_URL = 'http://localhost/lite/source.zip'
+APP_URL = 'http://localhost/lite/main.zip'
+LATEST_RELEASE_URL = 'http://localhost/lite/main.zip'
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3721.3'
 DEFAULT_LOG_LEVEL = 3
 
@@ -64,6 +64,7 @@ max_connections = DEFAULT_CONNECTIONS
 update_frequency = 7  # 'every day'=1, every week=7, every month=30 and so on
 last_update_check = 0  # day number in the year range from 1 to 366
 update_frequency_map = {'every day': 1, 'every week': 7, 'every month': 30}
+confirm_update = False
 
 # proxy
 proxy = ''  # must be string example: 127.0.0.1:8080

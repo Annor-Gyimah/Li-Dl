@@ -1325,7 +1325,7 @@ class Ui_MainWindow(object):
         self.home_row_6.setFrameShape(QFrame.StyledPanel)
         self.home_row_6.setFrameShadow(QFrame.Raised)
         self.home_row_6.setMinimumHeight(50)  # Adjusted height
-        self.home_row_6.setMaximumHeight(120)  # Set a reasonable height to avoid overlap
+        self.home_row_6.setMaximumHeight(150)  # Set a reasonable height to avoid overlap
 
         # Create a horizontal layout for the frame
         self.home_horizontalLayout_row_6 = QHBoxLayout(self.home_row_6)
@@ -1397,6 +1397,9 @@ class Ui_MainWindow(object):
         self.playlist_button.setCursor(QCursor(Qt.PointingHandCursor))
         self.playlist_button.setStyleSheet(u"")
         self.playlist_button.setMinimumSize(QSize(150, 50))
+        icon19 = QIcon()
+        icon19.addFile(u":/icons/images/icons/cil-playlist.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.playlist_button.setIcon(icon19)
         self.home_combobox_layout.addWidget(self.playlist_button)
 
         # Add the combo box layout to the horizontal layout
@@ -1704,7 +1707,7 @@ class Ui_MainWindow(object):
         # Clear button with a minimum size
         
         icon20 = QIcon()
-        icon20.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon20.addFile(u":/icons/images/icons/cil-remove.png", QSize(), QIcon.Normal, QIcon.Off)
         self.clearButton = QPushButton(self.frame1)
         self.clearButton.setObjectName(u"clearButton")
         self.clearButton.setFont(font)
@@ -2183,7 +2186,7 @@ class Ui_MainWindow(object):
         # Value for Total Speed
         self.totalSpeedValue = QLabel(self.statusSpeedFrame)
         self.totalSpeedValue.setObjectName(u"totalSpeedValue")
-        self.totalSpeedValue.setText("⬇ 0 bytes/s")  # Default value
+        self.totalSpeedValue.setText("⬇⬆ 0 bytes/s")  # Default value
         #self.totalSpeedValue.setStyleSheet(u"background-color: white;")
         self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedValue)
 

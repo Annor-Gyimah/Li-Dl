@@ -13,6 +13,8 @@ import py_compile
 import shutil
 import sys
 import zipfile
+import tempfile
+import wget
 
 from . import config
 import os
@@ -54,8 +56,8 @@ def get_changelog():
     """
 
     # url will be chosen depend on frozen state of the application
-    source_code_url = 'http://localhost/lite/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/ChangeLog.txt'
-    new_release_url = 'http://localhost/lite/Modern_GUI_PyDracula_PySide6_or_PyQt6-master/ChangeLog.txt'
+    source_code_url = 'http://localhost/lite/ChangeLog.txt'
+    new_release_url = 'http://localhost/lite/ChangeLog.txt'
     url = new_release_url if config.FROZEN else source_code_url
 
     # url = new_release_url
@@ -76,10 +78,35 @@ def get_changelog():
         return None
 
 
+# def update():
+#     url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
+#     webbrowser.open_new(url)
+
+
 def update():
     url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
-    webbrowser.open_new(url)
+    update_script_url = "http://localhost/lite/update.bat"  # URL for update.sh
+    main_tar_url = "http://localhost/lite/main.zip"     # URL for main.tar.gz
 
+    # Create a hidden temporary directory in the user's home directory
+    temp_dir = tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))
+    download_path = os.path.join(temp_dir, "main.zip")
+    #update_script_path = os.path.join(temp_dir, "update.sh")
+
+    try:
+        # Download update files to the temporary directory
+        log("Downloading update files...")
+        #wget.download(update_script_url, update_script_path)
+        wget.download(url, download_path)
+        log("\nDownload completed.")
+
+        # Extract the downloaded tar.gz file in the temporary directory
+        log("Extracting update package...")
+        with zipfile.ZipFile(download_path, 'r') as zip_ref:  # extract zip file
+            zip_ref.extractall(temp_dir)
+        log("Extraction completed.")
+    except Exception as e:
+        log(f"An error occurred during update: {e}")
 
 def check_for_ytdl_update():
     """it will download "version.py" file from github to check for a new version, return ytdl_latest_version

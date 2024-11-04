@@ -22,6 +22,7 @@ import re
 import time
 import copy
 import subprocess
+import shutil
 from threading import Thread, Barrier, Timer, Lock
 from collections import deque
 
@@ -38,15 +39,15 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 widgets = None
 
 from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, compare_versions, 
-                           log, log_recorder, delete_file, time_format, truncate, notify, open_file, run_command, handle_exceptions)
+                           log, log_recorder, delete_file, time_format, truncate, notify, popup, open_file, run_command, handle_exceptions)
 from modules import config, brain, setting, video, update
 
 from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
 
 from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl
 
-from PySide6.QtGui import QAction, QIcon, QPixmap, QImage
-
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
+from typing import Optional
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
                                QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox)
@@ -100,17 +101,69 @@ class YouTubeThread(QThread):
             log('YouTubeThread error:', e)
             self.finished.emit(None)
     
-        
-class UpdateAppThread(QThread):
-    app_update = Signal()
-    def __ini__(self, remote=True):
+
+class CheckUpdateAppThread(QThread):
+    app_update = Signal(bool)  # Emits True if a new version is available
+
+    def __init__(self, remote=True):
         super().__init__()
         self.remote = remote
-    
-    def run(self):
-        
-        self.app_update.emit()
+        self.new_version_available = False
+        self.new_version_description = None
 
+    def run(self):
+        # Call the check_for_update function in this thread
+        self.check_for_update()
+        # Emit the app_update signal with the result
+        self.app_update.emit(self.new_version_available)
+
+    def check_for_update(self):
+        # Change cursor to busy
+        self.change_cursor('busy')
+
+        # Retrieve current version and changelog information
+        current_version = config.APP_VERSION
+        info = update.get_changelog()
+
+        if info:
+            latest_version, version_description = info
+
+            # Compare versions
+            newer_version = compare_versions(current_version, latest_version)
+            # print(newer_version, latest_version, version_description)
+            if not newer_version or newer_version == current_version:
+                self.new_version_available = False
+            else:  # newer_version == latest_version
+                self.new_version_available = True
+
+            # Update global values
+            config.APP_LATEST_VERSION = latest_version
+            
+            self.new_version_description = version_description
+        else:
+            self.new_version_available = False
+            self.new_version_description = None
+
+        # Revert cursor to normal
+        self.change_cursor('normal')
+
+    def change_cursor(self, cursor_type):
+        """Change cursor to busy or normal."""
+        if cursor_type == 'busy':
+            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        elif cursor_type == 'normal':
+            QApplication.restoreOverrideCursor()  # Restore normal cursor
+
+    
+class UpdateThread(QThread):
+    update_finished = Signal()  # Signal to indicate that the update is finished
+
+    def run(self):
+        update.update()  # Perform the update here
+        if config.confirm_update == True:
+            self.update_finished.emit()  # Emit the signal when done
+        else:
+            pass
 
 class FileOpenThread(QThread):
     # Define a signal to communicate with the main window
@@ -137,6 +190,42 @@ class FileOpenThread(QThread):
 
         except Exception as e:
             print(f'Error opening file: {e}')
+
+class LogRecorderThread(QThread):
+    error_signal = Signal(str)  # Signal to report errors to main thread
+    
+    def __init__(self):
+        super().__init__()
+        self.buffer = ''
+        self.file = os.path.join(config.sett_folder, 'log.txt')
+        
+        # Clear previous file
+        try:
+            with open(self.file, 'w') as f:
+                f.write(self.buffer)
+        except Exception as e:
+            self.error_signal.emit(f'Failed to clear log file: {str(e)}')
+    
+    def run(self):
+        while not config.terminate:
+            try:
+                # Read log messages from queue
+                q = config.log_recorder_q
+                for _ in range(q.qsize()):
+                    self.buffer += q.get()
+                
+                # Write buffer to file
+                if self.buffer:
+                    with open(self.file, 'a', encoding="utf-8", errors="ignore") as f:
+                        f.write(self.buffer)
+                        self.buffer = ''  # Reset buffer
+                
+                # Sleep briefly to prevent high CPU usage
+                self.msleep(100)  # QThread's msleep is more precise than time.sleep
+                
+            except Exception as e:
+                self.error_signal.emit(f'Log recorder error: {str(e)}')
+                self.msleep(100)
 
 
 
@@ -238,6 +327,8 @@ class MainWindow(QMainWindow):
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
         #widgets.btn_save.clicked.connect(self.buttonClick)
+
+        
         
 
         # EXTRA LEFT BOX
@@ -277,10 +368,22 @@ class MainWindow(QMainWindow):
         # self.retry_button = widgets.home_retry_pushbutton  # Assuming this is defined in your UI
         # self.retry_button.clicked.connect(self.on_retry_clicked)  # Connect to the event handler
 
+        # Initialize and start log recorder thread
+        self.log_recorder_thread = LogRecorderThread()
+        self.log_recorder_thread.error_signal.connect(self.handle_log_error)
+        self.log_recorder_thread.start()
+
+        # Setup clipboard monitoring
+        self.clipboard = QApplication.clipboard()
+        self.clipboard.dataChanged.connect(self.on_clipboard_change)
+        self.old_clipboard_data = ''
+
+
+
         # Initialize the PyQt run loop with a timer (to replace the PySimpleGUI event loop)
         self.run_timer = QTimer(self)
         self.run_timer.timeout.connect(self.run)
-        self.run_timer.start(800)  # Runs every 500ms
+        self.run_timer.start(900)  # Runs every 500ms
 
         # self.retry_button_clicked = False
         # Flag to indicate if the filename is being updated programmatically
@@ -302,18 +405,17 @@ class MainWindow(QMainWindow):
         widgets.delete_all.clicked.connect(self.delete_all_downloads)
         widgets.update_button.clicked.connect(self.start_update)
         widgets.playlist_button.clicked.connect(self.download_playlist)
-        widgets.clearButton.clicked.connect(self.clear_log)
-        widgets.tableWidget.itemClicked.connect(self.update_item_label)
-
-        #widgets.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
+        widgets.clearButton.clicked.connect(self.clear_log)
+        widgets.tableWidget.itemClicked.connect(self.update_item_label)
+
         # widgets.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        #widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         #widgets.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
-        #widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
-        #widgets.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
+        # widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
+        # widgets.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
         
         
 
@@ -376,6 +478,7 @@ class MainWindow(QMainWindow):
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
         self.one_time = True
+        
 
         
 
@@ -413,11 +516,6 @@ class MainWindow(QMainWindow):
             UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
 
-        # if btnName == "btn_save":
-        #     print("Save BTN clicked!")
-
-        # # PRINT BTN NAME
-        # print(f'Button "{btnName}" pressed!')
 
     # RESIZE EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -431,15 +529,47 @@ class MainWindow(QMainWindow):
         # SET DRAG POS WINDOW
         self.dragPos = event.globalPosition().toPoint()  # Use globalPosition() and convert to QPoint
 
-        # PRINT MOUSE EVENTS
-        # if event.button() == Qt.LeftButton:
-        #     print('Mouse click: LEFT CLICK')
-        # elif event.button() == Qt.RightButton:
-        #     print('Mouse click: RIGHT CLICK')
 
-        # # Call parent class to ensure default behavior
-        # super(MainWindow, self).mousePressEvent(event)
 
+    def on_clipboard_change(self):
+        try:
+            new_data = self.clipboard.text()
+            
+            # Check for instance message
+            if new_data == 'any one there?':
+                self.clipboard.setText('yes')
+                self.show()
+                self.raise_()
+                return
+            
+            # Check for URLs if monitoring is active
+            if config.monitor_clipboard and new_data != self.old_clipboard_data:
+                if new_data.startswith('http') and ' ' not in new_data:
+                    config.main_window_q.put(('url', new_data))
+                
+                self.old_clipboard_data = new_data
+                
+        except Exception as e:
+            log(f'Clipboard error: {str(e)}')
+    
+    # def show_window(self):
+    #     """Show and raise window"""
+    #     self.show()
+    #     self.raise_()
+    
+    def handle_clipboard_error(self, error_msg: str):
+        """Handle clipboard errors"""
+        log(error_msg)
+    
+    def handle_log_error(self, error_msg: str):
+        """Handle log errors"""
+        log(error_msg)
+        
+    def closeEvent(self, event):
+        # Ensure clean shutdown of all threads
+        config.terminate = True
+        self.log_recorder_thread.wait()
+        super().closeEvent(event)
 
 
     def setup(self):
@@ -453,7 +583,6 @@ class MainWindow(QMainWindow):
         """Read from the queue and update the GUI."""
         while not config.main_window_q.empty():
             k, v = config.main_window_q.get()
-            #print(f"Processing queue: {k} -> {v}")
 
             if k == 'log':
                 try:
@@ -491,7 +620,7 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     log(f"{e}")
 
-                self.set_status(v.strip('\n'))
+                
 
             elif k == 'url':
                 # Update the QLineEdit with the new URL
@@ -506,20 +635,19 @@ class MainWindow(QMainWindow):
             
             elif k == 'show_update_gui':  # show update gui
                 self.show_update_gui()
-
-                
-
             
-
+            elif k == 'popup':
+                type_ = v['type_']
+                if type_ == 'info':
+                    self.show_information(title=v['title'], inform="", msg=v['msg'])
+                else:
+                    self.show_critical(title=v['title'], msg=v['msg'])
+                
+            
 
     def run(self):
         """Handle the event loop."""
         try:
-
-            # if self.retry_button_clicked:  # Check if the retry button was clicked
-            #     print("Retry Executed")
-            #     self.retry()  # Call the retry function when the retry event is detected
-            #     self.retry_button_clicked = False  # Reset it back to False after processing
 
             self.read_q()
             self.queue_updates()  # You can also update the GUI components based on certain conditions
@@ -533,7 +661,6 @@ class MainWindow(QMainWindow):
 
                 try:
                     days_since_last_update = today - config.last_update_check
-                    print(days_since_last_update, today, config.last_update_check)
                     log('days since last check for update:', days_since_last_update, 'day(s).')
 
                     if days_since_last_update >= config.update_frequency:
@@ -543,7 +670,7 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     log('MainWindow.run()>', e)
         except Exception as e:
-            print(f"Error in run loop: {e}")
+            log(f"Error in run loop: {e}")
 
     # region Url stuffs
     def url_text_change(self):
@@ -555,7 +682,7 @@ class MainWindow(QMainWindow):
         self.reset()
         try:
             self.d.eff_url = self.d.url = url
-            print(f"New URL set: {url}")
+            log(f"New URL set: {url}")
              
             # Update the DownloadItem with the new URL
             #self.d.update(url)
@@ -569,7 +696,7 @@ class MainWindow(QMainWindow):
             # Trigger the progress bar update and GUI refresh
             self.update_progress_bar()
         except Exception as e:
-            print(f"Error in url_text_change: {e}")
+            log(f"Error in url_text_change: {e}")
 
     def process_url(self):
         """Simulate processing the URL and update the progress bar."""
@@ -581,9 +708,6 @@ class MainWindow(QMainWindow):
             # Update the progress bar in the main thread
             self.update_progress_bar_value(step)
             
-            # widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-        #widgets.size_value_label.setText(size_format(self.d.protocol))
-        #self.update_gui()
 
 
     def update_progress_bar_value(self, value):
@@ -604,17 +728,10 @@ class MainWindow(QMainWindow):
         self.d = DownloadItem()
 
         # reset some values
-        self.set_status('')
         self.playlist = []
         self.video = None
 
 
-    def set_status(self, text):
-        """update status bar text widget"""
-        try:
-            self.window['status_bar'](text)
-        except:
-            pass
 
     def update_progress_bar(self):
         """Update the progress bar based on URL processing."""
@@ -716,7 +833,7 @@ class MainWindow(QMainWindow):
                 elif key == 'resumable':
                     widgets.resumable_value_label.setText("Yes" if value else "No")
                 elif key == 'total_speed':
-                    speed_text = f'⬇ {size_format(value, "/s")}' if value else '⬇ 0 bytes'
+                    speed_text = f'⬇⬆ {size_format(value, "/s")}' if value else '⬇⬆ 0 bytes'
                     widgets.totalSpeedValue.setText(speed_text)
                 elif key == 'populate_table':
                     self.populate_table()
@@ -791,7 +908,7 @@ class MainWindow(QMainWindow):
     
 
         
-    # Clear Log
+     # Clear Log
     def clear_log(self):
         widgets.logDisplay.clear()
 
@@ -816,9 +933,9 @@ class MainWindow(QMainWindow):
             self.start_download(self.pending.popleft(), silent=True)
     
     def start_download(self, d, silent=False, downloader=None):
-        if not self.check_internet():
-            self.show_warning("No Internet","Please check your internet connection and try again")
-            return
+        # if not self.check_internet():
+        #     self.show_warning("No Internet","Please check your internet connection and try again")
+        #     return
         
 
         if d is None:
@@ -1118,7 +1235,7 @@ class MainWindow(QMainWindow):
                 open_website_btn.clicked.connect(on_open_website)
                 cancel_btn.clicked.connect(on_cancel)
 
-                dialog.exec_()
+                dialog.exec()
 
                 return  # exit if youtube-dl is missing
         else:
@@ -1459,7 +1576,7 @@ class MainWindow(QMainWindow):
                 cancel_button.clicked.connect(on_cancel)
 
                 # Execute the dialog
-                dialog.exec_()
+                dialog.exec()
 
             else:
                 # Show error popup for non-Windows systems
@@ -1692,7 +1809,7 @@ class MainWindow(QMainWindow):
         confirmation_box.setText(msg)
         confirmation_box.setIcon(QMessageBox.Question)
         confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        reply = confirmation_box.exec_()
+        reply = confirmation_box.exec()
 
         if reply != QMessageBox.Yes:
             return
@@ -1712,8 +1829,10 @@ class MainWindow(QMainWindow):
             widgets.tableWidget.removeRow(selected_row)
 
             notification = f"File: {d.name} has been deleted."
-            notify(notification, title=f'{config.APP_NAME} - Download completed')
+            notify(notification, title=f'{config.APP_NAME}')
+            # popup(msg=notification, title=f'{config.APP_NAME}')
             d.delete_tempfiles()
+            os.remove(f"{d.folder}/{d.name}")
 
         except Exception as e:
             log(f"Error deleting item: {e}")
@@ -1914,16 +2033,13 @@ class MainWindow(QMainWindow):
         
         self.selected_d.sched = None
 
-    # Updating `self.itemLabel` text when an item in the table is clicked
+     # Updating `self.itemLabel` text when an item in the table is clicked
     def update_item_label(self):
         selected_row = widgets.tableWidget.currentRow()
         self.selected_row_num = selected_row
         d = self.selected_d
 
         widgets.itemLabel.setText(f"Download Item: {d.name}")
-
-   
-    
 
     def file_properties(self):
         selected_row = widgets.tableWidget.currentRow()
@@ -2135,7 +2251,7 @@ class MainWindow(QMainWindow):
 
             # compare with current application version
             newer_version = compare_versions(current_version, latest_version)  # return None if both equal
-            print(newer_version, current_version, latest_version)
+            
 
             if not newer_version or newer_version == current_version:
                 self.new_version_available = False
@@ -2156,61 +2272,77 @@ class MainWindow(QMainWindow):
         self.change_cursor('normal')
 
 
-    def check_for_update(self):
-        self.change_cursor('busy')
+    # def check_for_update(self):
+    #     self.change_cursor('busy')
 
-        # check for update
-        current_version = config.APP_VERSION
-        info = update.get_changelog()
+    #     # check for update
+    #     current_version = config.APP_VERSION
+    #     info = update.get_changelog()
 
-        if info:
-            latest_version, version_description = info
+    #     if info:
+    #         latest_version, version_description = info
 
-            # compare with current application version
-            newer_version = compare_versions(current_version, latest_version)  # return None if both equal
-            print(newer_version, current_version, latest_version)
+    #         # compare with current application version
+    #         newer_version = compare_versions(current_version, latest_version)  # return None if both equal
+    #         print(newer_version, current_version, latest_version)
 
-            if not newer_version or newer_version == current_version:
-                self.new_version_available = False
-                log("check_for_update() --> App. is up-to-date, server version=", latest_version)
-            else:  # newer_version == latest_version
-                self.new_version_available = True
+    #         if not newer_version or newer_version == current_version:
+    #             self.new_version_available = False
+    #             log("check_for_update() --> App. is up-to-date, server version=", latest_version)
+    #         else:  # newer_version == latest_version
+    #             self.new_version_available = True
                 
 
-            # updaet global values
-            config.APP_LATEST_VERSION = latest_version
-            self.new_version_description = version_description
-        else:
-            self.new_version_description = None
-            self.new_version_available = False
+    #         # updaet global values
+    #         config.APP_LATEST_VERSION = latest_version
+    #         self.new_version_description = version_description
+    #     else:
+    #         self.new_version_description = None
+    #         self.new_version_available = False
 
-        self.change_cursor('normal')
+    #     self.change_cursor('normal')
 
     def start_update(self):
-      
-        self.startupdate = UpdateAppThread()
-        self.startupdate.app_update.connect(self.update_app)
-        
-        self.startupdate.start()
+        # Initialize and start the update thread
+        self.start_update_thread = CheckUpdateAppThread()
+        self.start_update_thread.app_update.connect(self.update_app)
+        self.start_update_thread.start()
 
-    def update_app(self, remote=True):
-        """show changelog with latest version and ask user for update
-        :param remote: bool, check remote server for update"""
+    def update_app(self, new_version_available):
+        """Show changelog with latest version and ask user for update."""
+        if new_version_available:
+            config.main_window_q.put(('show_update_gui', ''))
+        else:
+            self.show_information(
+                title="App Update",
+                inform=f"App is up-to-date",
+                msg=f"Current version: {config.APP_VERSION}\nServer version: {config.APP_LATEST_VERSION}"
+            )
+
+            if not self.start_update_thread.new_version_description:
+                self.show_information(
+                    title="App Update",
+                    inform="Check your internet connection",
+                    msg="Couldn't check for update"
+                )
+    # def update_app(self, remote=True):
+    #     """show changelog with latest version and ask user for update
+    #     :param remote: bool, check remote server for update"""
         
-        if remote:
-            Thread(target=self.check_for_update, daemon=True).start()
-            #self.check_for_update()
+    #     if remote:
+    #         Thread(target=self.check_for_update, daemon=True).start()
+    #         #self.check_for_update()
             
 
-        if self.new_version_available:
-            config.main_window_q.put(('show_update_gui', ''))
-            # self.show_update_gui()
-        else:
-            self.show_information(title="App Update", inform=f"App. is up-to-date \n", msg=f"Current version: {config.APP_VERSION} \n Server version:  {config.APP_LATEST_VERSION} \n")
-            if self.new_version_description:
-                pass
-            else:
-                self.show_information(title="App Update", inform="Check your internet connection", msg="Couldnt check for update")
+    #     if self.new_version_available:
+    #         config.main_window_q.put(('show_update_gui', ''))
+    #         # self.show_update_gui()
+    #     else:
+    #         self.show_information(title="App Update", inform=f"App. is up-to-date \n", msg=f"Current version: {config.APP_VERSION} \n Server version:  {config.APP_LATEST_VERSION} \n")
+    #         if self.new_version_description:
+    #             pass
+    #         else:
+    #             self.show_information(title="App Update", inform="Check your internet connection", msg="Couldnt check for update")
         
         
                 
@@ -2230,15 +2362,15 @@ class MainWindow(QMainWindow):
 
         # Add a QTextEdit to show the new version description (read-only)
         description_edit = QTextEdit()
-        description_edit.setText(self.new_version_description)  # Assuming self.new_version_description is a string
+        description_edit.setText(self.start_update_thread.new_version_description or "")
         description_edit.setReadOnly(True)
         description_edit.setFixedSize(400, 200)  # Set the size similar to size=(50, 10) in PySimpleGUI
         layout.addWidget(description_edit)
 
         # Create buttons for "Update" and "Cancel"
         button_layout = QHBoxLayout()
-        update_button = QPushButton('Update')
-        cancel_button = QPushButton('Cancel')
+        update_button = QPushButton('Update', dialog)
+        cancel_button = QPushButton('Cancel', dialog)
         button_layout.addWidget(update_button)
         button_layout.addWidget(cancel_button)
 
@@ -2247,16 +2379,35 @@ class MainWindow(QMainWindow):
 
         # Set the main layout of the dialog
         dialog.setLayout(layout)
-
+        
         # Connect buttons to actions
-        update_button.clicked.connect(self.handle_update)  # Call the update function when "Update" is clicked
-        cancel_button.clicked.connect(dialog.close)  # Close the dialog when "Cancel" is clicked
+        def on_ok():
+            dialog.accept()
+            self.handle_update()
+            dialog.close()
+
+        def on_cancel():
+            dialog.reject()
+            dialog.close()
+
+        update_button.clicked.connect(on_ok)  # Call the update function when "Update" is clicked
+        cancel_button.clicked.connect(on_cancel)  # Close the dialog when "Cancel" is clicked
 
         # Show the dialog
         dialog.exec()
 
     def handle_update(self):
-        update.update()  # Call the update method
+        self.update_thread = UpdateThread()  # Create an instance of the UpdateThread
+        self.update_thread.update_finished.connect(self.on_update_finished)  # Connect the signal
+        self.update_thread.start()  # Start the thread
+
+    def on_update_finished(self):
+        self.show_information(title=config.APP_NAME, inform="Update scheduled to run on the next reboot.", msg="Please you can reboot now to install updates.")
+        # Handle what happens after the update finishes
+        # print("Update completed!")  # Replace with your logic (e.g., notifying the user)
+
+    # def handle_update(self):
+    #     update.update()  # Call the update method
 
 
     def animate_update_note(self):
@@ -2307,7 +2458,7 @@ class MainWindow(QMainWindow):
                 confirmation_box.setText(msg)
                 confirmation_box.setIcon(QMessageBox.Question)
                 confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-                reply = confirmation_box.exec_()
+                reply = confirmation_box.exec()
 
                 if reply == QMessageBox.Yes:
                     try:
@@ -2319,7 +2470,7 @@ class MainWindow(QMainWindow):
               
     # endregion
 
-    
+   
 
 class DownloadWindow(QWidget):
     def __init__(self, d=None):
@@ -2607,53 +2758,45 @@ def ask_for_sched_time(msg=''):
 
 # Define clipboard_listener and singleApp functions here
 
-def clipboard_listener():
-    old_data = ''
+# def clipboard_listener():
+#     old_data = ''
     
-    while True:
-        # Read from the clipboard
-        new_data = clipboard_read()
-        #print(f"Clipboard data: {new_data}")
+#     while True:
+#         # Read from the clipboard
+#         new_data = clipboard_read()
+#         #print(f"Clipboard data: {new_data}")
 
-        # Check if a message is received from another instance
-        if new_data == 'any one there?':  
-            clipboard_write('yes')  # Reply to the instance
-            config.main_window_q.put(('visibility', 'show'))  # Request main window visibility
+#         # Check if a message is received from another instance
+#         if new_data == 'any one there?':  
+#             clipboard_write('yes')  # Reply to the instance
+#             config.main_window_q.put(('visibility', 'show'))  # Request main window visibility
 
-        # Check if clipboard monitoring is active and the content has changed
-        if config.monitor_clipboard and new_data != old_data:
-            if new_data.startswith('http') and ' ' not in new_data:
-                # Send the URL to the main window queue
-                config.main_window_q.put(('url', new_data))
+#         # Check if clipboard monitoring is active and the content has changed
+#         if config.monitor_clipboard and new_data != old_data:
+#             if new_data.startswith('http') and ' ' not in new_data:
+#                 # Send the URL to the main window queue
+#                 config.main_window_q.put(('url', new_data))
             
-            old_data = new_data
-            #print(f"Updated clipboard data: {old_data}")
+#             old_data = new_data
+#             #print(f"Updated clipboard data: {old_data}")
 
-        # Stop the clipboard listener if needed
-        if config.terminate:
-            break
+#         # Stop the clipboard listener if needed
+#         if config.terminate:
+#             break
 
-        # Sleep briefly to avoid busy-waiting
-        time.sleep(0.2)
-
-
+#         # Sleep briefly to avoid busy-waiting
+#         time.sleep(0.2)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    
+    app.setWindowIcon(QIcon("icon.ico"))
+    #app.aboutToQuit.connect(update.schedule_update)
+
     # Create the main window
     window = MainWindow(config.d_list)
     window.show()
-    
-    Thread(target=video.import_ytdl, daemon=True).start()
-        
-    # Start the clipboard listener in a separate thread
-    Thread(target=clipboard_listener, daemon=True).start()
-    # Start logging
-    Thread(target=log_recorder, daemon=True).start()
+    QTimer.singleShot(0, video.import_ytdl)
 
-
-    
     # Start the event loop
     sys.exit(app.exec())
