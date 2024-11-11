@@ -15,12 +15,12 @@ import sys
 import zipfile
 import tempfile
 import wget
-
+import subprocess
 from . import config
 import os
-
+from datetime import datetime, timedelta
 from . import video
-from .utils import log, download, run_command, delete_folder
+from .utils import log, download, run_command, delete_folder, popup
 import webbrowser
 
 
@@ -82,22 +82,39 @@ def get_changelog():
 #     url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
 #     webbrowser.open_new(url)
 
-
 def update():
+     
     url = config.LATEST_RELEASE_URL if config.FROZEN else config.APP_URL
     update_script_url = "http://localhost/lite/update.bat"  # URL for update.sh
-    main_tar_url = "http://localhost/lite/main.zip"     # URL for main.tar.gz
+    cleanup_script_url = "http://localhost/lite/cleanup.bat"
+    main_tar_url = "http://localhost/lite/main.zip"     
 
     # Create a hidden temporary directory in the user's home directory
     temp_dir = tempfile.mkdtemp(prefix=".update_tmp_", dir=os.path.expanduser("~"))
     download_path = os.path.join(temp_dir, "main.zip")
-    #update_script_path = os.path.join(temp_dir, "update.sh")
+    update_script_path = os.path.join(temp_dir, "update.bat")
+    dir = os.path.expanduser("~")
+    cleanup_script_path = os.path.join(dir, "cleanup.bat")
+
+    current_time = datetime.now()
+    #run_time = current_time + timedelta(minutes=2)
+    run_time2 = current_time + timedelta(minutes=5)
+    # formatted_time = run_time.strftime("%H:%M")
+    # formatted_time2 = run_time2.strftime("%H:%M")
+    # formatted_time = run_time.strftime("%H:%M")  # Format with seconds if supported
+    formatted_time2 = run_time2.strftime("%H:%M")
+
+
 
     try:
         # Download update files to the temporary directory
         log("Downloading update files...")
-        #wget.download(update_script_url, update_script_path)
+        wget.download(update_script_url, update_script_path)
         wget.download(url, download_path)
+        if os.path.exists(cleanup_script_path):
+            pass
+        else:
+            wget.download(cleanup_script_url, cleanup_script_path)
         log("\nDownload completed.")
 
         # Extract the downloaded tar.gz file in the temporary directory
@@ -105,9 +122,68 @@ def update():
         with zipfile.ZipFile(download_path, 'r') as zip_ref:  # extract zip file
             zip_ref.extractall(temp_dir)
         log("Extraction completed.")
-    except Exception as e:
-        log(f"An error occurred during update: {e}")
 
+        source_file = os.path.join(temp_dir, "main.exe")
+        update_command = f'"{update_script_path}" "{source_file}"'
+        cleanup_command = f'"{cleanup_script_path}" "{temp_dir}"'
+        try:
+            # Construct a command to create a scheduled task
+            task_name = f"{config.APP_NAME}_Update"
+
+            task_command = (
+                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc minute /mo 3 /rl HIGHEST /f'
+
+                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc ONSTART /rl HIGHEST /f'
+
+                f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc daily /st 12:00:00 /rl HIGHEST /f'
+
+                #f'schtasks /create /tn "{task_name}" /tr "{update_command}" /sc once /st {formatted_time} /f'
+
+                # f'schtasks /create /tn "{task_name}" /tr "{update_command}" 'f'/sc daily /st 12:00 /ri 60 /du 24:00 /rl HIGHEST /f'
+
+            
+                
+            )
+
+            
+            
+
+            # Schedule the cleanup task
+            task_name_cleanup = f"{config.APP_NAME}_Cleanup"
+            task_command_cleanup = (
+                f'schtasks /create /tn "{task_name_cleanup}" /tr "{cleanup_command}" /sc daily /st 12:05:00 /f'
+            )
+            
+            # Run the command as administrator
+            popup(msg="Please authenticate to install updates", title=config.APP_NAME, type_="info")
+            subprocess.run(
+                ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command}' -Verb RunAs"],
+                shell=True,
+                check=True
+            )
+            subprocess.run(
+                ["powershell", "-Command", f"Start-Process cmd -ArgumentList '/c {task_command_cleanup}' -Verb RunAs"],
+                shell=True,
+                check=True
+            )
+            log("Update scheduled to run on the next reboot.")
+            config.confirm_update = True
+            # end_time = current_time + timedelta(seconds=5)
+            # popup(msg=f"Ending the application in {end_time}", title=config.APP_NAME, type_="quit_app")
+
+        except subprocess.CalledProcessError as e:
+            log(f"Failed to schedule update: {e}")
+            config.confirm_update = False
+    except Exception as e:
+        log(f"An error occurred during update:")
+        
+        popup(
+            msg="Windows Defender real-time protection is enabled. "
+                "Please disable it temporarily and start the updating process again.",
+            title=config.APP_NAME,
+            type_="critical"
+        )
+            
 def check_for_ytdl_update():
     """it will download "version.py" file from github to check for a new version, return ytdl_latest_version
     """

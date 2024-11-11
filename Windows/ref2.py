@@ -22,6 +22,7 @@ import re
 import time
 import copy
 import subprocess
+import shutil
 from threading import Thread, Barrier, Timer, Lock
 from collections import deque
 
@@ -37,19 +38,87 @@ os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, 
-                           log, log_recorder, delete_file, time_format, truncate, notify, open_file, run_command, handle_exceptions)
-from modules import config, brain, setting, video
+from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, compare_versions, 
+                           log, log_recorder, delete_file, time_format, truncate, notify, popup, open_file, run_command, handle_exceptions)
+from modules import config, brain, setting, video, update
 
 from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
 
-from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal
+from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl
 
-from PySide6.QtGui import QAction, QIcon
-
+from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
+from typing import Optional
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
                                QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
-                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton)
+                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox)
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+import ctypes
+
+
+# Your kLibraryKey from Advanced Installer
+kLibraryKey = "A1C833871199EB5E42901ADC805BE56AC1CD98554AC8A056088C7222895C4876993B64E1F71A"
+
+# Get the directory of the current executable or script
+base_path = os.path.dirname(sys.executable) if hasattr(sys, "frozen") else os.path.dirname(__file__)
+dll_path = os.path.join(base_path, "Trial.dll")
+
+# Load the Trial.dll
+try:
+    trial_dll = ctypes.WinDLL(dll_path)
+except OSError as e:
+    print(f"Error loading Trial.dll from {dll_path}: {e}")
+    #sys.exit(1)
+
+# Define the functions from Trial.dll
+InitTrial = trial_dll.ReadSettingsStr
+InitTrial.argtypes = [ctypes.c_char_p, ctypes.c_void_p]
+InitTrial.restype = ctypes.c_uint
+
+InitTrialReturn = trial_dll.ReadSettingsRetStr
+InitTrialReturn.argtypes = [ctypes.c_char_p, ctypes.c_void_p]
+InitTrialReturn.restype = ctypes.c_uint
+
+DisplayRegistration = trial_dll.DisplayRegistrationStr
+DisplayRegistration.argtypes = [ctypes.c_char_p, ctypes.c_void_p]
+DisplayRegistration.restype = ctypes.c_uint
+
+GetPropertyValue = trial_dll.GetPropertyValue
+GetPropertyValue.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.POINTER(ctypes.c_uint)]
+GetPropertyValue.restype = ctypes.c_uint
+
+# Worker class that will run on a separate QThread
+class TrialWorker(QObject):
+    finished = Signal()
+    trialExpired = Signal()
+    trialNameFetched = Signal(str)
+
+    def run_trial(self):
+        try:
+            # Delay to allow the main window to become visible
+            time.sleep(2)
+
+            # Initialize the trial
+            handle = int(QApplication.activeWindow().winId())
+            ret = InitTrial(kLibraryKey.encode('utf-8'), ctypes.c_void_p(handle))
+
+            # Use InitTrialReturn to prevent the application from being killed
+            if ret >= 4:
+                self.trialExpired.emit()
+                return
+
+            # Read a property, such as the trial name
+            trial_name = ctypes.create_unicode_buffer(256)
+            length = ctypes.c_uint(len(trial_name))
+            result = GetPropertyValue("TrialName", trial_name, ctypes.byref(length))
+            if result == 234:  # Buffer size error, reallocate
+                trial_name = ctypes.create_unicode_buffer(length.value)
+                GetPropertyValue("TrialName", trial_name, ctypes.byref(length))
+
+            self.trialNameFetched.emit(trial_name.value)
+        except Exception as e:
+            QMessageBox.critical(None, "Error", f"An error occurred: {e}")
+        finally:
+            self.finished.emit()
 
 class YouTubeThread(QThread):
     finished = Signal(object)  # Signal to emit when the process is complete
@@ -58,6 +127,13 @@ class YouTubeThread(QThread):
         super().__init__()
         self.url = url
 
+    def change_cursor(self, cursor_type):
+        """Change cursor to busy or normal."""
+        if cursor_type == 'busy':
+            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        elif cursor_type == 'normal':
+            QApplication.restoreOverrideCursor()  # Restore normal cursor
+
     def run(self):
         try:
             # Ensure youtube-dl is loaded
@@ -65,8 +141,9 @@ class YouTubeThread(QThread):
                 log('youtube-dl module still loading, please wait')
                 while not video.ytdl:
                     time.sleep(0.1)
-
+            widgets.DownloadButton.setEnabled(False)
             log(f"Extracting info for URL: {self.url}")
+            self.change_cursor('busy')
             # Extract information with youtube-dl
             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
                 info = ydl.extract_info(self.url, download=False, process=False)
@@ -82,15 +159,145 @@ class YouTubeThread(QThread):
                             playlist.append(Video(url))
                     result = playlist
                 else:
-                    result = Video(self.url, vid_info=info)
+                    result = Video(self.url, vid_info=None)
 
                 self.finished.emit(result)
+                self.change_cursor('normal')
+                widgets.DownloadButton.setEnabled(True)
         except Exception as e:
             log('YouTubeThread error:', e)
             self.finished.emit(None)
+    
+
+class CheckUpdateAppThread(QThread):
+    app_update = Signal(bool)  # Emits True if a new version is available
+
+    def __init__(self, remote=True):
+        super().__init__()
+        self.remote = remote
+        self.new_version_available = False
+        self.new_version_description = None
+
+    def run(self):
+        # Call the check_for_update function in this thread
+        self.check_for_update()
+        # Emit the app_update signal with the result
+        self.app_update.emit(self.new_version_available)
+
+    def check_for_update(self):
+        # Change cursor to busy
+        self.change_cursor('busy')
+
+        # Retrieve current version and changelog information
+        current_version = config.APP_VERSION
+        info = update.get_changelog()
+
+        if info:
+            latest_version, version_description = info
+
+            # Compare versions
+            newer_version = compare_versions(current_version, latest_version)
+            # print(newer_version, latest_version, version_description)
+            if not newer_version or newer_version == current_version:
+                self.new_version_available = False
+            else:  # newer_version == latest_version
+                self.new_version_available = True
+
+            # Update global values
+            config.APP_LATEST_VERSION = latest_version
+            
+            self.new_version_description = version_description
+        else:
+            self.new_version_available = False
+            self.new_version_description = None
+
+        # Revert cursor to normal
+        self.change_cursor('normal')
+
+    def change_cursor(self, cursor_type):
+        """Change cursor to busy or normal."""
+        if cursor_type == 'busy':
+            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        elif cursor_type == 'normal':
+            QApplication.restoreOverrideCursor()  # Restore normal cursor
+
+    
+class UpdateThread(QThread):
+    update_finished = Signal()  # Signal to indicate that the update is finished
+
+    def run(self):
+        update.update()  # Perform the update here
+        if config.confirm_update == True:
+            self.update_finished.emit()  # Emit the signal when done
+        else:
+            pass
+
+class FileOpenThread(QThread):
+    # Define a signal to communicate with the main window
+    critical_signal = Signal(str, str)
+
+    def __init__(self, file_path, parent=None):
+        super(FileOpenThread, self).__init__(parent)
+        self.file_path = file_path
+
+    def run(self):
+        try:
+            if not os.path.exists(self.file_path):
+                # Emit the signal if the file doesn't exist, sending the title and message
+                self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.")
+                return  # Exit the thread if the file doesn't exist
+
+            # Opening the file
+            if config.operating_system == 'Windows':
+                os.startfile(self.file_path)
+            elif config.operating_system == 'Linux':
+                run_command(f'xdg-open "{self.file_path}"', verbose=False)
+            elif config.operating_system == 'Darwin':
+                run_command(f'open "{self.file_path}"', verbose=False)
+
+        except Exception as e:
+            print(f'Error opening file: {e}')
+
+class LogRecorderThread(QThread):
+    error_signal = Signal(str)  # Signal to report errors to main thread
+    
+    def __init__(self):
+        super().__init__()
+        self.buffer = ''
+        self.file = os.path.join(config.sett_folder, 'log.txt')
+        
+        # Clear previous file
+        try:
+            with open(self.file, 'w') as f:
+                f.write(self.buffer)
+        except Exception as e:
+            self.error_signal.emit(f'Failed to clear log file: {str(e)}')
+    
+    def run(self):
+        while not config.terminate:
+            try:
+                # Read log messages from queue
+                q = config.log_recorder_q
+                for _ in range(q.qsize()):
+                    self.buffer += q.get()
+                
+                # Write buffer to file
+                if self.buffer:
+                    with open(self.file, 'a', encoding="utf-8", errors="ignore") as f:
+                        f.write(self.buffer)
+                        self.buffer = ''  # Reset buffer
+                
+                # Sleep briefly to prevent high CPU usage
+                self.msleep(100)  # QThread's msleep is more precise than time.sleep
+                
+            except Exception as e:
+                self.error_signal.emit(f'Log recorder error: {str(e)}')
+                self.msleep(100)
+
 
 
 class MainWindow(QMainWindow):
+    update_gui_signal = Signal(dict)
     def __init__(self, d_list):
         QMainWindow.__init__(self)
 
@@ -98,8 +305,7 @@ class MainWindow(QMainWindow):
         # current download_item
         self.d = DownloadItem()
 
-        
-
+        self.dragPos = None
         # download windows
         self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
 
@@ -137,6 +343,7 @@ class MainWindow(QMainWindow):
         self._m_bar = 0  # main playlist progress par
         self.stream_menu_selection = ''
 
+        
         # thumbnail
         self.current_thumbnail = None
 
@@ -149,7 +356,7 @@ class MainWindow(QMainWindow):
 
         # SET AS GLOBAL WIDGETS
         # ///////////////////////////////////////////////////////////////
-        self.ui = Ui_MainWindow()
+        self.ui = Ui_MainWindow() 
         self.ui.setupUi(self)
         global widgets
         widgets = self.ui
@@ -187,6 +394,8 @@ class MainWindow(QMainWindow):
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
         #widgets.btn_save.clicked.connect(self.buttonClick)
+
+        
         
 
         # EXTRA LEFT BOX
@@ -226,10 +435,22 @@ class MainWindow(QMainWindow):
         # self.retry_button = widgets.home_retry_pushbutton  # Assuming this is defined in your UI
         # self.retry_button.clicked.connect(self.on_retry_clicked)  # Connect to the event handler
 
+        # Initialize and start log recorder thread
+        self.log_recorder_thread = LogRecorderThread()
+        self.log_recorder_thread.error_signal.connect(self.handle_log_error)
+        self.log_recorder_thread.start()
+
+        # Setup clipboard monitoring
+        self.clipboard = QApplication.clipboard()
+        self.clipboard.dataChanged.connect(self.on_clipboard_change)
+        self.old_clipboard_data = ''
+
+
+
         # Initialize the PyQt run loop with a timer (to replace the PySimpleGUI event loop)
         self.run_timer = QTimer(self)
         self.run_timer.timeout.connect(self.run)
-        self.run_timer.start(800)  # Runs every 500ms
+        self.run_timer.start(900)  # Runs every 500ms
 
         # self.retry_button_clicked = False
         # Flag to indicate if the filename is being updated programmatically
@@ -249,18 +470,29 @@ class MainWindow(QMainWindow):
         widgets.schedule_all.clicked.connect(self.schedule_all)
         widgets.stop_all.clicked.connect(self.stop_all_downloads)
         widgets.delete_all.clicked.connect(self.delete_all_downloads)
-        #widgets.tableWidget.customContextMenuRequested.connect(self.show_context_menu)
+        widgets.update_button.clicked.connect(self.start_update)
+        widgets.playlist_button.clicked.connect(self.download_playlist)
         # Enable custom context menu on the table widget
         widgets.tableWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
+        widgets.clearButton.clicked.connect(self.clear_log)
+        widgets.tableWidget.itemClicked.connect(self.update_item_label)
+
+        # widgets.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
+        #widgets.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
+        # widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
+        # widgets.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
         
         
 
         widgets.version.setText(f"{config.APP_VERSION}")
+        widgets.version_label.setText(f"App Version: {config.APP_VERSION}")
+        
         widgets.titleLeftApp.setText(f"{config.APP_NAME}")
         widgets.titleLeftDescription.setText(f"{config.APP_DEC}")
 
-        log('Starting PyIDM version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen')
+        log(f'Starting {config.APP_NAME} version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen')
         # log('starting application')
         log('operating system:', config.operating_system_info)
         log('current working directory:', config.current_directory)
@@ -269,6 +501,8 @@ class MainWindow(QMainWindow):
         # load stored setting from disk
         setting.load_setting()
         self.d_list = setting.load_d_list()
+
+        widgets.home_folder_path_lineEdit.setText(config.download_folder)
 
         # Add this line to set the checkbox state based on the loaded setting
         widgets.monitor_clipboard.setChecked(config.monitor_clipboard)
@@ -296,24 +530,63 @@ class MainWindow(QMainWindow):
         widgets.checkBox_proxy.setChecked(True if config.enable_proxy else False)
         widgets.lineEdit_proxy.setText(config.proxy if config.enable_proxy == True else "")
         widgets.combo_proxy_type.setCurrentText(config.proxy_type)
+        widgets.combo_check_update.setCurrentText(str(config.update_frequency))
+        widgets.logLevelComboBox.setCurrentText(str(config.log_level))
         #widgets.label_proxy_info.setText(config.proxy == '' if config.enable_proxy)
         
 
-        #widgets.checkBox_network.stateChanged.connect(self.speed_limit_set)
-        # import youtube-dl in a separate thread
-        # Thread(target=video.import_ytdl, daemon=True).start()
+        self.update_gui_signal.connect(self.process_gui_updates)
+        self.update_timer = QTimer(self)
+        self.update_timer.timeout.connect(self.check_for_updates)
+        self.update_timer.start(100)  # Check for updates every 100ms
+
+        self.pending_updates = {}
         
-        # # Start the clipboard listener in a separate thread
-        # Thread(target=clipboard_listener, daemon=True).start()
-        # # Start logging
-        # Thread(target=log_recorder, daemon=True).start()
-
-        # Thread(target=self.youtube_func, daemon=True).start()
-        
-
-
+        self.network_manager = QNetworkAccessManager()
+        self.network_manager.finished.connect(self.on_thumbnail_downloaded)
+        self.one_time = True
         
 
+        
+    def setup(self):
+        """initial setup"""
+        
+        # Set up the QThread and the worker
+        self.trial_thread = QThread()
+        self.trial_worker = TrialWorker()
+        self.trial_worker.moveToThread(self.trial_thread)
+
+        # Connect signals and slots
+        self.trial_thread.started.connect(self.trial_worker.run_trial)
+        self.trial_worker.finished.connect(self.trial_thread.quit)
+        self.trial_worker.finished.connect(self.trial_worker.deleteLater)
+        self.trial_thread.finished.connect(self.trial_thread.deleteLater)
+        self.trial_worker.trialExpired.connect(self.on_trial_expired)
+        self.trial_worker.trialNameFetched.connect(self.on_trial_name_fetched)
+
+        # Start the thread
+        self.trial_thread.start()
+
+
+        # download folder
+        if not self.d.folder:
+            self.d.folder = config.download_folder
+
+
+    def on_trial_expired(self):
+        QMessageBox.warning(self, "Trial Expired", "Your trial period has expired.")
+        self.close()
+
+    def on_trial_name_fetched(self, trial_name):
+        log(f"TrialName: {trial_name}")
+
+    def register_application(self):
+        try:
+            handle = int(self.winId())
+            DisplayRegistration(kLibraryKey.encode('utf-8'), ctypes.c_void_p(handle))
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"An error occurred during registration: {e}")
+    
         
         
 
@@ -348,11 +621,6 @@ class MainWindow(QMainWindow):
             UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
             btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
 
-        # if btnName == "btn_save":
-        #     print("Save BTN clicked!")
-
-        # # PRINT BTN NAME
-        # print(f'Button "{btnName}" pressed!')
 
     # RESIZE EVENTS
     # ///////////////////////////////////////////////////////////////
@@ -362,28 +630,59 @@ class MainWindow(QMainWindow):
 
     # MOUSE CLICK EVENTS
     # ///////////////////////////////////////////////////////////////
-    # def mousePressEvent(self, event):
-    #     # SET DRAG POS WINDOW
-    #     self.dragPos = event.globalPos()
+    def mousePressEvent(self, event):
+        # SET DRAG POS WINDOW
+        self.dragPos = event.globalPosition().toPoint()  # Use globalPosition() and convert to QPoint
 
-    #     # PRINT MOUSE EVENTS
-    #     if event.buttons() == Qt.LeftButton:
-    #         print('Mouse click: LEFT CLICK')
-    #     if event.buttons() == Qt.RightButton:
-    #         print('Mouse click: RIGHT CLICK')
 
-    def setup(self):
-        """initial setup"""
+
+    def on_clipboard_change(self):
+        try:
+            new_data = self.clipboard.text()
+            
+            # Check for instance message
+            if new_data == 'any one there?':
+                self.clipboard.setText('yes')
+                self.show()
+                self.raise_()
+                return
+            
+            # Check for URLs if monitoring is active
+            if config.monitor_clipboard and new_data != self.old_clipboard_data:
+                if new_data.startswith('http') and ' ' not in new_data:
+                    config.main_window_q.put(('url', new_data))
+                
+                self.old_clipboard_data = new_data
+                
+        except Exception as e:
+            log(f'Clipboard error: {str(e)}')
+    
+    # def show_window(self):
+    #     """Show and raise window"""
+    #     self.show()
+    #     self.raise_()
+    
+    def handle_clipboard_error(self, error_msg: str):
+        """Handle clipboard errors"""
+        log(error_msg)
+    
+    def handle_log_error(self, error_msg: str):
+        """Handle log errors"""
+        log(error_msg)
         
-        # download folder
-        if not self.d.folder:
-            self.d.folder = config.download_folder
+    def closeEvent(self, event):
+        # Ensure clean shutdown of all threads
+        config.terminate = True
+        self.log_recorder_thread.wait()
+        super().closeEvent(event)
+
+
+    
 
     def read_q(self):
         """Read from the queue and update the GUI."""
         while not config.main_window_q.empty():
             k, v = config.main_window_q.get()
-            #print(f"Processing queue: {k} -> {v}")
 
             if k == 'log':
                 try:
@@ -421,13 +720,11 @@ class MainWindow(QMainWindow):
                 except Exception as e:
                     log(f"{e}")
 
-                self.set_status(v.strip('\n'))
+                
 
             elif k == 'url':
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
-                #print(f"Updated QLineEdit with URL: {v}")
-                # Thread(target=self.youtube_func, daemon=True).start()
                 self.url_text_change()
                 self.update_progress_bar()
             
@@ -435,25 +732,64 @@ class MainWindow(QMainWindow):
                 self.start_download(*v)
             elif k == "monitor":
                 widgets.monitor_clipboard.setChecked(v)
-
-                
-
             
+            elif k == 'show_update_gui':  # show update gui
+                self.show_update_gui()
+            
+            elif k == 'popup':
+                type_ = v['type_']
+                if type_ == 'info':
+                    self.show_information(title=v['title'], inform="", msg=v['msg'])
+                elif type_ == 'quit_app':
+                    self.show_information(title=v['title'], inform="", msg=v['msg'])
+                    self.cancel_all_downloads()
+                    # Set a timer to close the application in 5 seconds
+                    QTimer.singleShot(120000, self.quit_application)  # 5000 milliseconds = 5 seconds
+                
+                elif type_ == "critical":
+                    self.show_critical(title=v['title'], msg=v['msg'])
+                    
+                else:
+                    self.show_critical(title=v['title'], msg=v['msg'])
+                
+            
+    def quit_application(self):
+        # quiting the application for the updates to process
+        app.quit()
 
+    def cancel_all_downloads(self):
+        # change status of all downloading items to cancelled
+        for d in self.d_list:
+            if d.status == config.Status.downloading:
+                d.status = config.Status.cancelled
+                
 
     def run(self):
         """Handle the event loop."""
         try:
 
-            # if self.retry_button_clicked:  # Check if the retry button was clicked
-            #     print("Retry Executed")
-            #     self.retry()  # Call the retry function when the retry event is detected
-            #     self.retry_button_clicked = False  # Reset it back to False after processing
-
             self.read_q()
-            self.update_gui()  # You can also update the GUI components based on certain conditions
+            self.queue_updates()  # You can also update the GUI components based on certain conditions
+            if self.one_time:
+                self.one_time = False
+                # check availability of ffmpeg in the system or in same folder with this script
+                
+                # check_for_update
+                t = time.localtime()
+                today = t.tm_yday  # today number in the year range (1 to 366)
+
+                try:
+                    days_since_last_update = today - config.last_update_check
+                    log('days since last check for update:', days_since_last_update, 'day(s).')
+
+                    if days_since_last_update >= config.update_frequency:
+                        Thread(target=self.update_available, daemon=True).start()
+                        Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                        config.last_update_check = today
+                except Exception as e:
+                    log('MainWindow.run()>', e)
         except Exception as e:
-            print(f"Error in run loop: {e}")
+            log(f"Error in run loop: {e}")
 
     # region Url stuffs
     def url_text_change(self):
@@ -465,7 +801,7 @@ class MainWindow(QMainWindow):
         self.reset()
         try:
             self.d.eff_url = self.d.url = url
-            print(f"New URL set: {url}")
+            log(f"New URL set: {url}")
              
             # Update the DownloadItem with the new URL
             #self.d.update(url)
@@ -479,7 +815,7 @@ class MainWindow(QMainWindow):
             # Trigger the progress bar update and GUI refresh
             self.update_progress_bar()
         except Exception as e:
-            print(f"Error in url_text_change: {e}")
+            log(f"Error in url_text_change: {e}")
 
     def process_url(self):
         """Simulate processing the URL and update the progress bar."""
@@ -491,9 +827,6 @@ class MainWindow(QMainWindow):
             # Update the progress bar in the main thread
             self.update_progress_bar_value(step)
             
-            # widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-        #widgets.size_value_label.setText(size_format(self.d.protocol))
-        #self.update_gui()
 
 
     def update_progress_bar_value(self, value):
@@ -514,17 +847,10 @@ class MainWindow(QMainWindow):
         self.d = DownloadItem()
 
         # reset some values
-        self.set_status('')
         self.playlist = []
         self.video = None
 
 
-    def set_status(self, text):
-        """update status bar text widget"""
-        try:
-            self.window['status_bar'](text)
-        except:
-            pass
 
     def update_progress_bar(self):
         """Update the progress bar based on URL processing."""
@@ -538,75 +864,7 @@ class MainWindow(QMainWindow):
             Thread(target=self.get_header, args=[url], daemon=True).start()
 
 
-    # def get_header(self, url):
-    #     # curl_headers = get_headers(url)
-    #     self.d.update(url)
-
-    #     # update headers only if no other curl thread created with different url
-    #     if url == self.d.url:
-
-    #         # enable download button
-    #         if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
-    #             widgets.DownloadButton.setEnabled(True)  # Disables the button
-            
-    #         else:
-    #            # Call yt-dlp to extract metadata without downloading the video
-    #             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-    #                 self.d.vid_info = ydl.extract_info(url, download=False, process=False)
-
-    #             # Use yt-dlp's metadata to determine if the URL is a streaming video
-    #             if self.d.vid_info.get('extractor'):
-    #                 log(f"This is a streaming URL ({self.d.vid_info['extractor']}). Running youtube_func for: {url}", log_level=3)
-    #                 Thread(target=self.youtube_func, daemon=True).start()
     
-    # def get_header(self, url):
-    #     try:
-    #         # Call yt-dlp to extract metadata without downloading the video
-    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-    #             self.d.vid_info = ydl.extract_info(url, download=False, process=False)
-
-    #         # Define a list of supported streaming platforms (you can expand this list)
-    #         streaming_sites = ['youtube.com', 'youtu.be', 'vimeo.com', 'dailymotion.com', 'twitch.tv', 'facebook.com', 'instagram.com']
-
-    #         # Check if the URL belongs to any streaming site
-    #         if any(site in url for site in streaming_sites):
-    #             log(f"This is a streaming URL. Running youtube_func for: {url}")
-    #             Thread(target=self.youtube_func, daemon=True).start()
-    #         else:
-    #             log("This is not a streaming URL. Skipping youtube_func...")
-    #             # Handle non-streaming URLs here
-    #             self.d.update(url)
-    #             if url == self.d.url:
-    #                 if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
-    #                     widgets.DownloadButton.setEnabled(True)
-
-    #     except Exception as e:
-    #         log(f"Error in get_header: {e}")
-
-    
-    
-    
-    # def get_header(self, url):
-    #     try:
-    #         # Call yt-dlp to extract metadata without downloading the video
-    #         with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-    #             self.d.vid_info = ydl.extract_info(url, download=False, process=False)
-
-    #         # Check if the link contains 'youtube.com' or 'youtu.be' before running youtube_func
-    #         if 'youtube.com' in url or 'youtu.be' in url:
-    #             log("This is a YouTube URL. Running youtube_func...")
-    #             Thread(target=self.youtube_func, daemon=True).start()
-    #         else:
-    #             log("This is not a YouTube URL. Skipping youtube_func...")
-    #             # Handle non-YouTube URLs here
-    #             self.d.update(url)
-    #             if url == self.d.url:
-    #                 if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
-    #                     widgets.DownloadButton.setEnabled(True)
-
-    #     except Exception as e:
-    #         log(f"Error in get_header: {e}")
-
 
     def get_header(self, url):
         self.d.update(url)
@@ -630,8 +888,11 @@ class MainWindow(QMainWindow):
             self.d = result
         else:
             log("Error: YouTube extraction failed")
+            self.change_cursor('normal')
+            widgets.DownloadButton.setEnabled(True)
             widgets.combo_setting_c.clear()
             widgets.stream_combo.clear()
+            self.reset_to_default_thumbnail()
             return
 
         self.update_pl_menu()
@@ -661,77 +922,119 @@ class MainWindow(QMainWindow):
 
     
     # region Update Gui
-    def update_gui(self):
-        """Update GUI elements with current download information."""
+    def check_for_updates(self):
+        if self.pending_updates:
+            self.update_gui_signal.emit(self.pending_updates)
+            self.pending_updates.clear()
+
+    def queue_update(self, key, value):
+        self.pending_updates[key] = value
+
+    @Slot(dict)
+    def process_gui_updates(self, updates):
         try:
-            # Update the filename only if it's different
-            if widgets.home_filename_lineEdit.text() != self.d.name:
-                self.filename_set_by_program = True  # Set the flag
-                widgets.home_filename_lineEdit.setText(self.d.name)
-                self.filename_set_by_program = False
+            for key, value in updates.items():
+                if key == 'filename':
+                    if widgets.home_filename_lineEdit.text() != value:
+                        self.filename_set_by_program = True
+                        widgets.home_filename_lineEdit.setText(value)
+                        self.filename_set_by_program = False
+                elif key == 'status_code':
+                    cod = "ok" if value == 200 else ""
+                    widgets.statusCodeValue.setText(f"{value} {cod}")
+                elif key == 'size':
+                    size_text = size_format(value) if value else "Unknown"
+                    widgets.size_value_label.setText(size_text)
+                elif key == 'type':
+                    widgets.type_value_label.setText(value)
+                elif key == 'protocol':
+                    widgets.protocol_value_label.setText(value)
+                elif key == 'resumable':
+                    widgets.resumable_value_label.setText("Yes" if value else "No")
+                elif key == 'total_speed':
+                    speed_text = f'⬇⬆ {size_format(value, "/s")}' if value else '⬇⬆ 0 bytes'
+                    widgets.totalSpeedValue.setText(speed_text)
+                elif key == 'populate_table':
+                    self.populate_table()
+                elif key == 'check_scheduled':
+                    self.check_scheduled()
+                elif key == 'settings_folder':
+                    self.settings_folder()
+                elif key == 'monitor_clip':
+                    self.monitor_clip()
+                elif key == 'show_download_win':
+                    self.show_download_win()
+                elif key == 'auto_close_win':
+                    self.auto_close_win()
+                elif key == 'show_thumb_nail':
+                    self.show_thumb_nail()
+                elif key == 'segment_size_set':
+                    self.segment_size_set()
+                elif key == 'speed_limit_set':
+                    self.speed_limit_set()
+                elif key == 'max_current_dl':
+                    self.max_current_dl()
+                elif key == 'max_connection':
+                    self.max_connection()
+                elif key == 'proxy_settings':
+                    self.proxy_settings()
+                elif key == 'pending_jobs':
+                    self.pending_jobs()
+                elif key == 'check_update_frequency':
+                    self.check_update_frequency()
+                elif key == 'set_log':
+                    self.set_log()
+               
+               
+            # Save settings (consider if this needs to be done every update)
+            setting.save_setting()
+            setting.save_d_list(self.d_list)
 
-
-            if self.d.status_code == 200:
-                cod = "ok"
-            else:
-                cod = ""
-
-            widgets.statusCodeValue.setText(f"{self.d.status_code} {cod}")
-
-            # Update size label
-            size_text = size_format(self.d.total_size) if self.d.total_size else "Unknown"
-            widgets.size_value_label.setText(size_text)
-
-            # Update the type label
-            type_text = self.d.type
-            widgets.type_value_label.setText(type_text)
-
-            # Update the protocol label
-            protocol_text = self.d.protocol
-            widgets.protocol_value_label.setText(protocol_text)
-
-            # Update the resumable label
-            resumable_text = "Yes" if self.d.resumable else "No"
-            widgets.resumable_value_label.setText(resumable_text)
-
-            total_speed = 0
-            for i in self.active_downloads:
-                d = self.d_list[i]
-                total_speed += d.speed
-            
-            if total_speed != 0:
-                widgets.totalSpeedValue.setText((f'⬇ {size_format(total_speed, "/s")}'))
-            else:
-                widgets.totalSpeedValue.setText((f'⬇ 0 bytes'))
-
-            # Fill table with download data
-            self.populate_table()
-
-            # Save setting to disk
-            # setting.save_setting()
-            # setting.save_d_list(self.d_list)
-
-            self.check_scheduled()
-
-            self.settings_folder()
-            self.monitor_clip()
-            self.show_download_win()
-            self.auto_close_win()
-            self.show_thumb_nail()
-            self.segment_size_set()
-            self.speed_limit_set()
-            self.max_current_dl()
-            self.max_connection()
-            self.proxy_settings()
-            self.pending_jobs()
-            
         except Exception as e:
-            log('MainWindow.update_gui() error:', e)
+            log('MainWindow.process_gui_updates() error:', e)
+
+    def queue_updates(self):
+        """Queue updates instead of directly modifying GUI"""
+        self.queue_update('filename', self.d.name)
+        self.queue_update('status_code', self.d.status_code)
+        self.queue_update('size', self.d.total_size)
+        self.queue_update('type', self.d.type)
+        self.queue_update('protocol', self.d.protocol)
+        self.queue_update('resumable', self.d.resumable)
+
+        total_speed = sum(self.d_list[i].speed for i in self.active_downloads)
+        self.queue_update('total_speed', total_speed)
+
+        # Queue other updates
+        self.queue_update('populate_table', None)
+        self.queue_update('check_scheduled', None)
+        self.queue_update('settings_folder', None)
+        self.queue_update('monitor_clip', None)
+        self.queue_update('show_download_win', None)
+        self.queue_update('auto_close_win', None)
+        self.queue_update('show_thumb_nail', None)
+        self.queue_update('segment_size_set', None)
+        self.queue_update('speed_limit_set', None)
+        self.queue_update('max_current_dl', None)
+        self.queue_update('max_connection', None)
+        self.queue_update('proxy_settings', None)
+        self.queue_update('pending_jobs', None)
+        self.queue_update('check_update_frequency', None)
+        self.queue_update('set_log', None)
+        #self.queue_update('thumbnail', None)
+    
     
     
 
         
+     # Clear Log
+    def clear_log(self):
+        widgets.logDisplay.clear()
 
+    # Set Log level 
+    def set_log(self):
+        config.log_level = int(widgets.logLevelComboBox.currentText())
+        #log('Log Level changed to:', config.log_level)
 
 
     # region Start download
@@ -749,6 +1052,11 @@ class MainWindow(QMainWindow):
             self.start_download(self.pending.popleft(), silent=True)
     
     def start_download(self, d, silent=False, downloader=None):
+        # if not self.check_internet():
+        #     self.show_warning("No Internet","Please check your internet connection and try again")
+        #     return
+        
+
         if d is None:
             return
         
@@ -931,12 +1239,82 @@ class MainWindow(QMainWindow):
         # Start the download using the appropriate downloader
         r = self.start_download(d, downloader=downloader)
 
+        
         if r not in ('error', 'cancelled', False):
-            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
+            self.change_page(btn=widgets.btn_widgets, btnName="btn_downloads", page=widgets.widgets)
             
+
+        # else:
+        #     if r is None:
+        #         return
+    
+    def change_page(self, btn, btnName, page):
+        # GET BUTTON CLICKED
+        btn = btn
+
+        # SHOW WIDGETS PAGE
+        btnName = btnName
+        widgets.stackedWidget.setCurrentWidget(page)
+        UIFunctions.resetStyle(self, btnName)
+        btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
+
     # endregion
 
     # region youtube
+
+    def show_thumbnail(self, thumbnail=None):
+        """Show video thumbnail in thumbnail image widget in main tab, call without parameter to reset thumbnail."""
+        print(f"Attempting to show thumbnail: {thumbnail}")
+
+        try:
+            if thumbnail is None or thumbnail == "":
+                # Reset to default thumbnail if no new thumbnail is provided
+                default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
+                widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+                log("Resetting to default thumbnail")
+            elif thumbnail != self.current_thumbnail:
+                self.current_thumbnail = thumbnail
+
+                if thumbnail.startswith(('http://', 'https://')):
+                    # If it's a URL, download the image
+                    print(f"Downloading thumbnail from URL: {thumbnail}")
+                    request = QNetworkRequest(QUrl(thumbnail))
+                    self.network_manager.get(request)
+                else:
+                    # If it's a local file path
+                    pixmap = QPixmap(thumbnail)
+                    if not pixmap.isNull():
+                        print(f"Loaded local thumbnail: {thumbnail}")
+                        widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+                    else:
+                        print(f"Failed to load local thumbnail: {thumbnail}")
+                        self.reset_to_default_thumbnail()
+
+        except Exception as e:
+            log('show_thumbnail() error:', e)
+            self.reset_to_default_thumbnail()
+    
+    def on_thumbnail_downloaded(self, reply):
+        if reply.error() == QNetworkReply.NoError:
+            data = reply.readAll()
+            image = QImage()
+            if image.loadFromData(data):
+                pixmap = QPixmap.fromImage(image)
+                widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+                print("Successfully downloaded and set thumbnail")
+            else:
+                print("Failed to create image from downloaded data")
+                self.reset_to_default_thumbnail()
+        else:
+            print(f"Error downloading thumbnail: {reply.errorString()}")
+            self.reset_to_default_thumbnail()
+
+    def reset_to_default_thumbnail(self):
+        default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
+        widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
+        print("Reset to default thumbnail due to error")
+
+
     def ytdl_downloader(self):
         """Launch youtube-dl with proper command arguments."""
         
@@ -976,7 +1354,7 @@ class MainWindow(QMainWindow):
                 open_website_btn.clicked.connect(on_open_website)
                 cancel_btn.clicked.connect(on_cancel)
 
-                dialog.exec_()
+                dialog.exec()
 
                 return  # exit if youtube-dl is missing
         else:
@@ -1045,6 +1423,7 @@ class MainWindow(QMainWindow):
         """Update the stream combobox after selecting a video."""
         try:
             log("Updating stream menu")
+            
             if not hasattr(self, 'd') or not self.d:
                 log("Error: No video selected")
                 return
@@ -1078,6 +1457,7 @@ class MainWindow(QMainWindow):
         # Find the selected video index and set it as the current download item
         index = self.playlist.index(selected_video)
         self.video = self.playlist[index]
+        print(f"This is the thumbnails url {self.video.thumbnail_url}")
         self.d = self.video  # Update current download item to the selected video
 
         # Update the stream menu based on the selected video
@@ -1086,7 +1466,9 @@ class MainWindow(QMainWindow):
         # Optionally load the video thumbnail in a separate thread
         if config.show_thumbnail:
             Thread(target=self.video.get_thumbnail).start()
-
+        
+            self.show_thumbnail(thumbnail=self.video.thumbnail_url)
+        
         # Update the GUI to reflect the current selection
         #self.update_gui()
 
@@ -1095,11 +1477,165 @@ class MainWindow(QMainWindow):
         """Handle stream selection."""
         if selected_stream not in self.video.stream_names:
             selected_stream = self.video.stream_names[0]  # Default to the first stream
+        # else: 
+        #     selected_stream = widgets.stream_combo.setCurrentText(self.video.stream_names)
 
         self.video.selected_stream = self.video.streams[selected_stream]  # Set the selected stream
         #self.update_gui()  # Update the GUI to reflect the selected stream
 
+    def download_playlist(self):
+        """Download playlist with video stream selection using PyQt."""
 
+        # Check if there is a video file or quit
+        if not self.video:
+            self.show_information("Play Download", "Please check the url",  "Playlist is empty, nothing to download :", )
+            #QMessageBox.information(self, "Playlist Download", "Playlist is empty, nothing to download :)")
+            return
+
+        # Prepare lists for video and audio streams
+        mp4_videos = {}
+        other_videos = {}
+        audio_streams = {}
+
+        # Collect streams from all videos in playlist
+        for video in self.playlist:
+            mp4_videos.update({stream.raw_name: stream for stream in video.mp4_videos.values()})
+            other_videos.update({stream.raw_name: stream for stream in video.other_videos.values()})
+            audio_streams.update({stream.raw_name: stream for stream in video.audio_streams.values()})
+
+        # Sort streams based on quality
+        mp4_videos = {k: v for k, v in sorted(mp4_videos.items(), key=lambda item: item[1].quality, reverse=True)}
+        other_videos = {k: v for k, v in sorted(other_videos.items(), key=lambda item: item[1].quality, reverse=True)}
+        audio_streams = {k: v for k, v in sorted(audio_streams.items(), key=lambda item: item[1].quality, reverse=True)}
+
+        raw_streams = {**mp4_videos, **other_videos, **audio_streams}
+
+        # Create a QDialog
+        dialog = QDialog(self)
+        dialog.setStyleSheet("""
+            QWidget {
+                background-color: rgb(33, 37, 43);
+                color: white;
+                
+            }
+        """)
+        
+        dialog.setWindowTitle('Playlist Download')
+        layout = QVBoxLayout(dialog)
+
+        # Master stream combo box
+        master_stream_menu = ['● Video streams:'] + list(mp4_videos.keys()) + list(other_videos.keys()) + \
+                            ['', '● Audio streams:'] + list(audio_streams.keys())
+        master_stream_combo = QComboBox()
+        master_stream_combo.addItems(master_stream_menu)
+
+        # General options layout
+        select_all_checkbox = QCheckBox('Select All')
+        general_options_layout = QHBoxLayout()
+        general_options_layout.addWidget(select_all_checkbox)
+        general_options_layout.addWidget(QLabel('Choose quality for all videos:'))
+        general_options_layout.addWidget(master_stream_combo)
+
+        layout.addLayout(general_options_layout)
+
+        # Video layout inside a scrollable area
+        scroll_area = QScrollArea(dialog)
+        scroll_content = QFrame()
+        scroll_layout = QVBoxLayout(scroll_content)
+
+        video_checkboxes = []
+        stream_combos = []
+
+        for num, video in enumerate(self.playlist):
+            # Create a checkbox for each video
+            video_checkbox = QCheckBox(video.title[:40], scroll_content)
+            video_checkbox.setToolTip(video.title)
+            video_checkboxes.append(video_checkbox)
+
+            # Create a combo box for stream selection
+            stream_combo = QComboBox(scroll_content)
+            stream_combo.addItems(video.raw_stream_menu)
+            stream_combos.append(stream_combo)
+
+            # Size label
+            size_label = QLabel(size_format(video.total_size), scroll_content)
+
+            # Create a row for each video
+            video_row = QHBoxLayout()
+            video_row.addWidget(video_checkbox)
+            video_row.addWidget(stream_combo)
+            video_row.addWidget(size_label)
+
+            scroll_layout.addLayout(video_row)
+
+        scroll_content.setLayout(scroll_layout)
+        scroll_area.setWidget(scroll_content)
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFixedHeight(250)
+
+        layout.addWidget(scroll_area)
+
+        # OK and Cancel buttons
+        button_layout = QHBoxLayout()
+        ok_button = QPushButton('OK', dialog)
+        cancel_button = QPushButton('Cancel', dialog)
+        button_layout.addWidget(ok_button)
+        button_layout.addWidget(cancel_button)
+
+        layout.addLayout(button_layout)
+
+        dialog.setLayout(layout)
+
+        # Handle button actions
+        def on_ok():
+            chosen_videos = []
+            for num, video in enumerate(self.playlist):
+                selected_text = stream_combos[num].currentText()
+                video.selected_stream = video.raw_streams[selected_text]
+                print("Available keys in raw_streams:", video.raw_streams.keys())
+                print("Selected text:", selected_text)
+
+                if video_checkboxes[num].isChecked():
+                    chosen_videos.append(video)
+
+            dialog.accept()
+
+            # Start download for the selected videos
+            for video in chosen_videos:
+                video.folder = config.download_folder
+                self.start_download(video, silent=True)
+
+        def on_cancel():
+            dialog.reject()
+
+        # Connect button actions
+        ok_button.clicked.connect(on_ok)
+        cancel_button.clicked.connect(on_cancel)
+
+        # Select All functionality
+        def on_select_all():
+            for checkbox in video_checkboxes:
+                checkbox.setChecked(select_all_checkbox.isChecked())
+
+        select_all_checkbox.stateChanged.connect(on_select_all)
+
+        # Master stream selection changes all streams
+        def on_master_stream_combo_change():
+            selected_text = master_stream_combo.currentText()
+            if selected_text in raw_streams:
+                for num, stream_combo in enumerate(stream_combos):
+                    video = self.playlist[num]
+                    if selected_text in video.raw_streams:
+                        stream_combo.setCurrentText(selected_text)
+                        video.selected_stream = video.raw_streams[selected_text]
+
+        master_stream_combo.currentTextChanged.connect(on_master_stream_combo_change)
+
+        # Show the dialog and process result
+        if dialog.exec():
+            self.change_page(btn=widgets.btn_widgets, btnName="btn_downloads", page=widgets.widgets)
+   
+   
     def ffmpeg_check(self):
         """Check if ffmpeg is available, if not, prompt user to download."""
         
@@ -1159,7 +1695,7 @@ class MainWindow(QMainWindow):
                 cancel_button.clicked.connect(on_cancel)
 
                 # Execute the dialog
-                dialog.exec_()
+                dialog.exec()
 
             else:
                 # Show error popup for non-Windows systems
@@ -1203,10 +1739,12 @@ class MainWindow(QMainWindow):
         return v
     
     def populate_table(self):
-        # Populate table with formatted data from d_list
         for row, d in enumerate(self.d_list):
-            # Set the ID column (use row + 1 or d.id if available)
-            id_item = QTableWidgetItem(str(row + 1))  # Row number starts from 1
+            if row >= widgets.tableWidget.rowCount():  # Check if we need to insert a new row
+                widgets.tableWidget.insertRow(row)
+            
+            # Set the ID column
+            id_item = QTableWidgetItem(str(row + 1))
             widgets.tableWidget.setItem(row, 0, id_item)  # First column is ID
             
             # Fill the remaining columns based on the d_headers
@@ -1214,6 +1752,7 @@ class MainWindow(QMainWindow):
                 cell_value = self.format_cell_data(key, getattr(d, key, ''))
                 item = QTableWidgetItem(cell_value)
                 widgets.tableWidget.setItem(row, col, item)
+
         # Enable manual resizing by the user
         # widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Interactive)
         # widgets.tableWidget.horizontalHeader().setStretchLastSection(True)
@@ -1335,8 +1874,8 @@ class MainWindow(QMainWindow):
         self.url_text_change()
 
         widgets.home_folder_path_lineEdit.setText(config.download_folder)
-        widgets.stackedWidget.setCurrentWidget(widgets.home)
-
+        self.change_page(btn=widgets.btn_home, btnName="btn_home", page=widgets.home)
+        
     def download_window(self):
         selected_row = widgets.tableWidget.currentRow()
         
@@ -1392,7 +1931,7 @@ class MainWindow(QMainWindow):
         confirmation_box.setText(msg)
         confirmation_box.setIcon(QMessageBox.Question)
         confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        reply = confirmation_box.exec_()
+        reply = confirmation_box.exec()
 
         if reply != QMessageBox.Yes:
             return
@@ -1412,8 +1951,10 @@ class MainWindow(QMainWindow):
             widgets.tableWidget.removeRow(selected_row)
 
             notification = f"File: {d.name} has been deleted."
-            notify(notification, title=f'{config.APP_NAME} - Download completed')
+            notify(notification, title=f'{config.APP_NAME}')
+            # popup(msg=notification, title=f'{config.APP_NAME}')
             d.delete_tempfiles()
+            os.remove(f"{d.folder}/{d.name}")
 
         except Exception as e:
             log(f"Error deleting item: {e}")
@@ -1505,6 +2046,7 @@ class MainWindow(QMainWindow):
         action_watch_downloading = QAction(QIcon(":/icons/images/icons/cil-media-play.png"), 'Watch while downloading', context_menu)
         action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-clock.png"), 'Schedule download', context_menu)
         action_cancel_schedule = QAction(QIcon(":/icons/images/icons/cil-x.png"), ' Cancel schedule!', context_menu)
+        action_file_properties = QAction(QIcon(":/icons/images/icons/cil-info.png"),'File Properties', context_menu)
 
 
         # Add actions to the context menu
@@ -1513,6 +2055,7 @@ class MainWindow(QMainWindow):
         context_menu.addAction(action_watch_downloading)
         context_menu.addAction(action_schedule_download)
         context_menu.addAction(action_cancel_schedule)
+        context_menu.addAction(action_file_properties)
 
         # Connect actions to methods
         action_open_file.triggered.connect(self.open_item)
@@ -1520,6 +2063,7 @@ class MainWindow(QMainWindow):
         action_watch_downloading.triggered.connect(self.watch_downloading)
         action_schedule_download.triggered.connect(self.schedule_download)
         action_cancel_schedule.triggered.connect(self.cancel_schedule)
+        action_file_properties.triggered.connect(self.file_properties)
         # action_view_details.triggered.connect(self.view_details)
 
         # Show the context menu at the cursor position
@@ -1531,12 +2075,21 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         try:
             if self.selected_d.status == config.Status.completed:
-                open_file(self.selected_d.target_file)
+                # Create and start the file opening thread
+                self.file_open_thread = FileOpenThread(self.selected_d.target_file, self)
+
+                # Connect the thread's signal to a slot in the main window to show the message
+                self.file_open_thread.critical_signal.connect(self.show_critical)
+
+                # Start the thread
+                self.file_open_thread.start()
                 log(f"Opening completed file: {self.selected_d.target_file}")
             else:
-                self.show_warning("Warning","This download is not yet completed")
+                self.show_warning("Warning", "This download is not yet completed")
         except Exception as e:
             log(f"Error opening file: {e}")
+
+           
 
 
     def watch_downloading(self):
@@ -1546,7 +2099,9 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         try:
             # Always open the temporary file for in-progress downloads
-            open_file(self.selected_d.temp_file)
+            #open_file(self.selected_d.temp_file)
+            self.file_open_thread = FileOpenThread(self.selected_d.temp_file, self)
+            self.file_open_thread.start()
             log(f"Watching in-progress download: {self.selected_d.temp_file}")
         except Exception as e:
             log(f"Error watching in-progress download: {e}")
@@ -1599,6 +2154,37 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         
         self.selected_d.sched = None
+
+     # Updating `self.itemLabel` text when an item in the table is clicked
+    def update_item_label(self):
+        selected_row = widgets.tableWidget.currentRow()
+        self.selected_row_num = selected_row
+        d = self.selected_d
+
+        widgets.itemLabel.setText(f"Download Item: {d.name}")
+
+    def file_properties(self):
+        selected_row = widgets.tableWidget.currentRow()
+
+            
+
+        # Set selected_row_num to the selected row
+        self.selected_row_num = selected_row
+
+        d = self.selected_d
+        if d:
+            text = f'Name: {d.name} \n' \
+                    f'Folder: {d.folder} \n' \
+                    f'Progress: {d.progress}% \n' \
+                    f'Downloaded: {size_format(d.downloaded)} \n' \
+                    f'Total size: {size_format(d.total_size)} \n' \
+                    f'Status: {d.status} \n' \
+                    f'Resumable: {d.resumable} \n' \
+                    f'Type: {d.type} \n' \
+                    f'Protocol: {d.protocol} \n' \
+                    f'Webpage url: {d.url}'
+            self.show_information("File Properties", inform="", msg=f"{text}")
+
         
     # endregion
 
@@ -1606,7 +2192,6 @@ class MainWindow(QMainWindow):
     def settings_folder(self):
         # Get the currently selected value in the combo box
         selected = widgets.combo_setting.currentText()
-        
         if selected == "Local":
             # Choose local folder as the settings folder
             config.sett_folder = config.current_directory
@@ -1651,11 +2236,6 @@ class MainWindow(QMainWindow):
 
                     # Update the combo box to reflect the local folder choice
                     widgets.combo_setting.setCurrentText('Local')
-
-        # Save the current setting to a configuration file
-        # self.save_settings()
-        # setting.save_setting()
-        # setting.save_d_list(self.d_list)
 
         # Update the combo box to reflect the current setting folder
         try:
@@ -1766,7 +2346,254 @@ class MainWindow(QMainWindow):
             widgets.lineEdit_proxy.setEnabled(False)
             widgets.combo_proxy_type.setEnabled(False)
 
+    # endregion
+
+    # region update
+
+    def change_cursor(self, cursor_type):
+        """Change cursor to busy or normal."""
+        if cursor_type == 'busy':
+            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        elif cursor_type == 'normal':
+            QApplication.restoreOverrideCursor()  # Restore normal cursor
+
+    def check_update_frequency(self):
+        selected = int(widgets.combo_check_update.currentText())
+        config.update_frequency = selected
+
+    def update_available(self):
+        self.change_cursor('busy')
+
+        # check for update
+        current_version = config.APP_VERSION
+        info = update.get_changelog()
+
+        if info:
+            latest_version, version_description = info
+
+            # compare with current application version
+            newer_version = compare_versions(current_version, latest_version)  # return None if both equal
+            
+
+            if not newer_version or newer_version == current_version:
+                self.new_version_available = False
+                log("check_for_update() --> App. is up-to-date, server version=", latest_version)
+            else:  # newer_version == latest_version
+                self.new_version_available = True
+                #self.show_information('Updates', '', 'Updates available')
+                self.handle_update()
+                
+
+            # updaet global values
+            config.APP_LATEST_VERSION = latest_version
+            self.new_version_description = version_description
+        else:
+            self.new_version_description = None
+            self.new_version_available = False
+
+        self.change_cursor('normal')
+
+
+    # def check_for_update(self):
+    #     self.change_cursor('busy')
+
+    #     # check for update
+    #     current_version = config.APP_VERSION
+    #     info = update.get_changelog()
+
+    #     if info:
+    #         latest_version, version_description = info
+
+    #         # compare with current application version
+    #         newer_version = compare_versions(current_version, latest_version)  # return None if both equal
+    #         print(newer_version, current_version, latest_version)
+
+    #         if not newer_version or newer_version == current_version:
+    #             self.new_version_available = False
+    #             log("check_for_update() --> App. is up-to-date, server version=", latest_version)
+    #         else:  # newer_version == latest_version
+    #             self.new_version_available = True
+                
+
+    #         # updaet global values
+    #         config.APP_LATEST_VERSION = latest_version
+    #         self.new_version_description = version_description
+    #     else:
+    #         self.new_version_description = None
+    #         self.new_version_available = False
+
+    #     self.change_cursor('normal')
+
+    def start_update(self):
+        # Initialize and start the update thread
+        self.start_update_thread = CheckUpdateAppThread()
+        self.start_update_thread.app_update.connect(self.update_app)
+        self.start_update_thread.start()
+
+    def update_app(self, new_version_available):
+        """Show changelog with latest version and ask user for update."""
+        if new_version_available:
+            config.main_window_q.put(('show_update_gui', ''))
+        else:
+            self.show_information(
+                title="App Update",
+                inform=f"App is up-to-date",
+                msg=f"Current version: {config.APP_VERSION}\nServer version: {config.APP_LATEST_VERSION}"
+            )
+
+            if not self.start_update_thread.new_version_description:
+                self.show_information(
+                    title="App Update",
+                    inform="Check your internet connection",
+                    msg="Couldn't check for update"
+                )
+    # def update_app(self, remote=True):
+    #     """show changelog with latest version and ask user for update
+    #     :param remote: bool, check remote server for update"""
+        
+    #     if remote:
+    #         Thread(target=self.check_for_update, daemon=True).start()
+    #         #self.check_for_update()
+            
+
+    #     if self.new_version_available:
+    #         config.main_window_q.put(('show_update_gui', ''))
+    #         # self.show_update_gui()
+    #     else:
+    #         self.show_information(title="App Update", inform=f"App. is up-to-date \n", msg=f"Current version: {config.APP_VERSION} \n Server version:  {config.APP_LATEST_VERSION} \n")
+    #         if self.new_version_description:
+    #             pass
+    #         else:
+    #             self.show_information(title="App Update", inform="Check your internet connection", msg="Couldnt check for update")
+        
+        
+                
+    def show_update_gui(self):
+        # Create a QDialog (modal window)
+        dialog = QDialog(self)
+        dialog.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+        dialog.setWindowTitle('Update Application')
+        dialog.setModal(True)  # Keep the window on top
+
+        # Create the layout for the dialog
+        layout = QVBoxLayout()
+
+        # Add a label to indicate the new version
+        label = QLabel('New version available:')
+        layout.addWidget(label)
+
+        # Add a QTextEdit to show the new version description (read-only)
+        description_edit = QTextEdit()
+        description_edit.setText(self.start_update_thread.new_version_description or "")
+        description_edit.setReadOnly(True)
+        description_edit.setFixedSize(400, 200)  # Set the size similar to size=(50, 10) in PySimpleGUI
+        layout.addWidget(description_edit)
+
+        # Create buttons for "Update" and "Cancel"
+        button_layout = QHBoxLayout()
+        update_button = QPushButton('Update', dialog)
+        cancel_button = QPushButton('Cancel', dialog)
+        button_layout.addWidget(update_button)
+        button_layout.addWidget(cancel_button)
+
+        # Add the buttons to the layout
+        layout.addLayout(button_layout)
+
+        # Set the main layout of the dialog
+        dialog.setLayout(layout)
+        
+        # Connect buttons to actions
+        def on_ok():
+            dialog.accept()
+            self.handle_update()
+            dialog.close()
+
+        def on_cancel():
+            dialog.reject()
+            dialog.close()
+
+        update_button.clicked.connect(on_ok)  # Call the update function when "Update" is clicked
+        cancel_button.clicked.connect(on_cancel)  # Close the dialog when "Cancel" is clicked
+
+        # Show the dialog
+        dialog.exec()
     
+    def handle_update(self):
+        self.update_thread = UpdateThread()  # Create an instance of the UpdateThread
+        self.update_thread.update_finished.connect(self.on_update_finished)  # Connect the signal
+        self.update_thread.start()  # Start the thread
+
+    def on_update_finished(self):
+        pass
+        #self.show_information(title=config.APP_NAME, inform="Update scheduled to run on the next reboot.", msg="Please you can reboot now to install updates.")
+        # Handle what happens after the update finishes
+        # print("Update completed!")  # Replace with your logic (e.g., notifying the user)
+
+    # def handle_update(self):
+    #     update.update()  # Call the update method
+
+
+    def animate_update_note(self):
+        # display word by word
+        # values = 'new version available, click me for more info !'.split()
+        # values = [' '.join(values[:i + 1]) for i in range(len(values))]
+
+        # display character by character
+        # values = [c for c in 'new version available, click me for more info !']
+        # values = [''.join(values[:i + 1]) for i in range(len(values))]
+
+        # normal on off display
+        values = ['', 'new version available, click me for more info !']
+        note = self.window['update_note']
+
+        # add animation text property to note object
+        if not hasattr(note, 'animation_index'):
+            note.animation_index = 0
+
+        if note.animation_index < len(values) - 1:
+            note.animation_index += 1
+        else:
+            note.animation_index = 0
+
+        new_text = values[note.animation_index]
+        note(new_text)
+
+    def check_for_ytdl_update(self):
+        config.ytdl_LATEST_VERSION = update.check_for_ytdl_update()
+
+    def update_ytdl(self):
+        current_version = config.ytdl_VERSION
+        latest_version = config.ytdl_LATEST_VERSION or update.check_for_ytdl_update()
+        if latest_version:
+            config.ytdl_LATEST_VERSION = latest_version
+            log('youtube-dl update, latest version = ', latest_version, ' - current version = ', current_version)
+
+            if latest_version != current_version:
+                # select log tab
+                self.change_page(btn=widgets.btn_new, btnName="btn_logs", page=widgets.new_page)
+
+                msg = (f'Found new version of youtube-dl on github {latest_version}\n'
+                    f'current version =  {current_version} \n'
+                    'Install new version?')
+                confirmation_box = QMessageBox(self)
+                confirmation_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+                confirmation_box.setWindowTitle('yt-dlp module update')
+                confirmation_box.setText(msg)
+                confirmation_box.setIcon(QMessageBox.Question)
+                confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+                reply = confirmation_box.exec()
+
+                if reply == QMessageBox.Yes:
+                    try:
+                        Thread(target=update.update_youtube_dl).start()
+                    except Exception as e:
+                        log('failed to update youtube-dl module:', e)
+            else:
+                self.show_information('YT-DLP', msg=f'yt-dlp is up-to-date, current version = {current_version}')
+              
+    # endregion
+
+   
 
 class DownloadWindow(QWidget):
     def __init__(self, d=None):
@@ -1812,7 +2639,7 @@ class DownloadWindow(QWidget):
         
         # Output Label
         self.out_label = QLabel(self.frame)
-        self.out_label.setFixedHeight(60)
+        self.out_label.setFixedHeight(160)
         self.out_label.setStyleSheet("font-size: 11px; color: white;")
         self.frame_layout.addWidget(self.out_label)
 
@@ -2054,53 +2881,45 @@ def ask_for_sched_time(msg=''):
 
 # Define clipboard_listener and singleApp functions here
 
-def clipboard_listener():
-    old_data = ''
+# def clipboard_listener():
+#     old_data = ''
     
-    while True:
-        # Read from the clipboard
-        new_data = clipboard_read()
-        #print(f"Clipboard data: {new_data}")
+#     while True:
+#         # Read from the clipboard
+#         new_data = clipboard_read()
+#         #print(f"Clipboard data: {new_data}")
 
-        # Check if a message is received from another instance
-        if new_data == 'any one there?':  
-            clipboard_write('yes')  # Reply to the instance
-            config.main_window_q.put(('visibility', 'show'))  # Request main window visibility
+#         # Check if a message is received from another instance
+#         if new_data == 'any one there?':  
+#             clipboard_write('yes')  # Reply to the instance
+#             config.main_window_q.put(('visibility', 'show'))  # Request main window visibility
 
-        # Check if clipboard monitoring is active and the content has changed
-        if config.monitor_clipboard and new_data != old_data:
-            if new_data.startswith('http') and ' ' not in new_data:
-                # Send the URL to the main window queue
-                config.main_window_q.put(('url', new_data))
+#         # Check if clipboard monitoring is active and the content has changed
+#         if config.monitor_clipboard and new_data != old_data:
+#             if new_data.startswith('http') and ' ' not in new_data:
+#                 # Send the URL to the main window queue
+#                 config.main_window_q.put(('url', new_data))
             
-            old_data = new_data
-            #print(f"Updated clipboard data: {old_data}")
+#             old_data = new_data
+#             #print(f"Updated clipboard data: {old_data}")
 
-        # Stop the clipboard listener if needed
-        if config.terminate:
-            break
+#         # Stop the clipboard listener if needed
+#         if config.terminate:
+#             break
 
-        # Sleep briefly to avoid busy-waiting
-        time.sleep(0.2)
-
-
+#         # Sleep briefly to avoid busy-waiting
+#         time.sleep(0.2)
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    
+    app.setWindowIcon(QIcon("icon.ico"))
+    #app.aboutToQuit.connect(update.schedule_update)
+
     # Create the main window
     window = MainWindow(config.d_list)
     window.show()
-    
-    Thread(target=video.import_ytdl, daemon=True).start()
-        
-    # Start the clipboard listener in a separate thread
-    Thread(target=clipboard_listener, daemon=True).start()
-    # Start logging
-    Thread(target=log_recorder, daemon=True).start()
+    QTimer.singleShot(0, video.import_ytdl)
 
-
-    
     # Start the event loop
     sys.exit(app.exec())

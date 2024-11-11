@@ -185,50 +185,50 @@ class Video(DownloadItem):
         if self.thumbnail_url and not self.thumbnail:
             self.thumbnail = process_thumbnail(self.thumbnail_url)
 
-    def update_param(self):
-        # do some parameter updates
-        stream = self.selected_stream
-        self.name = self.title + '.' + stream.extension
-        self.eff_url = stream.url
-        self.type = stream.mediatype
-        self.size = stream.size
-        self.fragment_base_url = stream.fragment_base_url
-        self.fragments = stream.fragments
-        self.protocol = stream.protocol
-        self.format_id = stream.format_id
-        self.manifest_url = stream.manifest_url
+    # def update_param(self):
+    #     # do some parameter updates
+    #     stream = self.selected_stream
+    #     self.name = self.title + '.' + stream.extension
+    #     self.eff_url = stream.url
+    #     self.type = stream.mediatype
+    #     self.size = stream.size
+    #     self.fragment_base_url = stream.fragment_base_url
+    #     self.fragments = stream.fragments
+    #     self.protocol = stream.protocol
+    #     self.format_id = stream.format_id
+    #     self.manifest_url = stream.manifest_url
 
-        # Select an audio to embed if our stream is dash video
-        if stream.mediatype == 'dash':
-            audio_stream = None
-            for audio in self.audio_streams.values():
-                # Check if the audio stream has a compatible extension and a non-zero size
-                if (audio.extension == stream.extension or (audio.extension == 'm4a' and stream.extension == 'mp4')) and audio.size > 0:
-                    audio_stream = audio
-                    break  # Stop at the first valid audio stream
+    #     # Select an audio to embed if our stream is dash video
+    #     if stream.mediatype == 'dash':
+    #         audio_stream = None
+    #         for audio in self.audio_streams.values():
+    #             # Check if the audio stream has a compatible extension and a non-zero size
+    #             if (audio.extension == stream.extension or (audio.extension == 'm4a' and stream.extension == 'mp4')) and audio.size > 0:
+    #                 audio_stream = audio
+    #                 break  # Stop at the first valid audio stream
 
-            if audio_stream:
-                # Assign the first valid audio stream to attributes
-                self.audio_stream = audio_stream
-                self.audio_url = audio_stream.url
-                self.audio_size = audio_stream.size
-                self.audio_fragment_base_url = audio_stream.fragment_base_url
-                self.audio_fragments = audio_stream.fragments
-                self.audio_format_id = audio_stream.format_id
-            else:
-                # Log if no suitable audio stream is found
-                log("No suitable audio stream found for DASH video", d=self)
-                self.audio_stream = None
-                self.audio_url = None
-                self.audio_size = None
-                self.audio_fragment_base_url = None
-                self.audio_fragments = None
-                self.audio_format_id = None
-        else:
-            # Reset audio-related attributes for non-DASH streams
-            self.audio_url = None
-            self.audio_fragment_base_url = None
-            self.audio_fragments = None
+    #         if audio_stream:
+    #             # Assign the first valid audio stream to attributes
+    #             self.audio_stream = audio_stream
+    #             self.audio_url = audio_stream.url
+    #             self.audio_size = audio_stream.size
+    #             self.audio_fragment_base_url = audio_stream.fragment_base_url
+    #             self.audio_fragments = audio_stream.fragments
+    #             self.audio_format_id = audio_stream.format_id
+    #         else:
+    #             # Log if no suitable audio stream is found
+    #             log("No suitable audio stream found for DASH video", d=self)
+    #             self.audio_stream = None
+    #             self.audio_url = None
+    #             self.audio_size = None
+    #             self.audio_fragment_base_url = None
+    #             self.audio_fragments = None
+    #             self.audio_format_id = None
+    #     else:
+    #         # Reset audio-related attributes for non-DASH streams
+    #         self.audio_url = None
+    #         self.audio_fragment_base_url = None
+    #         self.audio_fragments = None
             
     # def update_param(self):
     #     # do some parameter updates
@@ -243,20 +243,170 @@ class Video(DownloadItem):
     #     self.format_id = stream.format_id
     #     self.manifest_url = stream.manifest_url
 
-    #     # select an audio to embed if our stream is dash video
     #     if stream.mediatype == 'dash':
-    #         audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
-    #                         or (audio.extension == 'm4a' and stream.extension == 'mp4')][0]
-    #         self.audio_stream = audio_stream
-    #         self.audio_url = audio_stream.url
-    #         self.audio_size = audio_stream.size
-    #         self.audio_fragment_base_url = audio_stream.fragment_base_url
-    #         self.audio_fragments = audio_stream.fragments
-    #         self.audio_format_id = audio_stream.format_id
+    #         compatible_audio = None
+    #         for audio in self.audio_streams.values():
+    #             if audio.extension == stream.extension or (audio.extension == 'm4a' and stream.extension == 'mp4'):
+    #                 if audio.size > 0:  # Ensure the audio stream has a size
+    #                     compatible_audio = audio
+    #                     break
+            
+    #         if compatible_audio:
+    #             self.audio_stream = compatible_audio
+    #             self.audio_url = compatible_audio.url
+    #             self.audio_size = compatible_audio.size
+    #             self.audio_fragment_base_url = compatible_audio.fragment_base_url
+    #             self.audio_fragments = compatible_audio.fragments
+    #             self.audio_format_id = compatible_audio.format_id
+    #             log(f"Final audio stream selection:")
+    #             log(f"URL: {self.audio_url}")
+    #             log(f"Size: {self.audio_size}")
+    #             log(f"Format ID: {self.audio_format_id}")
+    #             log(f"Has fragments: {bool(self.audio_fragments)}")
+    #         else:
+    #             log("No compatible audio stream found for DASH video")
+    #             self.audio_url = None
+    #             self.audio_fragment_base_url = None
+    #             self.audio_fragments = None
     #     else:
     #         self.audio_url = None
     #         self.audio_fragment_base_url = None
     #         self.audio_fragments = None
+
+    def update_param(self):
+        # do some parameter updates
+        stream = self.selected_stream
+        self.name = self.title + '.' + stream.extension
+        self.eff_url = stream.url
+        self.type = stream.mediatype
+        self.size = stream.size
+        self.fragment_base_url = stream.fragment_base_url
+        self.fragments = stream.fragments
+        self.protocol = stream.protocol
+        self.format_id = stream.format_id
+        self.manifest_url = stream.manifest_url
+
+        # select an audio to embed if our stream is dash video
+        if stream.mediatype == 'dash':
+            audio_stream = [audio for audio in self.audio_streams.values() if audio.extension == stream.extension
+                            or (audio.extension == 'm4a' and stream.extension == 'mp4')][0]
+            self.audio_stream = audio_stream
+            self.audio_url = audio_stream.url
+            self.audio_size = audio_stream.size
+            self.audio_fragment_base_url = audio_stream.fragment_base_url
+            self.audio_fragments = audio_stream.fragments
+            self.audio_format_id = audio_stream.format_id
+            log(f"Final audio stream selection:")
+            log(f"URL: {self.audio_url}")
+            log(f"Size: {self.audio_size}")
+            log(f"Format ID: {self.audio_format_id}")
+            log(f"Has fragments: {bool(self.audio_fragments)}")
+        else:
+            self.audio_url = None
+            self.audio_fragment_base_url = None
+            self.audio_fragments = None
+    
+    # def update_param(self):
+    #     """
+    #     Update parameters for media stream handling with improved audio stream selection.
+    #     Handles both DASH and HLS formats with better stream detection.
+    #     """
+    #     stream = self.selected_stream
+    #     # Update basic stream parameters
+    #     self.name = self.title + '.' + stream.extension
+    #     self.eff_url = stream.url
+    #     self.type = stream.mediatype
+    #     self.size = stream.size
+    #     self.fragment_base_url = stream.fragment_base_url
+    #     self.fragments = stream.fragments
+    #     self.protocol = stream.protocol
+    #     self.format_id = stream.format_id
+    #     self.manifest_url = stream.manifest_url
+
+    #     # Reset audio parameters
+    #     self.audio_url = None
+    #     self.audio_fragment_base_url = None
+    #     self.audio_fragments = None
+    #     self.audio_stream = None
+    #     self.audio_size = None
+    #     self.audio_format_id = None
+
+    #     # Only proceed if we have audio streams
+    #     if not self.audio_streams:
+    #         log("No audio streams available")
+    #         return
+
+    #     try:
+    #         # Get all audio streams as a list for easier handling
+    #         available_audio = list(self.audio_streams.values())
+            
+    #         # Filter out any invalid or empty streams
+    #         valid_audio = [
+    #             audio for audio in available_audio
+    #             if audio and hasattr(audio, 'url') and audio.url
+    #         ]
+
+    #         if not valid_audio:
+    #             log("No valid audio streams found")
+    #             return
+
+    #         # Define scoring function for audio streams
+    #         def score_audio_stream(audio):
+    #             score = 0
+                
+    #             # Prefer streams with actual sizes
+    #             if hasattr(audio, 'size') and audio.size and audio.size > 0:
+    #                 score += 1000
+                
+    #             # Prefer streams with matching extensions
+    #             if audio.extension == stream.extension:
+    #                 score += 500
+    #             elif stream.extension == 'mp4' and audio.extension == 'm4a':
+    #                 score += 400
+                    
+    #             # Prefer streams with higher bitrates
+    #             if hasattr(audio, 'bitrate') and audio.bitrate:
+    #                 score += min(audio.bitrate / 1000, 300)  # Cap at 300 to not overwhelm other factors
+                    
+    #             # Prefer streams with fragments if main stream has fragments
+    #             if self.fragments and audio.fragments:
+    #                 score += 200
+                    
+    #             return score
+
+    #         # Sort audio streams by score and select the best one
+    #         best_audio = max(valid_audio, key=score_audio_stream)
+            
+    #         # Log the selection criteria
+    #         log(f"Selected audio stream score: {score_audio_stream(best_audio)}")
+    #         log(f"Selected audio properties: extension={best_audio.extension}, "
+    #             f"size={best_audio.size if hasattr(best_audio, 'size') else 'unknown'}, "
+    #             f"bitrate={best_audio.bitrate if hasattr(best_audio, 'bitrate') else 'unknown'}")
+
+    #         # Update audio parameters
+    #         self.audio_stream = best_audio
+    #         self.audio_url = best_audio.url
+    #         self.audio_size = getattr(best_audio, 'size', 0)
+    #         self.audio_fragment_base_url = getattr(best_audio, 'fragment_base_url', None)
+    #         self.audio_fragments = getattr(best_audio, 'fragments', None)
+    #         self.audio_format_id = getattr(best_audio, 'format_id', None)
+
+    #         # Additional validation for HLS streams
+    #         if '.m3u8' in str(self.audio_url):
+    #             log("HLS audio stream detected")
+    #             # For HLS, some parameters might need special handling
+    #             self.audio_fragments = None  # HLS handles fragments differently
+    #             self.audio_size = 0  # Size usually isn't known for HLS streams
+                
+    #         log(f"Final audio stream selection:")
+    #         log(f"URL: {self.audio_url}")
+    #         log(f"Size: {self.audio_size}")
+    #         log(f"Format ID: {self.audio_format_id}")
+    #         log(f"Has fragments: {bool(self.audio_fragments)}")
+
+    #     except Exception as e:
+    #         log(f"Error during audio stream selection: {str(e)}")
+    #         # # Keep the default None values for audio parameters
 
 
 class Stream:
@@ -708,32 +858,6 @@ def pre_process_hls(d):
             log('---------------------------------------\n', buffer, '---------------------------------------\n')
         return None
     
-    # def download_m3u8(url):
-    #     # download the manifest from m3u8 file descriptor located at url
-    #     buffer = download(url)  # get BytesIO object
-
-    #     if buffer:
-    #         # Try decoding with UTF-8 first
-    #         try:
-    #             buffer = buffer.getvalue().decode('utf-8')
-    #             log('decoding with utf-8')
-    #         except UnicodeDecodeError:
-    #             # If UTF-8 fails, try decoding with ISO-8859-1 (Latin-1)
-    #             try:
-    #                 buffer = buffer.getvalue().decode('iso-8859-1')
-    #                 log('decoding with iso-8859-1')
-    #             except UnicodeDecodeError:
-    #                 # If both fail, use a more permissive decoding
-    #                 buffer = buffer.getvalue().decode('utf-8', errors='replace')
-            
-    #         if '#EXT' in repr(buffer):
-    #             return buffer
-
-    #     log('pre_process_hls()> received invalid m3u8 file from server')
-    #     if config.log_level >= 3:
-    #         log('yes started from here')
-    #         log('---------------------------------------\n', buffer, '---------------------------------------\n')
-    #     return None
 
     # download m3u8 files
     master_m3u8 = download_m3u8(d.manifest_url)
@@ -825,8 +949,7 @@ def post_process_hls(d):
     log('post_process_hls()> start processing', d.name)
 
     def create_local_m3u8(remote_file, local_file, local_names, crypt_key_names=None):
-
-        with open(remote_file, 'r') as f:
+        with open(remote_file, 'r', encoding='utf-8') as f:
             lines = f.readlines()
 
         names = [f'{name}\n' for name in local_names]
@@ -834,9 +957,7 @@ def post_process_hls(d):
 
         crypt_key_names.reverse()
 
-        # log(len([a for a in lines if not a.startswith('#')]))
-
-        for i, line in enumerate(lines[:]):
+        for i, line in enumerate(lines[:] ):
             if line and not line.startswith('#'):
                 try:
                     name = names.pop()
@@ -844,7 +965,6 @@ def post_process_hls(d):
                 except:
                     pass
             elif line.startswith('#EXT-X-KEY'):
-                # '#EXT-X-KEY:METHOD=AES-128,URI="https://content-aus...62a9",IV=0x00000000000000000000000000000000'
                 match = re.search(r'URI="(.*)"', line)
                 if match:
                     try:
@@ -854,9 +974,8 @@ def post_process_hls(d):
                     except:
                         pass
 
-        with open(local_file, 'w') as f:
+        with open(local_file, 'w', encoding='utf-8') as f:
             f.writelines(lines)
-            # print(lines)
 
     # create local m3u8 version - video
     remote_video_m3u8_file = os.path.join(d.temp_folder, 'remote_video.m3u8')
@@ -897,20 +1016,36 @@ def post_process_hls(d):
         log('post_process_hls()> ffmpeg failed:', output)
         return False
 
+
+
     if d.type == 'dash':
+        # create local m3u8 version - audio
+        remote_audio_m3u8_file = os.path.join(d.temp_folder, 'remote_audio.m3u8')
+        local_audio_m3u8_file = os.path.join(d.temp_folder, 'local_audio.m3u8')
+
+        try:
+            names = [seg.name for seg in d.segments if seg.tempfile == d.audio_file]
+            crypt_key_names = [seg.name for seg in d.segments if seg.seg_type == 'audio_key']
+            
+            if not names:
+                log('post_process_hls()> No audio segments found for DASH video')
+                return False
+            
+            create_local_m3u8(remote_audio_m3u8_file, local_audio_m3u8_file, names, crypt_key_names)
+        except Exception as e:
+            log(f'post_process_hls()> Error creating local audio m3u8: {str(e)}')
+            return False
+
         cmd = f'"{config.ffmpeg_actual_path}" -y -protocol_whitelist "file,http,https,tcp,tls,crypto"  ' \
               f'-allowed_extensions ALL -i "{local_audio_m3u8_file}" -c copy -f mp4 "file:{d.audio_file}"'
 
         error, output = run_command(cmd, d=d)
         if error:
-            log('post_process_hls()> ffmpeg failed:', output)
+            log(f'post_process_hls()> ffmpeg failed for audio: {output}')
             return False
 
-    log('post_process_hls()> done processing', d.name)
 
     return True
-
-
 
 
 

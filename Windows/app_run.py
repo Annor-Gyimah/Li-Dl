@@ -1,562 +1,161 @@
-
 import sys
-import webbrowser
-import requests
+import ctypes
+from ctypes import c_uint, c_char_p, create_string_buffer
+from PySide6.QtWidgets import (QApplication, QMainWindow, QMessageBox, 
+                               QMenu, QMenuBar)
+from PySide6.QtCore import Qt, QThread, Signal
 import os
-import re
-import time
-import copy
-import subprocess
-from threading import Thread, Barrier, Timer, Lock
-from collections import deque
 
-from modules.downloaditem import DownloadItem
-from collections import deque
-# IMPORT / GUI AND MODULES AND WIDGETS
-# ///////////////////////////////////////////////////////////////
-from modules import *
-from widgets import *
-os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
+class TrialThread(QThread):
+    # Define a signal to send messages to the main thread
+    trial_completed = Signal(str)
+    trial_error = Signal(str)
 
-# SET AS GLOBAL WIDGETS
-# ///////////////////////////////////////////////////////////////
-widgets = None
-
-from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, 
-                           log, log_recorder, delete_file, time_format, truncate, notify, open_file, run_command, handle_exceptions)
-from modules import config, brain, setting, video
-
-from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
-
-from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread
-from PySide6.QtCore import QObject, QThread, Signal, Slot
-
-from PySide6.QtGui import QAction, QIcon
-# from PyQt5.QtCore import QThread, pyqtSignal, pyqtSlot
-from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
-                               QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
-                               QDialog, QComboBox, QInputDialog, QMenu)
-
-
-class ClipboardWorker(QThread):
-    def __init__(self):
+    def __init__(self, window_handle, library_key):
         super().__init__()
-        self.old_data = ''
+        self.window_handle = window_handle
+        self.library_key = library_key
 
     def run(self):
-        while not config.terminate:
-            new_data = clipboard_read()  # Read from the clipboard
+        try:
+            print("Debug Information-Product Starting")
 
-            # Check if monitoring is active and clipboard content has changed
-            if config.monitor_clipboard and new_data != self.old_data:
-                if new_data.startswith('http') and ' ' not in new_data:
-                    # Send the URL to the main window queue
-                    config.main_window_q.put(('url', new_data))
+            base_path = os.path.dirname(os.path.abspath(__file__))
+            dll_path = os.path.join(base_path, "Trial.dll")
 
-                # Update old data
-                self.old_data = new_data
-
-            # Sleep briefly to avoid busy-waiting
-            time.sleep(0.2)
-
-   
-
-class HeaderWorker(QThread):
-    headers_refreshed = Signal(str)  # Signal to emit when headers are refreshed
-    busy_cursor = Signal()  # Signal to indicate busy cursor
-    normal_cursor = Signal()  # Signal to reset cursor
-
-    def __init__(self, url):
-        super().__init__()
-        self.url = url
-        
-
-    def run(self):
-        self.busy_cursor.emit()  # Set cursor to busy
-        headers = self.get_header(self.url)  # Replace with your actual get_header method
-        self.headers_refreshed.emit(headers)  # Emit the signal with the result
-        self.normal_cursor.emit()  # Reset cursor when done
-
-    def get_header(self, url):
-        # Placeholder for the actual header fetching method
-        # Replace this with the actual logic you want to use
-        time.sleep(2)  # Simulate a time-consuming task
-        return f"Headers for {url}"
+            # Load the Trial DLL
+            trial_dll = ctypes.CDLL(dll_path)
 
 
-class DownloadWorker(QObject):
-    download_info_signal = Signal(dict)  # Signal to send download info
+            # Define function signatures
+            init_trial_func = trial_dll.ReadSettingsStr
+            init_trial_func.argtypes = [c_char_p, ctypes.c_void_p]
+            init_trial_func.restype = c_uint
 
-    def __init__(self, download_item):
-        super().__init__()
-        self.d = download_item  # Pass the download item (self.d) from MainWindow
-        log(f"THIS IS US: {self.d}", log_level=3)
-        
+            get_property_func = trial_dll.GetPropertyValue
+            get_property_func.argtypes = [c_char_p, ctypes.c_void_p, ctypes.POINTER(c_uint)]
+            get_property_func.restype = c_uint
 
-    def run(self):
-        # Perform tasks, then emit signals with the data from self.d
-        info = {
-            'name': self.d.name,
-            'total_size': self.d.total_size,
-            'type': self.d.type,
-            'protocol': self.d.protocol,
-            'resumable': self.d.resumable,
-            'total_speed': '',  # Add this if you have total_speed
-        }
-        self.download_info_signal.emit(info)
+            # Initialize trial
+            result = init_trial_func(
+                self.library_key.encode('ascii'),
+                self.window_handle
+            )
+
+            # Read trial name property
+            buffer_size = c_uint(256)
+            trial_name = create_string_buffer(buffer_size.value)
+
+            result = get_property_func(
+                b"TrialName",
+                trial_name,
+                ctypes.byref(buffer_size)
+            )
+
+            if result == 234:  # Need larger buffer
+                trial_name = create_string_buffer(buffer_size.value)
+                get_property_func(b"TrialName", trial_name, ctypes.byref(buffer_size))
+
+            # Emit the result to the main thread
+            self.trial_completed.emit(f"TrialName={trial_name.value.decode()}")
+
+        except OSError:
+            self.trial_error.emit("Trial.dll is missing. Application will close.")
+        except Exception as e:
+            self.trial_error.emit(str(e))
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, d_list):
-        QMainWindow.__init__(self)
-        
-        # current download_item
-        self.d = DownloadItem()
+    # The library key to prevent unauthorized use
+    LIBRARY_KEY = "D36D04DC7BBB2F2D8F4E9A601F11483825C4BA"
 
-        # Create the worker and pass self.d
-        #self.worker = DownloadWorker(self.d)
-        
-        # download windows
-        self.download_windows = {}  # dict that holds Download_Window() objects --> {d.id: Download_Window()}
-        
-        # url
-        self.url_timer = None  # usage: Timer(0.5, self.refresh_headers, args=[self.d.url])
-        self.bad_headers = [0, range(400, 404), range(405, 418), range(500, 506)]  # response codes
-        # download
-        self.pending = deque()
-        self.disabled = True  # for download button
-
-        # download list
-        self.d_headers = ['id', 'name', 'progress', 'speed', 'time_left', 'downloaded', 'total_size', 'status', 'i']
-        self.d_list = d_list  # list of DownloadItem() objects
-        self.selected_row_num = None
-        self._selected_d = None
-
-        # update
-        self.new_version_available = False
-        self.new_version_description = None
-        
-        # youtube specific
-        self.video = None
-        self.yt_id = 0  # unique id for each youtube thread
-        self.playlist = []
-        self.pl_title = ''
-        self.pl_quality = None
-        self._pl_menu = []
-        self._stream_menu = []
-        self.stream_menu_selection = ''
-
-        # thumbnail
-        self.current_thumbnail = None
-
-        self.url_timer = None
+    # Get the directory of the current executable or script
 
 
-        # initial setup
-        self.setup()
-        ##########################################################################################
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Trial Test Example")
+        self.setup_ui()
 
-        # SET AS GLOBAL WIDGETS
-        # ///////////////////////////////////////////////////////////////
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
-        global widgets
-        widgets = self.ui
+        # Start trial initialization in a QThread
+        self.trial_thread = TrialThread(ctypes.c_void_p(int(self.winId())), self.LIBRARY_KEY)
+        self.trial_thread.trial_completed.connect(self.on_trial_completed)
+        self.trial_thread.trial_error.connect(self.on_trial_error)
+        self.trial_thread.start()
 
-        self.resize(500, 750)
+    def setup_ui(self):
+        # Create menu bar
+        menu_bar = QMenuBar()
+        self.setMenuBar(menu_bar)
 
-        # USE CUSTOM TITLE BAR | USE AS "False" FOR MAC OR LINUX
-        # ///////////////////////////////////////////////////////////////
-        Settings.ENABLE_CUSTOM_TITLE_BAR = True
+        # File menu
+        file_menu = QMenu("&File", self)
+        menu_bar.addMenu(file_menu)
 
-        # APP NAME
-        # ///////////////////////////////////////////////////////////////
-        title = config.APP_TITLE
-        description = config.APP_NAME
-        # APPLY TEXTS
-        self.setWindowTitle(title)
-        widgets.titleRightInfo.setText(description)
+        # Exit action
+        exit_action = file_menu.addAction("E&xit")
+        exit_action.triggered.connect(self.close)
 
-        # TOGGLE MENU
-        # ///////////////////////////////////////////////////////////////
-        widgets.toggleButton.clicked.connect(lambda: UIFunctions.toggleMenu(self, True))
+        # Help menu
+        help_menu = QMenu("&Help", self)
+        menu_bar.addMenu(help_menu)
 
-        # SET UI DEFINITIONS
-        # ///////////////////////////////////////////////////////////////
-        UIFunctions.uiDefinitions(self)
+        # Register action
+        register_action = help_menu.addAction("&Register")
+        register_action.triggered.connect(self.show_registration)
 
-        # QTableWidget PARAMETERS
-        # ///////////////////////////////////////////////////////////////
-        widgets.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Set window size and center it
+        self.resize(800, 600)
+        self.center_window()
 
-        # BUTTONS CLICK
-        # ///////////////////////////////////////////////////////////////
-        # LEFT MENUS
-        widgets.btn_home.clicked.connect(self.buttonClick)
-        widgets.btn_widgets.clicked.connect(self.buttonClick)
-        widgets.btn_new.clicked.connect(self.buttonClick)
-        #widgets.btn_save.clicked.connect(self.buttonClick)
-        
+    def center_window(self):
+        # Get the screen geometry
+        screen = QApplication.primaryScreen().geometry()
+        # Calculate center position
+        x = (screen.width() - self.width()) // 2
+        y = (screen.height() - self.height()) // 2
+        # Move window to center
+        self.move(x, y)
 
-        # EXTRA LEFT BOX
-        def openCloseLeftBox():
-            UIFunctions.toggleLeftBox(self, True)
-        widgets.toggleLeftBox.clicked.connect(openCloseLeftBox)
-        widgets.extraCloseColumnBtn.clicked.connect(openCloseLeftBox)
+    def on_trial_completed(self, message):
+        print(message)
 
-        # EXTRA RIGHT BOX
-        def openCloseRightBox():
-            UIFunctions.toggleRightBox(self, True)
-        widgets.settingsTopBtn.clicked.connect(openCloseRightBox)
+    def on_trial_error(self, error_message):
+        QMessageBox.critical(self, "Error", error_message)
+        self.close()
 
-        # SHOW APP
-        # ///////////////////////////////////////////////////////////////
-        self.show()
-
-        # SET CUSTOM THEME
-        # ///////////////////////////////////////////////////////////////
-        useCustomTheme = False
-        themeFile = "themes/py_dracula_light.qss"
-
-
-        # SET THEME AND HACKS
-        if useCustomTheme:
-            # LOAD AND APPLY STYLE
-            UIFunctions.theme(self, themeFile, True)
-
-            # SET HACKS
-            AppFunctions.setThemeHack(self)
-
-        # SET HOME PAGE AND SELECT MENU
-        # ///////////////////////////////////////////////////////////////
-        widgets.stackedWidget.setCurrentWidget(widgets.home)
-        widgets.btn_home.setStyleSheet(UIFunctions.selectMenu(widgets.btn_home.styleSheet()))
-
-
-        widgets.version.setText(f"{config.APP_VERSION}")
-        widgets.titleLeftApp.setText(f"{config.APP_NAME}")
-        widgets.titleLeftDescription.setText(f"{config.APP_DEC}")
-        log('Starting PyIDM version:', config.APP_VERSION, 'Frozen' if config.FROZEN else 'Non-Frozen')
-        # log('starting application')
-        log('operating system:', config.operating_system_info)
-        log('current working directory:', config.current_directory)
-
-        # Call read_q periodically to process the queue
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.read_q)
-        self.timer.start(100)  # Check the queue every 100ms
-
-
-        # Starting QThreads 
-        # Start the clipboard listener in a separate thread
-        self.clipboard_worker = ClipboardWorker()
-        self.clipboard_worker.start()
-
-        
-        # # Create the worker and pass self.d
-        self.worker = DownloadWorker(self.d)
-        # Start the worker thread
-        self.worker_thread = QThread()
-        self.worker.moveToThread(self.worker_thread)
-        self.worker_thread.started.connect(self.worker.run)
-        # Connect signals and slots
-        self.worker.download_info_signal.connect(self.update_gui_slot)
-        self.worker_thread.start()
-
-
-    
-    # BUTTONS CLICK
-    # ///////////////////////////////////////////////////////////////
-    def buttonClick(self):
-        # GET BUTTON CLICKED
-        btn = self.sender()
-        btnName = btn.objectName()
-
-        # SHOW HOME PAGE
-        if btnName == "btn_home":
-            widgets.stackedWidget.setCurrentWidget(widgets.home)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
-
-        # SHOW WIDGETS PAGE
-        if btnName == "btn_downloads":
-            widgets.stackedWidget.setCurrentWidget(widgets.widgets)
-            UIFunctions.resetStyle(self, btnName)
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet()))
-
-        # SHOW NEW PAGE
-        if btnName == "btn_logs":
-            widgets.stackedWidget.setCurrentWidget(widgets.new_page) # SET PAGE
-            UIFunctions.resetStyle(self, btnName) # RESET ANOTHERS BUTTONS SELECTED
-            btn.setStyleSheet(UIFunctions.selectMenu(btn.styleSheet())) # SELECT MENU
-
-    # RESIZE EVENTS
-    # ///////////////////////////////////////////////////////////////
-    def resizeEvent(self, event):
-        # Update Size Grips
-        UIFunctions.resize_grips(self)
-
-
-    def setup(self):
-        """initial setup"""
-        
-        # download folder
-        if not self.d.folder:
-            self.d.folder = config.download_folder
-
-    def read_q(self):
-        """Read from the queue and update the GUI."""
-        while not config.main_window_q.empty():
-            k, v = config.main_window_q.get()
-
-            if k == 'log':
-                try:
-                    contents = widgets.logDisplay.toPlainText()
-
-                    
-                    # print(size_format(len(contents)))
-                    if len(contents) > config.max_log_size:
-                        # delete 20% of contents to keep size under max_log_size
-                        slice_size = int(config.max_log_size * 0.2)
-                        widgets.logDisplay.setPlainText(contents[slice_size:])
-
-                    widgets.logDisplay.append(v)
-                except Exception as e:
-                    log(f"{e}")
-
-                #self.set_status(v.strip('\n'))
-
-            elif k == 'url':
-                # Update the QLineEdit with the new URL
-                widgets.home_link_lineEdit.setText(v)
-                print(f"Updated QLineEdit with URL: {v}")
-                self.url_text_change()
-                
-            
-            elif k == "download":
-                self.start_download(*v)
-
-            elif k == "monitor":
-                widgets.monitor_clipboard.setChecked(v)
-
-
-    # region Url stuffs
-    def reset(self):
-        # create new download item, the old one will be garbage collected by python interpreter
-        self.d = DownloadItem()
-
-        # reset some values
-        self.playlist = []
-        self.video = None
-
-
-    def url_text_change(self):
-        """Handle URL changes in the QLineEdit."""
-        url = widgets.home_link_lineEdit.text().strip()
-        if url == self.d.url:
-            return
-
-        self.reset()
+    def show_registration(self):
         try:
-            self.d.eff_url = self.d.url = url
-            print(f"New URL set: {url}")
-             
-            # Update the DownloadItem with the new URL
-            self.d.update(url)
+            trial_dll = ctypes.CDLL("Trial.dll")
 
-            if isinstance(self.url_timer, QThread):
-                self.url_timer.quit()  # Ensure any existing QThread is stopped
+            # Define function signature
+            display_reg_func = trial_dll.DisplayRegistrationStr
+            display_reg_func.argtypes = [c_char_p, ctypes.c_void_p]
+            display_reg_func.restype = c_uint
 
-            # Start a new QThread for refreshing headers
-            self.url_timer = HeaderWorker(url)
-            self.url_timer.headers_refreshed.connect(self.handle_headers_refreshed)
-            self.url_timer.busy_cursor.connect(lambda: self.change_cursor('busy'))
-            self.url_timer.normal_cursor.connect(lambda: self.change_cursor('normal'))
-            self.url_timer.start()  # Start the QThread
+            # Get window handle
+            window_handle = ctypes.c_void_p(int(self.winId()))
 
+            # Show registration dialog
+            display_reg_func(
+                self.LIBRARY_KEY.encode('ascii'),
+                window_handle
+            )
 
+        except OSError:
+            QMessageBox.critical(self, "Error",
+                                 "Trial.dll is missing. Application will close.")
+            self.close()
         except Exception as e:
-            print(f"Error in url_text_change: {e}")
-
-    def change_cursor(self, cursor_type):
-        """Change cursor to busy or normal."""
-        if cursor_type == 'busy':
-            QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
-        elif cursor_type == 'normal':
-            QApplication.restoreOverrideCursor()  # Restore normal cursor
-
-    def handle_headers_refreshed(self, headers):
-        """Handle the refreshed headers."""
-        print(f"Headers refreshed: {headers}")
+            QMessageBox.warning(self, "Error", str(e))
 
 
-    @Slot(dict)
-    def update_gui_slot(self, info):
-        """Slot to handle updating the GUI elements with new download info."""
-        print("Download info received:", info)  # Debug print
-
-        widgets.home_filename_lineEdit.setText(info.get('name', ''))
-        widgets.size_value_label.setText(size_format(info.get('total_size', 0)) if info.get('total_size') else "Unknown")
-        widgets.type_value_label.setText(info.get('type', 'Unknown'))
-        widgets.protocol_value_label.setText(info.get('protocol', 'Unknown'))
-        widgets.resumable_value_label.setText("Yes" if info.get('resumable', False) else "No")
-        widgets.totalSpeedValue.setText(f'⬇ {size_format(info["total_speed"], "/s")}' if info.get('total_speed', 0) != 0 else '⬇ 0 bytes')
-
-
-    def get_header(self, url):
-        # curl_headers = get_headers(url)
-        self.d.update(url)
-
-        # update headers only if no other curl thread created with different url
-        if url == self.d.url:
-
-            # update status code widget
-            try:
-                if self.d.status_code == 200:
-                    cod = "ok"
-                else:
-                    cod = ""
-
-                widgets.statusCodeValue.setText(f"{self.d.status_code} {cod}")
-            except:
-                pass
-        
-            # enable download button
-            if self.d.status_code not in self.bad_headers and self.d.type != 'text/html':
-                widgets.DownloadButton.setEnabled(True)
-
-            # check if the link contains stream videos by youtube-dl
-            Thread(target=self.youtube_func, daemon=True).start()
-
-    def youtube_func(self):
-        """Fetch metadata from YouTube and process it."""
-        try:
-            # Ensure youtube-dl is loaded
-            if video.ytdl is None:
-                log('youtube-dl module still loading, please wait')
-                while not video.ytdl:
-                    time.sleep(0.1)
-
-            log(f"Extracting info for URL: {self.d.url}")
-            # Extract information with youtube-dl
-            with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                info = ydl.extract_info(self.d.url, download=False, process=False)
-                log('Media info:', info, log_level=3)
-
-                # Check if it's a playlist
-                if info.get('_type') == 'playlist' or 'entries' in info:
-                    pl_info = list(info.get('entries', []))
-                    self.playlist = []
-                    for item in pl_info:
-                        url = item.get('url') or item.get('webpage_url') or item.get('id')
-                        if url:
-                            self.playlist.append(Video(url))
-
-                    # Make sure the first video is valid
-                    if self.playlist:
-                        self.d = self.playlist[0]
-                        log(f"Playlist processed. First video: {self.d.title}")
-                    else:
-                        log("Error: No valid videos found in playlist")
-                        return
-
-                else:
-                    # Single video case
-                    log("Processing single video")
-                    video_obj = Video(self.d.url, vid_info=info)
-                    if video_obj.title:  # Check if the video object is valid
-                        self.playlist = [video_obj]
-                        self.d = video_obj
-                        log(f'Single video processed: {self.d.title}')
-                    else:
-                        log("Error: Single video extraction failed")
-                        return
-
-                # Update GUI elements
-                self.update_pl_menu()
-                self.update_stream_menu()
-
-        except Exception as e:
-            log('youtube_func()> error:', e)
-            log('Error occurred on line:', sys.exc_info()[-1].tb_lineno)
-            import traceback
-            log('Traceback:', traceback.format_exc())
-
-    def update_pl_menu(self):
-        """Update the playlist combobox after processing."""
-        try:
-            log("Updating playlist menu")
-            if not hasattr(self, 'playlist') or not self.playlist:
-                log("Error: Playlist is empty or not initialized")
-                return
-
-            # Set the playlist combobox with video titles
-            widgets.combo_setting_c.clear()  # Clear existing items
-            for i, video in enumerate(self.playlist):
-                if hasattr(video, 'title') and video.title:
-                    widgets.combo_setting_c.addItem(f'{i + 1} - {video.title}')
-                else:
-                    log(f"Warning: Video at index {i} has no title")
-
-            # Automatically select the first video in the playlist
-            if self.playlist:
-                self.playlist_OnChoice(self.playlist[0])
-
-        except Exception as e:
-            log(f"Error updating playlist menu: {e}")
-            import traceback
-            log('Traceback:', traceback.format_exc())
-
-    def update_stream_menu(self):
-        """Update the stream combobox after selecting a video."""
-        try:
-            log("Updating stream menu")
-            if not hasattr(self, 'd') or not self.d:
-                log("Error: No video selected")
-                return
-            
-            if not hasattr(self.d, 'stream_names') or not self.d.stream_names:
-                log("Error: Selected video has no streams")
-                return
-
-            # Set the stream combobox with available stream options
-            widgets.stream_combo.clear()  # Clear existing items
-            widgets.stream_combo.addItems(self.d.stream_names)
-
-            # Automatically select the first stream
-            if self.d.stream_names:
-                selected_stream = self.d.stream_names[0]
-                widgets.stream_combo.setCurrentText(selected_stream)
-                self.stream_OnChoice(selected_stream)
-
-        except Exception as e:
-            log(f"Error updating stream menu: {e}")
-            import traceback
-            log('Traceback:', traceback.format_exc())
-
-
-
-    def playlist_OnChoice(self, selected_video):
-        """Handle playlist item selection."""
-        if selected_video not in self.playlist:
-            return
-
-        # Find the selected video index and set it as the current download item
-        index = self.playlist.index(selected_video)
-        self.video = self.playlist[index]
-        self.d = self.video  # Update current download item to the selected video
-
-        # Update the stream menu based on the selected video
-        self.update_stream_menu()
-
-        # Optionally load the video thumbnail in a separate thread
-        if config.show_thumbnail:
-            Thread(target=self.video.get_thumbnail).start()
-
-    
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
-    window = MainWindow(config.d_list)
+    window = MainWindow()
     window.show()
     sys.exit(app.exec())
 
+
+if __name__ == "__main__":
+    main()
