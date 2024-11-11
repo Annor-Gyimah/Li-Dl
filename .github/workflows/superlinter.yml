@@ -1,0 +1,29 @@
+name: Lint Code Base
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Run Super-Linter
+        uses: github/super-linter@v5
+        env:
+          VALIDATE_ALL_CODEBASE: true
+          DEFAULT_BRANCH: master
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Exclude the specific file Windows/ref1.py
+          FILTER_REGEX_EXCLUDE: |
+            ^Windows/ref1\.py$
+            ^Windows/ref2\.py$
+            ^Windows/ref3\.py$
+            ^Windows/Untitled-1\.py$
