@@ -1,8 +1,8 @@
+
 import sys
 import ctypes
 from ctypes import c_uint, c_char_p, create_string_buffer
-from PySide6.QtWidgets import (QApplication, QMainWindow, QMessageBox, 
-                               QMenu, QMenuBar)
+from PySide6.QtWidgets import (QApplication, QMainWindow, QMessageBox, QMenu, QMenuBar)
 from PySide6.QtCore import Qt, QThread, Signal
 import os
 

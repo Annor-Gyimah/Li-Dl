@@ -25,33 +25,57 @@ import subprocess
 import shutil
 from threading import Thread, Barrier, Timer, Lock
 from collections import deque
-import cytpes
+import ctypes
 from modules.downloaditem import DownloadItem
 from collections import deque
+
 # IMPORT / GUI AND MODULES AND WIDGETS
 # ///////////////////////////////////////////////////////////////
 from modules import *
 from widgets import *
+
 os.environ["QT_FONT_DPI"] = "96" # FIX Problem for High DPI and Scale above 100%
 
 # SET AS GLOBAL WIDGETS
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, compare_versions, 
-                           log, log_recorder, delete_file, time_format, truncate, notify, popup, open_file, run_command, handle_exceptions)
+from modules.utils import (
+    clipboard_read, 
+    clipboard_write, 
+    size_format, 
+    validate_file_name, 
+    compare_versions, 
+    log, 
+    log_recorder,
+    delete_file, 
+    time_format, 
+    truncate, 
+    notify, 
+    popup, 
+    open_file, 
+    run_command, 
+    handle_exceptions
+)
 from modules import config, brain, setting, video, update
 
-from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
+from modules.video import(
+    Video, 
+    ytdl, 
+    check_ffmpeg, 
+    download_ffmpeg, 
+    unzip_ffmpeg, 
+    get_ytdl_options, 
+    get_ytdl_options
+)
 
 from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl
 
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
 from typing import Optional
-from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, 
-                               QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, 
-                               QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox)
+from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+
 
 class YouTubeThread(QThread):
     finished = Signal(object)  # Signal to emit when the process is complete
@@ -62,8 +86,10 @@ class YouTubeThread(QThread):
 
     def change_cursor(self, cursor_type):
         """Change cursor to busy or normal."""
+
         if cursor_type == 'busy':
             QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+
         elif cursor_type == 'normal':
             QApplication.restoreOverrideCursor()  # Restore normal cursor
 
@@ -71,23 +97,30 @@ class YouTubeThread(QThread):
         try:
             # Ensure youtube-dl is loaded
             if video.ytdl is None:
+
                 log('youtube-dl module still loading, please wait')
                 while not video.ytdl:
                     time.sleep(0.1)
             widgets.DownloadButton.setEnabled(False)
             log(f"Extracting info for URL: {self.url}")
+
             self.change_cursor('busy')
             # Extract information with youtube-dl
             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
                 info = ydl.extract_info(self.url, download=False, process=False)
+
                 log('Media info:', info, log_level=3)
 
                 # Process the info and create Video objects
+                
                 if info.get('_type') == 'playlist' or 'entries' in info:
                     pl_info = list(info.get('entries', []))
                     playlist = []
                     for item in pl_info:
-                        url = item.get('url') or item.get('webpage_url') or item.get('id')
+                        
+                        url = (
+                            item.get("url") or item.get("webpage_url") or item.get("id")
+                        )
                         if url:
                             playlist.append(Video(url))
                     result = playlist
@@ -95,9 +128,11 @@ class YouTubeThread(QThread):
                     result = Video(self.url, vid_info=None)
 
                 self.finished.emit(result)
+                
                 self.change_cursor('normal')
                 widgets.DownloadButton.setEnabled(True)
         except Exception as e:
+            
             log('YouTubeThread error:', e)
             self.finished.emit(None)
     
@@ -119,6 +154,7 @@ class CheckUpdateAppThread(QThread):
 
     def check_for_update(self):
         # Change cursor to busy
+        
         self.change_cursor('busy')
 
         # Retrieve current version and changelog information
@@ -138,6 +174,7 @@ class CheckUpdateAppThread(QThread):
 
             # Update global values
             config.APP_LATEST_VERSION = latest_version
+
             
             self.new_version_description = version_description
         else:
@@ -145,12 +182,15 @@ class CheckUpdateAppThread(QThread):
             self.new_version_description = None
 
         # Revert cursor to normal
+        
         self.change_cursor('normal')
 
     def change_cursor(self, cursor_type):
         """Change cursor to busy or normal."""
+        
         if cursor_type == 'busy':
             QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
+        
         elif cursor_type == 'normal':
             QApplication.restoreOverrideCursor()  # Restore normal cursor
 
@@ -165,6 +205,7 @@ class UpdateThread(QThread):
         else:
             pass
 
+
 class FileOpenThread(QThread):
     # Define a signal to communicate with the main window
     critical_signal = Signal(str, str)
@@ -177,33 +218,44 @@ class FileOpenThread(QThread):
         try:
             if not os.path.exists(self.file_path):
                 # Emit the signal if the file doesn't exist, sending the title and message
+                
                 self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.")
                 return  # Exit the thread if the file doesn't exist
 
             # Opening the file
+            
             if config.operating_system == 'Windows':
                 os.startfile(self.file_path)
-            elif config.operating_system == 'Linux':
+            
+            elif config.operating_system == 'LinuFx':
                 run_command(f'xdg-open "{self.file_path}"', verbose=False)
+            
             elif config.operating_system == 'Darwin':
                 run_command(f'open "{self.file_path}"', verbose=False)
 
         except Exception as e:
-            print(f'Error opening file: {e}')
+            
+            log(f'Error opening file: {e}')
 
 class LogRecorderThread(QThread):
     error_signal = Signal(str)  # Signal to report errors to main thread
     
+
     def __init__(self):
         super().__init__()
+        
+        
+        
         self.buffer = ''
         self.file = os.path.join(config.sett_folder, 'log.txt')
         
         # Clear previous file
         try:
+           
             with open(self.file, 'w') as f:
                 f.write(self.buffer)
         except Exception as e:
+            
             self.error_signal.emit(f'Failed to clear log file: {str(e)}')
     
     def run(self):
@@ -231,6 +283,7 @@ class LogRecorderThread(QThread):
 
 class MainWindow(QMainWindow):
     update_gui_signal = Signal(dict)
+
     def __init__(self, d_list):
         QMainWindow.__init__(self)
 

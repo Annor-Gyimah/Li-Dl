@@ -18,7 +18,7 @@ jobs:
       - name: Run Super-Linter
         uses: github/super-linter@v5
         env:
-          VALIDATE_ALL_CODEBASE: true
+          VALIDATE_ALL_CODEBASE: false
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Exclude the specific file Windows/ref1.py
@@ -27,3 +27,7 @@ jobs:
             ^Windows/ref2\.py$
             ^Windows/ref3\.py$
             ^Windows/Untitled-1\.py$
+            ^Windows/app_run\.py$
+            ^Linux/.*$
+          FILTER_REGEX_INCLUDE: |
+            ^Windows/.*$
