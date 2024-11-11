@@ -22,12 +22,6 @@ jobs:
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Exclude the specific file Windows/ref1.py
-          FILTER_REGEX_EXCLUDE: |
-            ^Windows/ref1\.py$
-            ^Windows/ref2\.py$
-            ^Windows/ref3\.py$
-            ^Windows/Untitled-1\.py$
-            ^Windows/app_run\.py$
-            ^Linux/.*$
+          
           FILTER_REGEX_INCLUDE: |
-            ^Windows/.*$
+            ^Windows/main\.py$
