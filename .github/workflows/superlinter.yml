@@ -1,4 +1,4 @@
-name: Lint Specific File
+name: Lint Code Base
 
 on:
   push:
@@ -18,9 +18,14 @@ jobs:
       - name: Run Super-Linter
         uses: github/super-linter@v5
         env:
-          VALIDATE_ALL_CODEBASE: false  # Disable validation of the entire codebase
+          VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Include only the specific file you want to lint
-          FILTER_REGEX_INCLUDE: |
-            ^Windows/main\.py$
+          # Exclude the specific file Windows/ref1.py
+          FILTER_REGEX_EXCLUDE: |
+            ^Windows/ref1\.py$
+            ^Windows/ref2\.py$
+            ^Windows/ref3\.py$
+            ^Windows/Untitled-1\.py$
+            ^Windows/app_run\.py$
+            ^Linux/.*$
