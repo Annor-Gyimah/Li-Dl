@@ -1348,20 +1348,6 @@ class MainWindow(QMainWindow):
             print(f"Error downloading thumbnail: {reply.errorString()}")
             self.reset_to_default_thumbnail()
     
-    # def on_thumbnail_downloaded(self, reply):
-    #     if reply.error() == QNetworkReply.NoError:
-    #         data = reply.readAll()
-    #         image = QImage()
-    #         if image.loadFromData(data):
-    #             pixmap = QPixmap.fromImage(image)
-    #             widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
-    #             print("Successfully downloaded and set thumbnail")
-    #         else:
-    #             print("Failed to create image from downloaded data")
-    #             self.reset_to_default_thumbnail()
-    #     else:
-    #         print(f"Error downloading thumbnail: {reply.errorString()}")
-    #         self.reset_to_default_thumbnail()
 
     def reset_to_default_thumbnail(self):
         default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")

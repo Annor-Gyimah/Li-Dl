@@ -626,7 +626,7 @@ class MainWindow(QMainWindow):
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
                 self.url_text_change()
-                self.update_progress_bar()
+                #self.update_progress_bar()
             
             elif k == "download":
                 self.start_download(*v)
@@ -694,7 +694,7 @@ class MainWindow(QMainWindow):
             self.url_timer = Timer(0.5, self.refresh_headers, args=[url])
             self.url_timer.start()
             # Trigger the progress bar update and GUI refresh
-            self.update_progress_bar()
+            #self.update_progress_bar()
         except Exception as e:
             log(f"Error in url_text_change: {e}")
 
