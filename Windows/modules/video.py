@@ -305,14 +305,10 @@ class Video(DownloadItem):
             self.audio_url = None
             self.audio_fragment_base_url = None
             self.audio_fragments = None
-    
+
     # def update_param(self):
-    #     """
-    #     Update parameters for media stream handling with improved audio stream selection.
-    #     Handles both DASH and HLS formats with better stream detection.
-    #     """
+    #     # do some parameter updates
     #     stream = self.selected_stream
-    #     # Update basic stream parameters
     #     self.name = self.title + '.' + stream.extension
     #     self.eff_url = stream.url
     #     self.type = stream.mediatype
@@ -323,90 +319,114 @@ class Video(DownloadItem):
     #     self.format_id = stream.format_id
     #     self.manifest_url = stream.manifest_url
 
-    #     # Reset audio parameters
+    #     # Reset audio-related attributes
+    #     self.audio_stream = None
     #     self.audio_url = None
+    #     self.audio_size = None
     #     self.audio_fragment_base_url = None
     #     self.audio_fragments = None
-    #     self.audio_stream = None
-    #     self.audio_size = None
     #     self.audio_format_id = None
 
-    #     # Only proceed if we have audio streams
-    #     if not self.audio_streams:
-    #         log("No audio streams available")
-    #         return
+    #     # select an audio to embed if our stream is dash video
+    #     if stream.mediatype == 'dash':
+    #         try:
+    #             # If no audio streams, exit early
+    #             if not self.audio_streams:
+    #                 log("No audio streams available")
+    #                 return
 
-    #     try:
-    #         # Get all audio streams as a list for easier handling
-    #         available_audio = list(self.audio_streams.values())
-            
-    #         # Filter out any invalid or empty streams
-    #         valid_audio = [
-    #             audio for audio in available_audio
-    #             if audio and hasattr(audio, 'url') and audio.url
-    #         ]
+    #             # Get audio streams with size > 0
+    #             available_audio = [
+    #                 audio for audio in self.audio_streams.values() 
+    #                 if hasattr(audio, 'size') and audio.size and audio.size > 0
+    #             ]
 
-    #         if not valid_audio:
-    #             log("No valid audio streams found")
-    #             return
+    #             # If no valid audio streams, log and return
+    #             if not available_audio:
+    #                 log("No audio streams with valid size found")
+    #                 return
 
-    #         # Define scoring function for audio streams
-    #         def score_audio_stream(audio):
-    #             score = 0
-                
-    #             # Prefer streams with actual sizes
-    #             if hasattr(audio, 'size') and audio.size and audio.size > 0:
-    #                 score += 1000
-                
-    #             # Prefer streams with matching extensions
-    #             if audio.extension == stream.extension:
-    #                 score += 500
-    #             elif stream.extension == 'mp4' and audio.extension == 'm4a':
-    #                 score += 400
-                    
-    #             # Prefer streams with higher bitrates
-    #             if hasattr(audio, 'bitrate') and audio.bitrate:
-    #                 score += min(audio.bitrate / 1000, 300)  # Cap at 300 to not overwhelm other factors
-                    
-    #             # Prefer streams with fragments if main stream has fragments
-    #             if self.fragments and audio.fragments:
-    #                 score += 200
-                    
-    #             return score
+    #             # Define a scoring function for audio streams
+    #             def score_audio_stream(audio):
+    #                 score = 0
 
-    #         # Sort audio streams by score and select the best one
-    #         best_audio = max(valid_audio, key=score_audio_stream)
-            
-    #         # Log the selection criteria
-    #         log(f"Selected audio stream score: {score_audio_stream(best_audio)}")
-    #         log(f"Selected audio properties: extension={best_audio.extension}, "
-    #             f"size={best_audio.size if hasattr(best_audio, 'size') else 'unknown'}, "
-    #             f"bitrate={best_audio.bitrate if hasattr(best_audio, 'bitrate') else 'unknown'}")
+    #                 # Prioritize streams with actual sizes
+    #                 score += min(audio.size // 1024, 500)  # Up to 500 points for size
 
-    #         # Update audio parameters
-    #         self.audio_stream = best_audio
-    #         self.audio_url = best_audio.url
-    #         self.audio_size = getattr(best_audio, 'size', 0)
-    #         self.audio_fragment_base_url = getattr(best_audio, 'fragment_base_url', None)
-    #         self.audio_fragments = getattr(best_audio, 'fragments', None)
-    #         self.audio_format_id = getattr(best_audio, 'format_id', None)
+    #                 # Check extension matching
+    #                 if audio.extension == stream.extension:
+    #                     score += 500
+    #                 elif stream.extension == 'mp4' and audio.extension == 'm4a':
+    #                     score += 400
 
-    #         # Additional validation for HLS streams
-    #         if '.m3u8' in str(self.audio_url):
-    #             log("HLS audio stream detected")
-    #             # For HLS, some parameters might need special handling
-    #             self.audio_fragments = None  # HLS handles fragments differently
-    #             self.audio_size = 0  # Size usually isn't known for HLS streams
-                
-    #         log(f"Final audio stream selection:")
-    #         log(f"URL: {self.audio_url}")
-    #         log(f"Size: {self.audio_size}")
-    #         log(f"Format ID: {self.audio_format_id}")
-    #         log(f"Has fragments: {bool(self.audio_fragments)}")
+    #                 # Consider bitrate with more granularity
+    #                 if hasattr(audio, 'abr') and audio.abr:
+    #                     # More precise bitrate scoring
+    #                     bitrate_score = min(int(audio.abr * 20), 300)
+    #                     score += bitrate_score
 
-    #     except Exception as e:
-    #         log(f"Error during audio stream selection: {str(e)}")
-    #         # # Keep the default None values for audio parameters
+    #                 # Prefer streams with fragments if main stream has fragments
+    #                 if stream.fragments and hasattr(audio, 'fragments') and audio.fragments:
+    #                     score += 200
+
+    #                 # Consider format_id similarity with more nuance
+    #                 if hasattr(audio, 'format_id') and audio.format_id:
+    #                     # More detailed format_id matching
+    #                     if stream.format_id == audio.format_id:
+    #                         score += 300
+    #                     elif stream.format_id in audio.format_id or audio.format_id in stream.format_id:
+    #                         score += 100
+
+    #                 # Add a unique identifier to break ties
+    #                 try:
+    #                     unique_id_score = int(str(getattr(audio, 'format_id', 0))[-3:] or 0)
+    #                     score += unique_id_score % 50
+    #                 except:
+    #                     pass
+
+    #                 return score
+
+    #             # Sort audio streams by score in descending order
+    #             sorted_audio_streams = sorted(available_audio, key=score_audio_stream, reverse=True)
+
+    #             # Select the top scoring stream
+    #             if sorted_audio_streams:
+    #                 selected_audio = sorted_audio_streams[2]
+
+    #                 # Verify the selection
+    #                 log("Potential audio streams:")
+    #                 for i, audio in enumerate(sorted_audio_streams[0:5], 1):
+    #                     log(f"{i}. Extension: {audio.extension}, "
+    #                         f"Size: {getattr(audio, 'size', 'N/A')}, "
+    #                         f"Format ID: {getattr(audio, 'format_id', 'N/A')}, "
+    #                         f"Score: {score_audio_stream(audio)}")
+
+    #                 # Update audio stream attributes
+    #                 self.audio_stream = selected_audio
+    #                 self.audio_url = selected_audio.url
+    #                 self.audio_size = selected_audio.size
+    #                 self.audio_fragment_base_url = getattr(selected_audio, 'fragment_base_url', None)
+    #                 self.audio_fragments = getattr(selected_audio, 'fragments', None)
+    #                 self.audio_format_id = getattr(selected_audio, 'format_id', None)
+
+    #                 # Log detailed selection information
+    #                 log(f"Final Audio stream selection:")
+    #                 log(f"Selected stream extension: {selected_audio.extension}")
+    #                 log(f"Selected stream size: {self.audio_size}")
+    #                 log(f"Selected stream format_id: {self.audio_format_id}")
+
+    #             else:
+    #                 log("No suitable audio streams found after scoring")
+
+    #         except Exception as e:
+    #             log(f"Error during audio stream selection: {str(e)}")
+    #     else:
+    #         # Reset audio-related attributes for non-dash streams
+    #         self.audio_url = None
+    #         self.audio_fragment_base_url = None
+    #         self.audio_fragments = None
+        
+    
 
 
 class Stream:
@@ -435,7 +455,7 @@ class Stream:
         self.protocol = stream_info.get('protocol', '')
 
         # calculate some values
-        #self.rawbitrate = stream_info.get('abr', 0) * 1024
+        # self.rawbitrate = stream_info.get('abr', 0) * 1024
         self._mediatype = None
         self.resolution = f'{self.width}x{self.height}' if (self.width and self.height) else ''
 

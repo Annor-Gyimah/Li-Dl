@@ -64,6 +64,10 @@
   {
    "optionDest": "hiddenimports",
    "value": "plyer.platforms.win.notification"
+  },
+  {
+   "optionDest": "binaries",
+   "value": "C:/Users/Annorion/Desktop/Qt/Li-Dl/Windows/Trial.dll;."
   }
  ],
  "nonPyinstallerOptions": {

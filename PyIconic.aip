@@ -51,6 +51,7 @@
     <ROW Directory="ProgramFilesFolder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~2|ProgramFilesFolder" IsPseudoRoot="1"/>
     <ROW Directory="ProgramMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="PROGRA~1|ProgramMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="PyIconic_Dir" Directory_Parent="LocalAppDataFolder" DefaultDir="PyIconic"/>
+    <ROW Directory="StartMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="STARTM~1|StartMenuFolder" IsPseudoRoot="1"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SideBySideGuidComponent">
@@ -63,8 +64,8 @@
     <ROW Component="APPDIR" ComponentId="{11FFF809-9A63-4471-BF8D-358543C80796}" Directory_="APPDIR" Attributes="0"/>
     <ROW Component="ProductInformation" ComponentId="{607838CC-7986-4875-A926-1483F399DAB6}" Directory_="APPDIR" Attributes="4" KeyPath="Version"/>
     <ROW Component="PyIconic" ComponentId="{485DDE86-000B-49A2-A50B-B5094966290B}" Directory_="PyIconic_Dir" Attributes="0"/>
-    <ROW Component="Trial.dll" ComponentId="{80834CDA-6137-4FD4-8A37-AE805C9A9D94}" Directory_="APPDIR" Attributes="0" KeyPath="Trial.dll"/>
-    <ROW Component="main.exe" ComponentId="{C1F9B644-8CC7-4EFE-9A3A-3CAE8CEB4517}" Directory_="APPDIR" Attributes="256" KeyPath="main.exe"/>
+    <ROW Component="Trial.dll" ComponentId="{80834CDA-6137-4FD4-8A37-AE805C9A9D94}" Directory_="APPDIR" Attributes="256" KeyPath="Trial.dll"/>
+    <ROW Component="main.exe" ComponentId="{EDC7B797-937F-42ED-B4EC-FB36FE7FB9F7}" Directory_="APPDIR" Attributes="256" KeyPath="main.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="AI64BitFiles" Title="64-bit" Description="64-bit Executables and Libraries" Display="3" Level="1" Directory_="APPDIR" Attributes="0"/>
@@ -72,13 +73,12 @@
     <ATTRIBUTE name="CurrentFeature" value="AI64BitFiles"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
-    <ROW File="Trial.dll" Component_="Trial.dll" FileName="Trial.dll" Attributes="0" SourcePath="&lt;AI_STUBS&gt;trialware.dll" SelfReg="false" DigSign="true"/>
+    <ROW File="Trial.dll" Component_="Trial.dll" FileName="Trial.dll" Attributes="0" SourcePath="&lt;AI_STUBS_64&gt;trialware.dll" SelfReg="false" DigSign="true"/>
     <ROW File="main.exe" Component_="main.exe" FileName="main.exe" Attributes="0" SourcePath="Win_Exec\dist\main.exe" SelfReg="false" DigSign="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.custcomp.MsiShortcutPropertyComponent">
     <ROW MsiShortcutProperty="PyIconic0" Shortcut_="PyIconic" PropertyKey="System.AppUserModel.PreventPinning" PropVariantValue="1"/>
     <ROW MsiShortcutProperty="PyIconic_10" Shortcut_="PyIconic_1" PropertyKey="System.AppUserModel.PreventPinning" PropVariantValue="1"/>
-    <ROW MsiShortcutProperty="PyIconic_20" Shortcut_="PyIconic_2" PropertyKey="System.AppUserModel.PreventPinning" PropVariantValue="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrapperUISequenceComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Sequence="249"/>
@@ -263,8 +263,8 @@
     <ROW Feature_="MainFeature" Component_="AI_CustomARPName"/>
     <ROW Feature_="MainFeature" Component_="PyIconic"/>
     <ROW Feature_="MainFeature" Component_="AI_ExePath"/>
-    <ROW Feature_="AI64BitFiles" Component_="main.exe"/>
     <ROW Feature_="AI64BitFiles" Component_="Trial.dll"/>
+    <ROW Feature_="AI64BitFiles" Component_="main.exe"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiIconsComponent">
     <ROW Name="icon.exe" SourcePath="Windows\icon.ico" Index="0"/>
@@ -363,9 +363,8 @@
     <ROW Registry="Windows" Root="-1" Key="Software\Microsoft\Windows" Name="\"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
-    <ROW Shortcut="PyIconic" Directory_="ProgramMenuFolder" Name="PyIconic" Component_="main.exe" Target="[#main.exe]" Description="A multi-connection downloader" Hotkey="0" Icon_="icon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
-    <ROW Shortcut="PyIconic_1" Directory_="PyIconic_Dir" Name="PyIconic" Component_="main.exe" Target="[#main.exe]" Hotkey="0" Icon_="icon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
-    <ROW Shortcut="PyIconic_2" Directory_="DesktopFolder" Name="PyIconic" Component_="main.exe" Target="[#main.exe]" Hotkey="0" Icon_="icon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="PyIconic" Directory_="DesktopFolder" Name="PyIconic" Component_="main.exe" Target="[#main.exe]" Hotkey="0" Icon_="icon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
+    <ROW Shortcut="PyIconic_1" Directory_="StartMenuFolder" Name="PyIconic" Component_="main.exe" Target="[#main.exe]" Hotkey="0" Icon_="icon.exe" IconIndex="0" ShowCmd="1" WkDir="APPDIR"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiTextStyleComponent">
     <ROW TextStyle="BrandingStyle" FaceName="Segoe UI" Size="8" Color="2171376" MultiBuildColor="DefaultBuild:2565927" StyleBits="0" MsiKey="BrandingStyle"/>
@@ -379,10 +378,10 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TrialwareComponent">
-    <ROW TrialwareName="Trial" DisplayName="Trial" Password="7DDD9D0F1C8FB745451D380D63DAF90120768807443D7488D22030188A709223CFDFCE5AB243B9C93954DB79FD190865862F019F21F95446BA4BBA860EB2C8AF408E77F11568635F7ABC7758A5D93D999320100A8D481EC2AABE072C009DF0F282D1763BE35CFC04E7EF856D240C68DF2789389AFC4D2BF07A8676DE65C9E068E3FEC74490B7D61E5A7D72FC206DC81BAB70985ACA072BE3" PrivateKey="44DDE90F1E8FCE45371D4A0D1ADAAF015076F8073F3D0188E6201718F4709923BADFCE5ACA43C8C94954D079F8190A65F72F709F57F92446CA4BCD867EB2BAAF538E13F12E684D5F1BBC0958D3D96799F2201C0A88486EC29ABE062C729D96F2D9D1023BAB5CE704A2EFDE6D520C3DDF2789259A894D59F0088637DE15C9966882FE9B44E3B7CC1E1E7D03FC0C6DB71B8B70FC5AA8075CE3D6549574F566E4DA9B055EBEF113188765085AD56DA6EA96480FEFB679223A00AE856925E3CC5B66DDA0C1A4602D4E3EBE102865D19226E58C2046FA8397C61D81977428FA1AE2BD2393B62089769B6B88B8534224189435C07316EB14A872DF6577631348973169D4F5EE548C2B4FE0260DD6EA9E28EAB05A10B2F7201FD22E679818CA1A350B43F4C9E04A4A8B7E4ED23E051C9CE7BF55DD2CF5B13F77916F2F114B5EFB0FD6EC6D5C91C9AEE3574EC5C8CCF198F9077C073C704A6FB9AE081C62F0E336B61D741134FE91306837673B6EB1B59E2A57A3F67A682C9D82F0AAD89F82AFFBF0EE5CBC58819D7D277FC69B9696D029FFF965CAF3E3566D39B00A9088B00F9C823387F167BB8D5942F6485473D6EE93C6DB10239FF9438C530350B2E0AFCFED15F5964B27BC957CA34F76CFAEE507136A8331B0457E8A35FE486DEB00367038CFF65E5B73EB8A9F2C738ED0A8AAEF518A3D0A995AD3C5D07009823E20192BCDF4A990AE3F5910F11414839FB3C66D1369121933D722D8DCAC0A52ED5443552AEBC64916B94E209B29C824C97CD3534AC42F2B76D7CF84E07AFE6FC206FAF136FB47DF41920DD6EFAC315C78FC2F75A624B8FAE0EBDED799CAB4EAC7F93851E871B9F29B700887AEE55BFE49E70365229178319C05C3540E4E" DllFile="Trial.dll" TrialwareCA="AI_Trial" IconIndex="0" Platform64="0"/>
+    <ROW TrialwareName="Trial" DisplayName="Trial" Password="08DDE90F6C8FB645331D320D6CDA88012576F807493D7888D52040188770E023BFDFC95AB243BFC94B54A3798C197265FB2F709F55F92F46BB4BCC860CB2BCAF418E7EF16E68125F7BBC7A58" PrivateKey="44DDE90F1E8FCE45371D4A0D1ADAAF015076F8073F3D0188E6201718F4709923BADFCE5ACA43C8C94954D079F8190A65F72F709F57F92446CA4BCD867EB2BAAF538E13F12E684D5F1BBC0958D3D96799F2201C0A88486EC29ABE062C729D96F2D9D1023BAB5CE704A2EFDE6D520C3DDF2789259A894D59F0088637DE15C9966882FE9B44E3B7CC1E1E7D03FC0C6DB71B8B70FC5AA8075CE3D6549574F566E4DA9B055EBEF113188765085AD56DA6EA96480FEFB679223A00AE856925E3CC5B66DDA0C1A4602D4E3EBE102865D19226E58C2046FA8397C61D81977428FA1AE2BD2393B62089769B6B88B8534224189435C07316EB14A872DF6577631348973169D4F5EE548C2B4FE0260DD6EA9E28EAB05A10B2F7201FD22E679818CA1A350B43F4C9E04A4A8B7E4ED23E051C9CE7BF55DD2CF5B13F77916F2F114B5EFB0FD6EC6D5C91C9AEE3574EC5C8CCF198F9077C073C704A6FB9AE081C62F0E336B61D741134FE91306837673B6EB1B59E2A57A3F67A682C9D82F0AAD89F82AFFBF0EE5CBC58819D7D277FC69B9696D029FFF965CAF3E3566D39B00A9088B00F9C823387F167BB8D5942F6485473D6EE93C6DB10239FF9438C530350B2E0AFCFED15F5964B27BC957CA34F76CFAEE507136A8331B0457E8A35FE486DEB00367038CFF65E5B73EB8A9F2C738ED0A8AAEF518A3D0A995AD3C5D07009823E20192BCDF4A990AE3F5910F11414839FB3C66D1369121933D722D8DCAC0A52ED5443552AEBC64916B94E209B29C824C97CD3534AC42F2B76D7CF84E07AFE6FC206FAF136FB47DF41920DD6EFAC315C78FC2F75A624B8FAE0EBDED799CAB4EAC7F93851E871B9F29B700887AEE55BFE49E70365229178319C05C3540E4E" DllFile="Trial.dll" TrialwareCA="AI_Trial" IconIndex="0" Platform64="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TrialwareSettingsComponent">
-    <ROW Trialware="Trial" Section="Full" Key="LicenseValidationTemplate" Value="License ID: %ID%&#13;&#10;Signature: %SIGN%&#13;&#10;Maintenance Plan: %MP%&#13;&#10;Expiration Date: %EXP%"/>
+    <ROW Trialware="Trial" Section="Full" Key="LicenseValidationTemplate" Value="License ID: %ID%&#13;&#10;Signature: %SIGN%&#13;&#10;Expiration Date: %EXP%"/>
     <ROW Trialware="Trial" Section="Full" Key="PubKey" Value="2EAAAAAaAABLqeLNA2AAAJAAIAC25BF3PUxjXFCoUMFHq1GPkLpXriDg8$@1FyG@Xe@XrEiNfSS6LHc$uWLFYxPi1kX"/>
     <ROW Trialware="Trial" Section="Full" Key="RegPathStoreLoc" Value="Software\[|Manufacturer]\[|ProductName]"/>
     <ROW Trialware="Trial" Section="Full" Key="RegRootStoreLoc" Value="2147483649"/>
@@ -395,9 +394,9 @@
     <ROW Trialware="Trial" Section="Properties" Key="UseCompId" Value="true"/>
     <ROW Trialware="Trial" Section="Properties" Key="UseMacForCompId" Value="true"/>
     <ROW Trialware="Trial" Section="Trial" Key="DlgAppearFrequencyPercent" Value="100"/>
-    <ROW Trialware="Trial" Section="Trial" Key="ExtensionQuantity" Value="3"/>
-    <ROW Trialware="Trial" Section="Trial" Key="Period" Value="true"/>
-    <ROW Trialware="Trial" Section="Trial" Key="Quantity" Value="3"/>
+    <ROW Trialware="Trial" Section="Trial" Key="ExtensionQuantity" Value="4"/>
+    <ROW Trialware="Trial" Section="Trial" Key="NoOfUsages" Value="true"/>
+    <ROW Trialware="Trial" Section="Trial" Key="Quantity" Value="4"/>
     <ROW Trialware="Trial" Section="Trial" Key="TrialId" Value="{165DDF95-8A8B-4C28-B35A-C643207ECE51}"/>
   </COMPONENT>
 </DOCUMENT>

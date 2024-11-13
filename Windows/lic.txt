@@ -22,3 +22,21 @@ Expiration Date: 11/11/2024
 License ID: alpharian
 Signature: zAB7UBIC17yRoVi8ikWhWDLtZYmzmMDeYQP2W61jeZERcl9lI2HBiO@TyqCbYqlT
 Expiration Date: 11/12/2024
+
+
+License ID: gyimah
+Signature: tjxXKTAYoepmh0@$uPk54cp4AxZKX9gdu55aszS1dkpd4raknf6vjDEP4aFuXjGQ
+Expiration Date: 11/12/2024
+
+
+
+QPainter::begin: A paint device can only be painted by one painter at a time.
+QPainter::setCompositionMode: Painter not active   
+QPainter::fillRect: Painter not active         
+QWidget::repaint: Recursive repaint detected                                                                           
+QWidget::repaint: Recursive repaint detected                                                                           
+QBackingStore::endPaint() called with active painter; did you forget to destroy it or call QPainter::end() on it?       
+QPainter::begin: A paint device can only be painted by one painter at a time.                                          
+QPainter::setCompositionMode: Painter not active                                                                       
+QPainter::fillRect: Painter not active                                                                                  
+QBackingStore::endPaint() called with active painter; did you forget to destroy it or call QPainter::end() on it?  

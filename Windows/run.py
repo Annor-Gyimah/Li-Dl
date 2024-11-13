@@ -77,7 +77,28 @@ from typing import Optional
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, QHeaderView, QScrollArea, QCheckBox)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
 
+from licensing.models import *
+from licensing.methods import Key, Helpers
 
+RSAPubKey = "<RSAKeyValue><Modulus>2hxN+y6Pp5/y0mJQZvDtcp6WnsqRUBVqoTae9xoZsrHVWVtuOwduYLmUW2H3YZ4VTyqFXquXoPvB0NfcUxNS3BOVa5P200+Ad+Jmpms9HcuJ7hD/BZMgiHsgcOHA86j4QZr4yKis8c/2bL3slKoP4kMi0GuZLJNX4ZP/5ZeHF4+mfj9K6rr7Sb4MTY9i+zkNcUobqzO6PtWzZi7reqranakQrLST+GV406SbcnXzv5fMpGv47NRY0dbtd3OPU5n4L1U2ZYc2xnUoXn13aA/kipe11fYiB0sNbHYyy5DPmx6SXiKP33YFharQxVXxT3lJSA8hSo/YFlfIjOwbpYZVGw==</Modulus><Exponent>AQAB</Exponent></RSAKeyValue>"
+auth = "WyI5Nzg5OTkyNiIsIkZEOFNTOE1YMCtoWGp1b3JsTzBBUkowUE53SnA5VDhwR3YvQkZqTW4iXQ=="
+
+result = Key.activate(token=auth,\
+                   rsa_pub_key=RSAPubKey,\
+                   product_id=28052, \
+                   key="MMVES-IEXGV-TUWDV-HHDBT",\
+                   machine_code=Helpers.GetMachineCode(v=2))
+
+if result[0] == None or not Helpers.IsOnRightMachine(result[0], v=2):
+    # an error occurred or the key is invalid or it cannot be activated
+    # (eg. the limit of activated devices was achieved)
+    print("The license does not work: {0}".format(result[1]))
+else:
+    # everything went fine if we are here!
+    print("The license is valid!")
+    license_key = result[0]
+    print("Feature 1: " + str(license_key.f1))
+    print("License expires: " + str(license_key.expires))
 
 class TrialThread(QThread):
     # Define a signal to send messages to the main thread
@@ -344,7 +365,7 @@ class LogRecorderThread(QThread):
 
 class MainWindow(QMainWindow):
 
-    LIBRARY_KEY = "4E39E97F4A45B287D596C959EAA9DC45B88585"
+    #LIBRARY_KEY = "4E39E97F4A45B287D596C959EAA9DC45B88585"
 
     update_gui_signal = Signal(dict)
 
@@ -598,10 +619,10 @@ class MainWindow(QMainWindow):
         self.one_time = True
 
         # Start trial initialization in a QThread
-        self.trial_thread = TrialThread(ctypes.c_void_p(int(self.winId())), self.LIBRARY_KEY)
-        self.trial_thread.trial_completed.connect(self.on_trial_completed)
-        self.trial_thread.trial_error.connect(self.on_trial_error)
-        self.trial_thread.start()
+        # self.trial_thread = TrialThread(ctypes.c_void_p(int(self.winId())), self.LIBRARY_KEY)
+        # self.trial_thread.trial_completed.connect(self.on_trial_completed)
+        # self.trial_thread.trial_error.connect(self.on_trial_error)
+        # self.trial_thread.start()
         
 
         
@@ -616,14 +637,14 @@ class MainWindow(QMainWindow):
 
 
 
-    def on_trial_completed(self, message):
-        self.show_information("Trial Completed", "", message)
-        #QMessageBox.information(self, "Trial Completed", message)
+    # def on_trial_completed(self, message):
+    #     self.show_information("Trial Completed", "", message)
+    #     #QMessageBox.information(self, "Trial Completed", message)
 
-    def on_trial_error(self, error_message):
-        self.show_critical("Error", error_message)
-        #QMessageBox.critical(self, "Error", error_message)
-        self.close()
+    # def on_trial_error(self, error_message):
+    #     self.show_critical("Error", error_message)
+    #     #QMessageBox.critical(self, "Error", error_message)
+    #     self.close()
        
 
 
@@ -762,7 +783,7 @@ class MainWindow(QMainWindow):
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
                 self.url_text_change()
-                #self.update_progress_bar()
+                self.update_progress_bar()
             
             elif k == "download":
                 self.start_download(*v)
@@ -849,7 +870,7 @@ class MainWindow(QMainWindow):
             self.url_timer = Timer(0.5, self.refresh_headers, args=[url])
             self.url_timer.start()
             # Trigger the progress bar update and GUI refresh
-            #self.update_progress_bar()
+            self.update_progress_bar()
         except Exception as e:
             log(f"Error in url_text_change: {e}")
 
@@ -1329,17 +1350,14 @@ class MainWindow(QMainWindow):
         except Exception as e:
             log('show_thumbnail() error:', e)
             self.reset_to_default_thumbnail()
-
     
-
     def on_thumbnail_downloaded(self, reply):
         if reply.error() == QNetworkReply.NoError:
             data = reply.readAll()
             image = QImage()
             if image.loadFromData(data):
                 pixmap = QPixmap.fromImage(image)
-                # Use QTimer to defer the setting of the pixmap
-                QTimer.singleShot(0, lambda: widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio)))
+                widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
                 print("Successfully downloaded and set thumbnail")
             else:
                 print("Failed to create image from downloaded data")
@@ -1347,21 +1365,6 @@ class MainWindow(QMainWindow):
         else:
             print(f"Error downloading thumbnail: {reply.errorString()}")
             self.reset_to_default_thumbnail()
-    
-    # def on_thumbnail_downloaded(self, reply):
-    #     if reply.error() == QNetworkReply.NoError:
-    #         data = reply.readAll()
-    #         image = QImage()
-    #         if image.loadFromData(data):
-    #             pixmap = QPixmap.fromImage(image)
-    #             widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
-    #             print("Successfully downloaded and set thumbnail")
-    #         else:
-    #             print("Failed to create image from downloaded data")
-    #             self.reset_to_default_thumbnail()
-    #     else:
-    #         print(f"Error downloading thumbnail: {reply.errorString()}")
-    #         self.reset_to_default_thumbnail()
 
     def reset_to_default_thumbnail(self):
         default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
@@ -1519,7 +1522,7 @@ class MainWindow(QMainWindow):
 
         # Optionally load the video thumbnail in a separate thread
         if config.show_thumbnail:
-            #Thread(target=self.video.get_thumbnail).start()
+            Thread(target=self.video.get_thumbnail).start()
         
             self.show_thumbnail(thumbnail=self.video.thumbnail_url)
         
