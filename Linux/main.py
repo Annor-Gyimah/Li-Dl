@@ -1620,10 +1620,12 @@ class MainWindow(QMainWindow):
         return v
     
     def populate_table(self):
-        # Populate table with formatted data from d_list
         for row, d in enumerate(self.d_list):
-            # Set the ID column (use row + 1 or d.id if available)
-            id_item = QTableWidgetItem(str(row + 1))  # Row number starts from 1
+            if row >= widgets.tableWidget.rowCount():  # Check if we need to insert a new row
+                widgets.tableWidget.insertRow(row)
+            
+            # Set the ID column
+            id_item = QTableWidgetItem(str(row + 1))
             widgets.tableWidget.setItem(row, 0, id_item)  # First column is ID
             
             # Fill the remaining columns based on the d_headers
@@ -2535,11 +2537,13 @@ class DownloadWindow(QWidget):
         self.button_layout.addWidget(self.status_label)
 
         self.hide_button = QPushButton('Hide', self.frame)
+        self.hide_button.setStyleSheet("background-color: blue; color: black")
         self.hide_button.clicked.connect(self.hide)
         self.button_layout.addWidget(self.hide_button)
 
         self.cancel_button = QPushButton('Cancel', self.frame)
         self.cancel_button.clicked.connect(self.cancel)
+        self.cancel_button.setStyleSheet('background-color: red; color: black;')
         self.button_layout.addWidget(self.cancel_button)
 
         self.frame_layout.addLayout(self.button_layout)
@@ -2584,9 +2588,13 @@ class DownloadWindow(QWidget):
         else:
             self.set_progress_mode('indeterminate')
 
+        if self.d.status in (config.Status.completed, config.Status.cancelled, config.Status.error) and config.auto_close_download_window:
+            self.close()
+        
         if self.d.status in (config.Status.completed, config.Status.cancelled, config.Status.error):
+            self.hide_button.setStyleSheet("background-color: orange;")
             self.cancel_button.setText('Done')
-            self.cancel_button.setStyleSheet('background-color: green; color: black;')
+            self.cancel_button.setStyleSheet('background-color: green; color: white;')
 
         # Update log
         self.log_display.setPlainText(config.log_entry)

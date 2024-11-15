@@ -91,7 +91,7 @@ class TrialThread(QThread):
 
     def run(self):
         try:
-            log("Debug Information-Product Starting")
+            #log("Debug Information-Product Starting")
 
             base_path = os.path.dirname(os.path.abspath(__file__))
             dll_path = os.path.join(base_path, "Trial.dll")
@@ -599,8 +599,8 @@ class MainWindow(QMainWindow):
 
         # Start trial initialization in a QThread
         self.trial_thread = TrialThread(ctypes.c_void_p(int(self.winId())), self.LIBRARY_KEY)
-        self.trial_thread.trial_completed.connect(self.on_trial_completed)
-        self.trial_thread.trial_error.connect(self.on_trial_error)
+        # self.trial_thread.trial_completed.connect(self.on_trial_completed)
+        # self.trial_thread.trial_error.connect(self.on_trial_error)
         self.trial_thread.start()
         
 
@@ -616,14 +616,14 @@ class MainWindow(QMainWindow):
 
 
 
-    def on_trial_completed(self, message):
-        self.show_information("Trial Completed", "", message)
-        #QMessageBox.information(self, "Trial Completed", message)
+    # def on_trial_completed(self, message):
+    #     self.show_information("Trial Completed", "", message)
+    #     #QMessageBox.information(self, "Trial Completed", message)
 
-    def on_trial_error(self, error_message):
-        self.show_critical("Error", error_message)
-        #QMessageBox.critical(self, "Error", error_message)
-        self.close()
+    # def on_trial_error(self, error_message):
+    #     self.show_critical("Error", error_message)
+    #     #QMessageBox.critical(self, "Error", error_message)
+    #     self.close()
        
 
 
@@ -2698,11 +2698,13 @@ class DownloadWindow(QWidget):
         self.button_layout.addWidget(self.status_label)
 
         self.hide_button = QPushButton('Hide', self.frame)
+        self.hide_button.setStyleSheet("background-color: blue; color: black")
         self.hide_button.clicked.connect(self.hide)
         self.button_layout.addWidget(self.hide_button)
 
         self.cancel_button = QPushButton('Cancel', self.frame)
         self.cancel_button.clicked.connect(self.cancel)
+        self.cancel_button.setStyleSheet('background-color: red; color: black;')
         self.button_layout.addWidget(self.cancel_button)
 
         self.frame_layout.addLayout(self.button_layout)
@@ -2747,9 +2749,13 @@ class DownloadWindow(QWidget):
         else:
             self.set_progress_mode('indeterminate')
 
+        if self.d.status in (config.Status.completed, config.Status.cancelled, config.Status.error) and config.auto_close_download_window:
+            self.close()
+        
         if self.d.status in (config.Status.completed, config.Status.cancelled, config.Status.error):
+            self.hide_button.setStyleSheet("background-color: orange;")
             self.cancel_button.setText('Done')
-            self.cancel_button.setStyleSheet('background-color: green; color: black;')
+            self.cancel_button.setStyleSheet('background-color: green; color: white;')
 
         # Update log
         self.log_display.setPlainText(config.log_entry)
