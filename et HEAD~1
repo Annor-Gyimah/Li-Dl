@@ -1,0 +1,91 @@
+[33m7027e87[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Licensing for linux and potentially for windows
+[33m15fe19c[m[33m ([m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m tiny tweak updates
+[33mf1f39db[m Fix: #44 QPainter painting device concurrency issues
+[33m217010a[m Fix QPainter painting device concurrency issues [#44]
+[33m53f5223[m update workflow3
+[33mead4b46[m Updated workflow2
+[33mf62b8e2[m Update yaml file
+[33m947057a[m Updated workflow
+[33m2f6d06d[m Workflow add
+[33mce56661[m Create superlinter.yml
+[33m79526ad[m Add icons
+[33m68f5535[m Remove icons folder
+[33m04be91e[m Icons Update
+[33m6b8f3eb[m General updates
+[33m73b674f[m Windows directory update
+[33m78c76b5[m Merge pull request #43 from Annor-Gyimah/testing
+[33m56307ab[m[33m ([m[1;31morigin/testing[m[33m, [m[1;32mtesting[m[33m)[m total speed label
+[33m2e30d2d[m remove certail files
+[33meaa64b2[m Add clear icon
+[33me2493eb[m Fixed audio streams issue
+[33mb89e8c0[m Merge pull request #42 from Annor-Gyimah/notification_fix
+[33m046f3ca[m[33m ([m[1;31morigin/notification_fix[m[33m, [m[1;32mnotification_fix[m[33m)[m Fix for frozen app notification
+[33mdd8c5d7[m Merge pull request #41 from Annor-Gyimah/notification_fix
+[33ma09c383[m Fix: resolve Plyer notification issue on Linux (Fixes #40)
+[33m4a5ec79[m untracking certail files
+[33mfdad34c[m Almost there
+[33maa07e92[m Add pkexec
+[33m5cb59c7[m Add playlist image
+[33m7501379[m Fix: update and remove necessary files for repo structure
+[33m1eb2e6c[m updates fixed for linux systems
+[33mbf5513e[m Add fpm file for making installer
+[33ma87c6fb[m Fix: made the UI more responsive (Fixes #39)
+[33m9081042[m Add log levels and clear button
+[33m13a9ae5[m updates to ffmpeg url
+[33m8496718[m windows terminal text widget update
+[33mcfd041b[m Add Windows folders
+[33m15a8c38[m Rename file to remove invalid characters
+[33m2757f05[m Add requirement.txt
+[33m743dcd2[m Add icons folder
+[33m898b6b4[m Merge pull request #38 from Annor-Gyimah/playlist_menu
+[33m127ae84[m[33m ([m[1;31morigin/playlist_menu[m[33m)[m Add playlist functionality
+[33mc0b8686[m Merge pull request #37 from Annor-Gyimah/open_file_threading
+[33maff455b[m[33m ([m[1;31morigin/open_file_threading[m[33m)[m Implement qthreads for opening files (fixes: #36)
+[33m9d3a3ee[m Merge pull request #35 from Annor-Gyimah/icons_update
+[33mf7b8148[m[33m ([m[1;31morigin/icons_update[m[33m)[m icon updates and functionality updates
+[33m871ec89[m Merge pull request #34 from Annor-Gyimah/table_column_expand
+[33md788b19[m[33m ([m[1;31morigin/table_column_expand[m[33m)[m table widget update
+[33m2b8183d[m add windows dir
+[33mff38183[m remove example label
+[33m71b846b[m Merge pull request #33 from Annor-Gyimah/refresh_func
+[33m2306bc1[m[33m ([m[1;31morigin/refresh_func[m[33m)[m refreshing links solved
+[33m6ef702b[m Add linux and windows folders
+[33m187ba7d[m Merge pull request #32 from Annor-Gyimah/application_updates
+[33m0b602c5[m[33m ([m[1;31morigin/application_updates[m[33m)[m add ffmpeg binary
+[33m01ca3d1[m change the context menu background
+[33ma85122b[m Add first app update functionality
+[33m7c4f566[m youtubethread updated
+[33mcc33a94[m Merge pull request #31 from Annor-Gyimah/thumbnail_ui_change
+[33m5826bfc[m[33m ([m[1;31morigin/thumbnail_ui_change[m[33m)[m Implement changes to thumbnail (fixes: #29)
+[33mda8ca5a[m Merge pull request #30 from Annor-Gyimah/thumbnail_ui_change
+[33md388900[m Implement video thumbnails with changes to combo boxes (fixes: # 29)
+[33ma917880[m Merge pull request #28 from Annor-Gyimah/youtube_fix
+[33m66c0a13[m[33m ([m[1;31morigin/youtube_fix[m[33m)[m Implement downloading of youtube videos and other streaming videos (fixes: #27)
+[33ma4d5473[m updates
+[33m88185f0[m first youtube fix
+[33me1fbe04[m Merge pull request #26 from Annor-Gyimah/watch_while_dl
+[33m904c049[m[33m ([m[1;31morigin/watch_while_dl[m[33m)[m (Fixes: #19) Now users can watch a movie while downloading
+[33mbb445d0[m Merge pull request #20 from Annor-Gyimah/clean_code
+[33mf986fd1[m[33m ([m[1;31morigin/clean_code[m[33m)[m Implement a clean code however (fixes: #18)
+[33m43f46ff[m Merge pull request #17 from Annor-Gyimah/icons_download_page
+[33m0b9a6e5[m[33m ([m[1;31morigin/icons_download_page[m[33m)[m Change the icons for the buttons on download page (fixes: #16)
+[33m7c65de7[m Merge pull request #15 from Annor-Gyimah/settings_control
+[33m3ec70d9[m[33m ([m[1;31morigin/settings_control[m[33m)[m Implement functions for setting controls (fixes: #14)
+[33m38bcae7[m Merge pull request #13 from Annor-Gyimah/table_options
+[33m590836b[m[33m ([m[1;31morigin/table_options[m[33m)[m Implement table context menu for the table widget (fixes: #12)
+[33m8e0e3f9[m First updates
+[33mb6d1e3e[m Merge pull request #11 from Annor-Gyimah/connecting_buttons
+[33m354ea1d[m[33m ([m[1;31morigin/connecting_buttons[m[33m)[m Implement button controls on the download file (fixes: #10)
+[33m239f43a[m Merge pull request #9 from Annor-Gyimah/inserting_data
+[33mfb5bd2f[m[33m ([m[1;31morigin/inserting_data[m[33m)[m Implement inserting data into the table (fixes: #8)
+[33maf691c7[m Merge pull request #7 from Annor-Gyimah/inconsistent_config
+[33m651d597[m[33m ([m[1;31morigin/inconsistent_config[m[33m)[m (Fix: #6) For now the config contains the configurations we need
+[33mb59bb9f[m Merge pull request #5 from Annor-Gyimah/download_button
+[33m504db42[m[33m ([m[1;31morigin/download_button[m[33m)[m Implement a downloading process with progress bar displaying (Fixes: #3)
+[33md64b1da[m Merge pull request #4 from Annor-Gyimah/download_button
+[33mce123a4[m Add a start download function and logging into the GUI
+[33m13fc42a[m Merge pull request #2 from Annor-Gyimah/retry_and_open
+[33mc68a302[m[33m ([m[1;31morigin/retry_and_open[m[33m)[m Implement open folder and retry link functionality (fixes: #1)
+[33mc303be4[m add grabbing of link and updating gui
+[33md9045df[m Successfully copied url to the line edit
+[33mea1d94d[m first commit
