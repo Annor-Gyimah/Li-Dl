@@ -1,7 +1,1800 @@
->> Starting Li-DL version: 2025.5.31 Non-Frozen
->> operating system: Linux-6.8.0-48-generic-x86_64-with-glibc2.39 - x86_64
+>> Starting Dynamite DM version: 2025.5.31 Non-Frozen
+>> operating system: Linux-6.8.0-49-generic-x86_64-with-glibc2.39 - x86_64
 >> current working directory: /home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules
 >> Load Application setting from /home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules
 >> Load previous download items from /home/annorion/Desktop/pyiconic/Li-Dl/Linux/modules
->> youtube-dl load_time= 0.3407926559448242
->> days since last check for update: -25 day(s).
+>> youtube-dl load_time= 2.786029577255249
+>> days since last check for update: -23 day(s).
+>> New URL set: http://localhost/lite/pyiconic/main.exe
+>> Extracting info for URL: http://localhost/lite/pyiconic/main.exe
+>> [generic] Extracting URL: http://localhost/lite/pyiconic/main.exe
+>> [generic] main: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> Media info: {'id': 'main', 'title': 'main', 'timestamp': 1731361079.0, 'direct': True, 'url': 'http://localhost/lite/pyiconic/main.exe', 'ext': 'unknown_video', 'webpage_url': 'http://localhost/lite/pyiconic/main.exe', 'original_url': 'http://localhost/lite/pyiconic/main.exe', 'webpage_url_basename': 'main.exe', 'webpage_url_domain': 'localhost', 'extractor': 'generic', 'extractor_key': 'Generic'}
+>> [generic] Extracting URL: http://localhost/lite/pyiconic/main.exe
+>> [generic] main: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> YouTubeThread error: 'formats'
+>> Error: YouTube extraction failed
+>> donwload item 1 already in list, check resume availability
+>> overwrite
+>> ----------------------------------------------------------------------------------------------------
+>> start downloading file: "main.exe", size: 73.9 MB, to: /home/annorion/Desktop/new
+>> >> 'worker' 0 'start seg:' '0' 'range:' '0-524287' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '1' 'range:' '524288-1048575' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '2' 'range:' '1048576-1572863' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '3' 'range:' '1572864-2097151' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '4' 'range:' '2097152-2621439' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '5' 'range:' '2621440-3145727' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '6' 'range:' '3145728-3670015' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '7' 'range:' '3670016-4194303' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '8' 'range:' '4194304-4718591' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '9' 'range:' '4718592-5242879' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '1'
+>> >> 'downloaded segment:' '6'
+>> >> 'downloaded segment:' '4'
+>> >> 'downloaded segment:' '3'
+>> >> 'downloaded segment:' '0'
+>> >> 'downloaded segment:' '5'
+>> >> 'downloaded segment:' '2'
+>> >> 'downloaded segment:' '7'
+>> >> 'downloaded segment:' '8'
+>> >> 'downloaded segment:' '9'
+>> >> completed segment:  0
+>> >> completed segment:  1
+>> >> completed segment:  2
+>> >> completed segment:  3
+>> >> completed segment:  4
+>> >> completed segment:  5
+>> >> completed segment:  6
+>> >> completed segment:  7
+>> >> completed segment:  8
+>> >> completed segment:  9
+>> >> 'worker' 8 'start seg:' '10' 'range:' '5242880-5767167' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '11' 'range:' '5767168-6291455' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '12' 'range:' '6291456-6815743' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '13' 'range:' '6815744-7340031' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '14' 'range:' '7340032-7864319' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '10'
+>> >> 'downloaded segment:' '11'
+>> >> 'downloaded segment:' '12'
+>> >> 'downloaded segment:' '14'
+>> >> 'downloaded segment:' '13'
+>> >> completed segment:  10
+>> >> completed segment:  11
+>> >> 'worker' 9 'start seg:' '15' 'range:' '7864320-8388607' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '16' 'range:' '8388608-8912895' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '17' 'range:' '8912896-9437183' 'size:' 524288 'SL=' 0
+>> >> completed segment:  12
+>> >> completed segment:  13
+>> >> 'downloaded segment:' '15'
+>> >> 'downloaded segment:' '16'
+>> >> completed segment:  14
+>> >> 'downloaded segment:' '17'
+>> >> completed segment:  15
+>> >> completed segment:  16
+>> >> completed segment:  17
+>> >> 'worker' 0 'start seg:' '18' 'range:' '9437184-9961471' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '19' 'range:' '9961472-10485759' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '20' 'range:' '10485760-11010047' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '21' 'range:' '11010048-11534335' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '18'
+>> >> 'downloaded segment:' '20'
+>> >> 'downloaded segment:' '19'
+>> >> completed segment:  18
+>> >> 'downloaded segment:' '21'
+>> >> completed segment:  19
+>> >> completed segment:  20
+>> >> completed segment:  21
+>> >> 'worker' 5 'start seg:' '22' 'range:' '11534336-12058623' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '23' 'range:' '12058624-12582911' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '24' 'range:' '12582912-13107199' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '23'
+>> >> 'downloaded segment:' '24'
+>> >> 'downloaded segment:' '22'
+>> >> completed segment:  22
+>> >> completed segment:  23
+>> >> completed segment:  24
+>> >> 'worker' 3 'start seg:' '25' 'range:' '13107200-13631487' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '26' 'range:' '13631488-14155775' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '27' 'range:' '14155776-14680063' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '28' 'range:' '14680064-15204351' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '28'
+>> >> 'downloaded segment:' '25'
+>> >> 'downloaded segment:' '26'
+>> >> 'downloaded segment:' '27'
+>> >> completed segment:  25
+>> >> completed segment:  26
+>> >> completed segment:  27
+>> >> completed segment:  28
+>> >> 'worker' 2 'start seg:' '29' 'range:' '15204352-15728639' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '30' 'range:' '15728640-16252927' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '31' 'range:' '16252928-16777215' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '30'
+>> >> 'downloaded segment:' '29'
+>> >> 'downloaded segment:' '31'
+>> >> completed segment:  29
+>> >> completed segment:  30
+>> >> completed segment:  31
+>> >> 'worker' 6 'start seg:' '32' 'range:' '16777216-17301503' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '33' 'range:' '17301504-17825791' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '34' 'range:' '17825792-18350079' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '35' 'range:' '18350080-18874367' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '32'
+>> >> 'downloaded segment:' '34'
+>> >> 'downloaded segment:' '33'
+>> >> 'downloaded segment:' '35'
+>> >> completed segment:  32
+>> >> completed segment:  33
+>> >> completed segment:  34
+>> >> completed segment:  35
+>> >> 'worker' 7 'start seg:' '36' 'range:' '18874368-19398655' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '37' 'range:' '19398656-19922943' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '38' 'range:' '19922944-20447231' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '39' 'range:' '20447232-20971519' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '40' 'range:' '20971520-21495807' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '37'
+>> >> 'downloaded segment:' '38'
+>> >> 'downloaded segment:' '36'
+>> >> 'downloaded segment:' '39'
+>> >> 'downloaded segment:' '40'
+>> >> completed segment:  36
+>> >> completed segment:  37
+>> >> completed segment:  38
+>> >> completed segment:  39
+>> >> completed segment:  40
+>> >> 'worker' 0 'start seg:' '41' 'range:' '21495808-22020095' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '42' 'range:' '22020096-22544383' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '43' 'range:' '22544384-23068671' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '42'
+>> >> 'downloaded segment:' '43'
+>> >> 'downloaded segment:' '41'
+>> >> completed segment:  41
+>> >> completed segment:  42
+>> >> completed segment:  43
+>> >> 'worker' 5 'start seg:' '44' 'range:' '23068672-23592959' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '45' 'range:' '23592960-24117247' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '46' 'range:' '24117248-24641535' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '47' 'range:' '24641536-25165823' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '44'
+>> >> 'downloaded segment:' '46'
+>> >> 'downloaded segment:' '47'
+>> >> 'downloaded segment:' '45'
+>> >> completed segment:  44
+>> >> completed segment:  45
+>> >> completed segment:  46
+>> >> completed segment:  47
+>> >> 'worker' 9 'start seg:' '48' 'range:' '25165824-25690111' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '49' 'range:' '25690112-26214399' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '50' 'range:' '26214400-26738687' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '49'
+>> >> 'downloaded segment:' '50'
+>> >> 'downloaded segment:' '48'
+>> >> completed segment:  48
+>> >> completed segment:  49
+>> >> completed segment:  50
+>> >> 'worker' 2 'start seg:' '51' 'range:' '26738688-27262975' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '52' 'range:' '27262976-27787263' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '53' 'range:' '27787264-28311551' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '54' 'range:' '28311552-28835839' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '53'
+>> >> 'downloaded segment:' '54'
+>> >> 'downloaded segment:' '51'
+>> >> 'downloaded segment:' '52'
+>> >> completed segment:  51
+>> >> completed segment:  52
+>> >> completed segment:  53
+>> >> completed segment:  54
+>> >> 'worker' 1 'start seg:' '55' 'range:' '28835840-29360127' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '56' 'range:' '29360128-29884415' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '57' 'range:' '29884416-30408703' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '55'
+>> >> 'downloaded segment:' '57'
+>> >> 'downloaded segment:' '56'
+>> >> completed segment:  55
+>> >> completed segment:  56
+>> >> completed segment:  57
+>> >> 'worker' 6 'start seg:' '58' 'range:' '30408704-30932991' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '59' 'range:' '30932992-31457279' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '60' 'range:' '31457280-31981567' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '61' 'range:' '31981568-32505855' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '58'
+>> >> 'downloaded segment:' '61'
+>> >> 'downloaded segment:' '59'
+>> >> 'downloaded segment:' '60'
+>> >> completed segment:  58
+>> >> completed segment:  59
+>> >> completed segment:  60
+>> >> completed segment:  61
+>> >> 'worker' 7 'start seg:' '62' 'range:' '32505856-33030143' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '63' 'range:' '33030144-33554431' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '64' 'range:' '33554432-34078719' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '63'
+>> >> 'downloaded segment:' '62'
+>> >> 'downloaded segment:' '64'
+>> >> completed segment:  62
+>> >> completed segment:  63
+>> >> completed segment:  64
+>> >> 'worker' 5 'start seg:' '65' 'range:' '34078720-34603007' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '66' 'range:' '34603008-35127295' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '67' 'range:' '35127296-35651583' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '68' 'range:' '35651584-36175871' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '67'
+>> >> 'downloaded segment:' '66'
+>> >> 'downloaded segment:' '65'
+>> >> 'downloaded segment:' '68'
+>> >> completed segment:  65
+>> >> completed segment:  66
+>> >> completed segment:  67
+>> >> 'worker' 3 'start seg:' '69' 'range:' '36175872-36700159' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '70' 'range:' '36700160-37224447' 'size:' 524288 'SL=' 0
+>> >> completed segment:  68
+>> >> 'worker' 1 'start seg:' '71' 'range:' '37224448-37748735' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '70'
+>> >> 'downloaded segment:' '69'
+>> >> 'downloaded segment:' '71'
+>> >> 'worker' 2 'start seg:' '72' 'range:' '37748736-38273023' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '73' 'range:' '38273024-38797311' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '74' 'range:' '38797312-39321599' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '75' 'range:' '39321600-39845887' 'size:' 524288 'SL=' 0
+>> >> completed segment:  69
+>> >> completed segment:  70
+>> >> completed segment:  71
+>> >> 'downloaded segment:' '74'
+>> >> 'downloaded segment:' '75'
+>> >> 'downloaded segment:' '73'
+>> >> 'downloaded segment:' '72'
+>> >> 'worker' 4 'start seg:' '76' 'range:' '39845888-40370175' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '77' 'range:' '40370176-40894463' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '78' 'range:' '40894464-41418751' 'size:' 524288 'SL=' 0
+>> >> completed segment:  72
+>> >> 'downloaded segment:' '78'
+>> >> completed segment:  73
+>> >> 'downloaded segment:' '77'
+>> >> 'downloaded segment:' '76'
+>> >> completed segment:  74
+>> >> completed segment:  75
+>> >> completed segment:  76
+>> >> completed segment:  77
+>> >> completed segment:  78
+>> >> 'worker' 6 'start seg:' '79' 'range:' '41418752-41943039' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '80' 'range:' '41943040-42467327' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '81' 'range:' '42467328-42991615' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '82' 'range:' '42991616-43515903' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '81'
+>> >> 'downloaded segment:' '80'
+>> >> 'downloaded segment:' '79'
+>> >> 'downloaded segment:' '82'
+>> >> completed segment:  79
+>> >> completed segment:  80
+>> >> completed segment:  81
+>> >> completed segment:  82
+>> >> 'worker' 0 'start seg:' '83' 'range:' '43515904-44040191' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '84' 'range:' '44040192-44564479' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '85' 'range:' '44564480-45088767' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '83'
+>> >> 'downloaded segment:' '84'
+>> >> 'downloaded segment:' '85'
+>> >> completed segment:  83
+>> >> completed segment:  84
+>> >> completed segment:  85
+>> >> 'worker' 5 'start seg:' '86' 'range:' '45088768-45613055' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '87' 'range:' '45613056-46137343' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '88' 'range:' '46137344-46661631' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '89' 'range:' '46661632-47185919' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '89'
+>> >> 'downloaded segment:' '86'
+>> >> 'downloaded segment:' '88'
+>> >> 'downloaded segment:' '87'
+>> >> completed segment:  86
+>> >> completed segment:  87
+>> >> completed segment:  88
+>> >> completed segment:  89
+>> >> 'worker' 9 'start seg:' '90' 'range:' '47185920-47710207' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '91' 'range:' '47710208-48234495' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '92' 'range:' '48234496-48758783' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '91'
+>> >> 'downloaded segment:' '90'
+>> >> 'downloaded segment:' '92'
+>> >> completed segment:  90
+>> >> completed segment:  91
+>> >> completed segment:  92
+>> >> 'worker' 2 'start seg:' '93' 'range:' '48758784-49283071' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '94' 'range:' '49283072-49807359' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '95' 'range:' '49807360-50331647' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '96' 'range:' '50331648-50855935' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '94'
+>> >> 'downloaded segment:' '95'
+>> >> 'downloaded segment:' '96'
+>> >> 'downloaded segment:' '93'
+>> >> completed segment:  93
+>> >> completed segment:  94
+>> >> completed segment:  95
+>> >> completed segment:  96
+>> >> 'worker' 1 'start seg:' '97' 'range:' '50855936-51380223' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '98' 'range:' '51380224-51904511' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '99' 'range:' '51904512-52428799' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '97'
+>> >> 'downloaded segment:' '99'
+>> >> 'downloaded segment:' '98'
+>> >> completed segment:  97
+>> >> completed segment:  98
+>> >> completed segment:  99
+>> >> 'worker' 6 'start seg:' '100' 'range:' '52428800-52953087' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '101' 'range:' '52953088-53477375' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '102' 'range:' '53477376-54001663' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '103' 'range:' '54001664-54525951' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '100'
+>> >> 'downloaded segment:' '103'
+>> >> 'downloaded segment:' '101'
+>> >> 'downloaded segment:' '102'
+>> >> completed segment:  100
+>> >> completed segment:  101
+>> >> completed segment:  102
+>> >> completed segment:  103
+>> >> 'worker' 7 'start seg:' '104' 'range:' '54525952-55050239' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '105' 'range:' '55050240-55574527' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '106' 'range:' '55574528-56098815' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '104'
+>> >> 'downloaded segment:' '105'
+>> >> 'downloaded segment:' '106'
+>> >> completed segment:  104
+>> >> completed segment:  105
+>> >> completed segment:  106
+>> >> 'worker' 5 'start seg:' '107' 'range:' '56098816-56623103' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '108' 'range:' '56623104-57147391' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '109' 'range:' '57147392-57671679' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '110' 'range:' '57671680-58195967' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '107'
+>> >> 'downloaded segment:' '109'
+>> >> 'downloaded segment:' '108'
+>> >> 'downloaded segment:' '110'
+>> >> completed segment:  107
+>> >> completed segment:  108
+>> >> completed segment:  109
+>> >> completed segment:  110
+>> >> 'worker' 3 'start seg:' '111' 'range:' '58195968-58720255' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '112' 'range:' '58720256-59244543' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '113' 'range:' '59244544-59768831' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '112'
+>> >> 'downloaded segment:' '113'
+>> >> 'downloaded segment:' '111'
+>> >> completed segment:  111
+>> >> completed segment:  112
+>> >> completed segment:  113
+>> >> 'worker' 2 'start seg:' '114' 'range:' '59768832-60293119' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '115' 'range:' '60293120-60817407' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '116' 'range:' '60817408-61341695' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '117' 'range:' '61341696-61865983' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '117'
+>> >> 'downloaded segment:' '116'
+>> >> 'downloaded segment:' '114'
+>> >> 'downloaded segment:' '115'
+>> >> completed segment:  114
+>> >> completed segment:  115
+>> >> completed segment:  116
+>> >> completed segment:  117
+>> >> 'worker' 4 'start seg:' '118' 'range:' '61865984-62390271' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '119' 'range:' '62390272-62914559' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '120' 'range:' '62914560-63438847' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '118'
+>> >> 'downloaded segment:' '119'
+>> >> 'downloaded segment:' '120'
+>> >> completed segment:  118
+>> >> completed segment:  119
+>> >> completed segment:  120
+>> >> 'worker' 6 'start seg:' '121' 'range:' '63438848-63963135' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '122' 'range:' '63963136-64487423' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '123' 'range:' '64487424-65011711' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '124' 'range:' '65011712-65535999' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '123'
+>> >> 'downloaded segment:' '124'
+>> >> 'downloaded segment:' '122'
+>> >> 'downloaded segment:' '121'
+>> >> completed segment:  121
+>> >> completed segment:  122
+>> >> completed segment:  123
+>> >> completed segment:  124
+>> >> 'worker' 0 'start seg:' '125' 'range:' '65536000-66060287' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '126' 'range:' '66060288-66584575' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '127' 'range:' '66584576-67108863' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '125'
+>> >> 'downloaded segment:' '126'
+>> >> 'downloaded segment:' '127'
+>> >> completed segment:  125
+>> >> completed segment:  126
+>> >> 'worker' 5 'start seg:' '128' 'range:' '67108864-67633151' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '129' 'range:' '67633152-68157439' 'size:' 524288 'SL=' 0
+>> >> completed segment:  127
+>> >> 'worker' 7 'start seg:' '130' 'range:' '68157440-68681727' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '131' 'range:' '68681728-69206015' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '129'
+>> >> 'downloaded segment:' '130'
+>> >> 'downloaded segment:' '128'
+>> >> 'downloaded segment:' '131'
+>> >> completed segment:  128
+>> >> 'worker' 9 'start seg:' '132' 'range:' '69206016-69730303' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '133' 'range:' '69730304-70254591' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '134' 'range:' '70254592-70778879' 'size:' 524288 'SL=' 0
+>> >> completed segment:  129
+>> >> 'downloaded segment:' '133'
+>> >> completed segment:  130
+>> >> 'downloaded segment:' '134'
+>> >> completed segment:  131
+>> >> 'downloaded segment:' '132'
+>> >> 'worker' 2 'start seg:' '135' 'range:' '70778880-71303167' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '136' 'range:' '71303168-71827455' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '137' 'range:' '71827456-72351743' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '138' 'range:' '72351744-72876031' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '135'
+>> >> completed segment:  132
+>> >> completed segment:  133
+>> >> 'downloaded segment:' '136'
+>> >> 'downloaded segment:' '138'
+>> >> 'downloaded segment:' '137'
+>> >> completed segment:  134
+>> >> completed segment:  135
+>> >> completed segment:  136
+>> >> completed segment:  137
+>> >> completed segment:  138
+>> >> 'worker' 1 'start seg:' '139' 'range:' '72876032-73400319' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '140' 'range:' '73400320-73924607' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '141' 'range:' '73924608-74448895' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '139'
+>> >> 'downloaded segment:' '141'
+>> >> 'downloaded segment:' '140'
+>> >> completed segment:  139
+>> >> completed segment:  140
+>> >> completed segment:  141
+>> >> 'worker' 6 'start seg:' '142' 'range:' '74448896-74973183' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '143' 'range:' '74973184-75497471' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '144' 'range:' '75497472-76021759' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '145' 'range:' '76021760-76546047' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '142'
+>> >> 'downloaded segment:' '144'
+>> >> 'downloaded segment:' '143'
+>> >> 'downloaded segment:' '145'
+>> >> completed segment:  142
+>> >> completed segment:  143
+>> >> completed segment:  144
+>> >> completed segment:  145
+>> >> 'worker' 7 'start seg:' '146' 'range:' '76546048-77441302' 'size:' 895255 'SL=' 0
+>> >> 'downloaded segment:' '146'
+>> >> completed segment:  146
+>> done renaming file: /home/annorion/Desktop/new/_temp_main.exe ... to: /home/annorion/Desktop/new/main.exe
+>> file_manager 89: quitting
+>> thread_manager 89: quitting
+>> File: "main.exe", completed.
+>> brain 89: quitting
+>> New URL set: http://localhost/lite/pyiconic/pyiconic.deb
+>> Extracting info for URL: http://localhost/lite/pyiconic/pyiconic.deb
+>> [generic] Extracting URL: http://localhost/lite/pyiconic/pyiconic.deb
+>> [generic] pyiconic: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> Media info: {'id': 'pyiconic', 'title': 'pyiconic', 'timestamp': 1730510559.0, 'direct': True, 'url': 'http://localhost/lite/pyiconic/pyiconic.deb', 'ext': 'unknown_video', 'webpage_url': 'http://localhost/lite/pyiconic/pyiconic.deb', 'original_url': 'http://localhost/lite/pyiconic/pyiconic.deb', 'webpage_url_basename': 'pyiconic.deb', 'webpage_url_domain': 'localhost', 'extractor': 'generic', 'extractor_key': 'Generic'}
+>> [generic] Extracting URL: http://localhost/lite/pyiconic/pyiconic.deb
+>> [generic] pyiconic: Downloading webpage
+>> [generic] Falling back on generic information extractor
+>> [generic] URL could be a direct video link, returning it as such.
+>> YouTubeThread error: 'formats'
+>> Error: YouTube extraction failed
+>> donwload item 1 already in list, check resume availability
+>> overwrite
+>> ----------------------------------------------------------------------------------------------------
+>> start downloading file: "pyiconic.deb", size: 218.0 MB, to: /home/annorion/Desktop/new
+>> >> 'worker' 0 'start seg:' '0' 'range:' '0-524287' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '1' 'range:' '524288-1048575' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '2' 'range:' '1048576-1572863' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '3' 'range:' '1572864-2097151' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '4' 'range:' '2097152-2621439' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '5' 'range:' '2621440-3145727' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '6' 'range:' '3145728-3670015' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '7' 'range:' '3670016-4194303' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '8' 'range:' '4194304-4718591' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '9' 'range:' '4718592-5242879' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '3'
+>> >> 'downloaded segment:' '1'
+>> >> 'downloaded segment:' '5'
+>> >> 'downloaded segment:' '0'
+>> >> 'downloaded segment:' '6'
+>> >> 'downloaded segment:' '4'
+>> >> 'downloaded segment:' '8'
+>> >> 'downloaded segment:' '2'
+>> >> 'downloaded segment:' '7'
+>> >> 'downloaded segment:' '9'
+>> >> completed segment:  0
+>> >> completed segment:  1
+>> >> completed segment:  2
+>> >> completed segment:  3
+>> >> completed segment:  4
+>> >> completed segment:  5
+>> >> completed segment:  6
+>> >> completed segment:  7
+>> >> completed segment:  8
+>> >> completed segment:  9
+>> >> 'worker' 8 'start seg:' '10' 'range:' '5242880-5767167' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '11' 'range:' '5767168-6291455' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '12' 'range:' '6291456-6815743' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '13' 'range:' '6815744-7340031' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '14' 'range:' '7340032-7864319' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '10'
+>> >> 'downloaded segment:' '13'
+>> >> 'downloaded segment:' '14'
+>> >> 'downloaded segment:' '12'
+>> >> 'downloaded segment:' '11'
+>> >> completed segment:  10
+>> >> completed segment:  11
+>> >> completed segment:  12
+>> >> completed segment:  13
+>> >> completed segment:  14
+>> >> 'worker' 9 'start seg:' '15' 'range:' '7864320-8388607' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '16' 'range:' '8388608-8912895' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '17' 'range:' '8912896-9437183' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '17'
+>> >> 'downloaded segment:' '15'
+>> >> 'downloaded segment:' '16'
+>> >> completed segment:  15
+>> >> completed segment:  16
+>> >> 'worker' 0 'start seg:' '18' 'range:' '9437184-9961471' 'size:' 524288 'SL=' 0
+>> >> completed segment:  17
+>> >> 'worker' 4 'start seg:' '19' 'range:' '9961472-10485759' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '20' 'range:' '10485760-11010047' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '21' 'range:' '11010048-11534335' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '20'
+>> >> 'downloaded segment:' '18'
+>> >> 'downloaded segment:' '19'
+>> >> 'downloaded segment:' '21'
+>> >> completed segment:  18
+>> >> 'worker' 5 'start seg:' '22' 'range:' '11534336-12058623' 'size:' 524288 'SL=' 0
+>> >> completed segment:  19
+>> >> 'worker' 2 'start seg:' '23' 'range:' '12058624-12582911' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '24' 'range:' '12582912-13107199' 'size:' 524288 'SL=' 0
+>> >> completed segment:  20
+>> >> completed segment:  21
+>> >> 'downloaded segment:' '22'
+>> >> 'downloaded segment:' '23'
+>> >> 'downloaded segment:' '24'
+>> >> 'worker' 3 'start seg:' '25' 'range:' '13107200-13631487' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '26' 'range:' '13631488-14155775' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '27' 'range:' '14155776-14680063' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '28' 'range:' '14680064-15204351' 'size:' 524288 'SL=' 0
+>> >> completed segment:  22
+>> >> completed segment:  23
+>> >> completed segment:  24
+>> >> 'downloaded segment:' '26'
+>> >> 'downloaded segment:' '27'
+>> >> 'downloaded segment:' '25'
+>> >> 'downloaded segment:' '28'
+>> >> 'worker' 2 'start seg:' '29' 'range:' '15204352-15728639' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '30' 'range:' '15728640-16252927' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '31' 'range:' '16252928-16777215' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '29'
+>> >> 'downloaded segment:' '30'
+>> >> 'downloaded segment:' '31'
+>> >> completed segment:  25
+>> >> completed segment:  26
+>> >> completed segment:  27
+>> >> completed segment:  28
+>> >> completed segment:  29
+>> >> completed segment:  30
+>> >> completed segment:  31
+>> >> 'worker' 6 'start seg:' '32' 'range:' '16777216-17301503' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '33' 'range:' '17301504-17825791' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '34' 'range:' '17825792-18350079' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '35' 'range:' '18350080-18874367' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '34'
+>> >> 'downloaded segment:' '32'
+>> >> 'downloaded segment:' '33'
+>> >> 'downloaded segment:' '35'
+>> >> completed segment:  32
+>> >> completed segment:  33
+>> >> completed segment:  34
+>> >> completed segment:  35
+>> >> 'worker' 8 'start seg:' '36' 'range:' '18874368-19398655' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '37' 'range:' '19398656-19922943' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '38' 'range:' '19922944-20447231' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '37'
+>> >> 'downloaded segment:' '36'
+>> >> 'downloaded segment:' '38'
+>> >> completed segment:  36
+>> >> completed segment:  37
+>> >> completed segment:  38
+>> >> 'worker' 0 'start seg:' '39' 'range:' '20447232-20971519' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '40' 'range:' '20971520-21495807' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '41' 'range:' '21495808-22020095' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '42' 'range:' '22020096-22544383' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '39'
+>> >> 'downloaded segment:' '40'
+>> >> 'downloaded segment:' '41'
+>> >> 'downloaded segment:' '42'
+>> >> completed segment:  39
+>> >> completed segment:  40
+>> >> completed segment:  41
+>> >> completed segment:  42
+>> >> 'worker' 1 'start seg:' '43' 'range:' '22544384-23068671' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '44' 'range:' '23068672-23592959' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '45' 'range:' '23592960-24117247' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '44'
+>> >> 'downloaded segment:' '43'
+>> >> 'downloaded segment:' '45'
+>> >> completed segment:  43
+>> >> completed segment:  44
+>> >> completed segment:  45
+>> >> 'worker' 3 'start seg:' '46' 'range:' '24117248-24641535' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '47' 'range:' '24641536-25165823' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '48' 'range:' '25165824-25690111' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '49' 'range:' '25690112-26214399' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '47'
+>> >> 'downloaded segment:' '48'
+>> >> 'downloaded segment:' '46'
+>> >> 'downloaded segment:' '49'
+>> >> 'worker' 7 'start seg:' '50' 'range:' '26214400-26738687' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '51' 'range:' '26738688-27262975' 'size:' 524288 'SL=' 0
+>> >> completed segment:  46
+>> >> 'worker' 8 'start seg:' '52' 'range:' '27262976-27787263' 'size:' 524288 'SL=' 0
+>> >> completed segment:  47
+>> >> 'downloaded segment:' '50'
+>> >> completed segment:  48
+>> >> 'downloaded segment:' '52'
+>> >> completed segment:  49
+>> >> 'downloaded segment:' '51'
+>> >> completed segment:  50
+>> >> completed segment:  51
+>> >> completed segment:  52
+>> >> 'worker' 6 'start seg:' '53' 'range:' '27787264-28311551' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '54' 'range:' '28311552-28835839' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '55' 'range:' '28835840-29360127' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '56' 'range:' '29360128-29884415' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '53'
+>> >> 'downloaded segment:' '54'
+>> >> 'downloaded segment:' '55'
+>> >> 'downloaded segment:' '56'
+>> >> 'worker' 9 'start seg:' '57' 'range:' '29884416-30408703' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '58' 'range:' '30408704-30932991' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '59' 'range:' '30932992-31457279' 'size:' 524288 'SL=' 0
+>> >> completed segment:  53
+>> >> 'downloaded segment:' '57'
+>> >> completed segment:  54
+>> >> 'downloaded segment:' '58'
+>> >> 'downloaded segment:' '59'
+>> >> completed segment:  55
+>> >> completed segment:  56
+>> >> completed segment:  57
+>> >> completed segment:  58
+>> >> completed segment:  59
+>> >> 'worker' 0 'start seg:' '60' 'range:' '31457280-31981567' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '61' 'range:' '31981568-32505855' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '62' 'range:' '32505856-33030143' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '63' 'range:' '33030144-33554431' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '61'
+>> >> 'downloaded segment:' '62'
+>> >> 'downloaded segment:' '60'
+>> >> 'downloaded segment:' '63'
+>> >> 'worker' 5 'start seg:' '64' 'range:' '33554432-34078719' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '65' 'range:' '34078720-34603007' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '66' 'range:' '34603008-35127295' 'size:' 524288 'SL=' 0
+>> >> completed segment:  60
+>> >> 'downloaded segment:' '64'
+>> >> 'downloaded segment:' '66'
+>> >> 'downloaded segment:' '65'
+>> >> completed segment:  61
+>> >> completed segment:  62
+>> >> completed segment:  63
+>> >> completed segment:  64
+>> >> completed segment:  65
+>> >> completed segment:  66
+>> >> 'worker' 3 'start seg:' '67' 'range:' '35127296-35651583' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '68' 'range:' '35651584-36175871' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '69' 'range:' '36175872-36700159' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '70' 'range:' '36700160-37224447' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '67'
+>> >> 'downloaded segment:' '69'
+>> >> 'downloaded segment:' '70'
+>> >> 'downloaded segment:' '68'
+>> >> completed segment:  67
+>> >> completed segment:  68
+>> >> completed segment:  69
+>> >> completed segment:  70
+>> >> 'worker' 2 'start seg:' '71' 'range:' '37224448-37748735' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '72' 'range:' '37748736-38273023' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '73' 'range:' '38273024-38797311' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '71'
+>> >> 'downloaded segment:' '72'
+>> >> 'downloaded segment:' '73'
+>> >> completed segment:  71
+>> >> completed segment:  72
+>> >> completed segment:  73
+>> >> 'worker' 6 'start seg:' '74' 'range:' '38797312-39321599' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '75' 'range:' '39321600-39845887' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '76' 'range:' '39845888-40370175' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '77' 'range:' '40370176-40894463' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '74'
+>> >> 'downloaded segment:' '75'
+>> >> 'downloaded segment:' '76'
+>> >> 'downloaded segment:' '77'
+>> >> completed segment:  74
+>> >> completed segment:  75
+>> >> completed segment:  76
+>> >> completed segment:  77
+>> >> 'worker' 8 'start seg:' '78' 'range:' '40894464-41418751' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '79' 'range:' '41418752-41943039' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '80' 'range:' '41943040-42467327' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '79'
+>> >> 'downloaded segment:' '78'
+>> >> 'downloaded segment:' '80'
+>> >> completed segment:  78
+>> >> completed segment:  79
+>> >> completed segment:  80
+>> >> 'worker' 0 'start seg:' '81' 'range:' '42467328-42991615' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '82' 'range:' '42991616-43515903' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '83' 'range:' '43515904-44040191' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '84' 'range:' '44040192-44564479' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '81'
+>> >> 'downloaded segment:' '83'
+>> >> 'downloaded segment:' '82'
+>> >> 'downloaded segment:' '84'
+>> >> completed segment:  81
+>> >> completed segment:  82
+>> >> completed segment:  83
+>> >> completed segment:  84
+>> >> 'worker' 1 'start seg:' '85' 'range:' '44564480-45088767' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '86' 'range:' '45088768-45613055' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '87' 'range:' '45613056-46137343' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '86'
+>> >> 'downloaded segment:' '85'
+>> >> 'downloaded segment:' '87'
+>> >> completed segment:  85
+>> >> completed segment:  86
+>> >> completed segment:  87
+>> >> 'worker' 3 'start seg:' '88' 'range:' '46137344-46661631' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '89' 'range:' '46661632-47185919' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '90' 'range:' '47185920-47710207' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '91' 'range:' '47710208-48234495' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '90'
+>> >> 'downloaded segment:' '88'
+>> >> 'downloaded segment:' '89'
+>> >> 'downloaded segment:' '91'
+>> >> completed segment:  88
+>> >> completed segment:  89
+>> >> completed segment:  90
+>> >> completed segment:  91
+>> >> 'worker' 7 'start seg:' '92' 'range:' '48234496-48758783' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '93' 'range:' '48758784-49283071' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '94' 'range:' '49283072-49807359' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '93'
+>> >> 'downloaded segment:' '92'
+>> >> 'downloaded segment:' '94'
+>> >> completed segment:  92
+>> >> completed segment:  93
+>> >> completed segment:  94
+>> >> 'worker' 6 'start seg:' '95' 'range:' '49807360-50331647' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '96' 'range:' '50331648-50855935' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '97' 'range:' '50855936-51380223' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '98' 'range:' '51380224-51904511' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '95'
+>> >> 'downloaded segment:' '97'
+>> >> 'downloaded segment:' '98'
+>> >> 'downloaded segment:' '96'
+>> >> completed segment:  95
+>> >> completed segment:  96
+>> >> completed segment:  97
+>> >> completed segment:  98
+>> >> 'worker' 9 'start seg:' '99' 'range:' '51904512-52428799' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '100' 'range:' '52428800-52953087' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '101' 'range:' '52953088-53477375' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '100'
+>> >> 'downloaded segment:' '101'
+>> >> 'downloaded segment:' '99'
+>> >> completed segment:  99
+>> >> completed segment:  100
+>> >> completed segment:  101
+>> >> 'worker' 0 'start seg:' '102' 'range:' '53477376-54001663' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '103' 'range:' '54001664-54525951' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '104' 'range:' '54525952-55050239' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '105' 'range:' '55050240-55574527' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '102'
+>> >> 'downloaded segment:' '104'
+>> >> 'downloaded segment:' '105'
+>> >> 'downloaded segment:' '103'
+>> >> completed segment:  102
+>> >> completed segment:  103
+>> >> completed segment:  104
+>> >> completed segment:  105
+>> >> 'worker' 5 'start seg:' '106' 'range:' '55574528-56098815' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '107' 'range:' '56098816-56623103' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '108' 'range:' '56623104-57147391' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '108'
+>> >> 'downloaded segment:' '106'
+>> >> 'downloaded segment:' '107'
+>> >> completed segment:  106
+>> >> completed segment:  107
+>> >> completed segment:  108
+>> >> 'worker' 3 'start seg:' '109' 'range:' '57147392-57671679' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '110' 'range:' '57671680-58195967' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '111' 'range:' '58195968-58720255' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '112' 'range:' '58720256-59244543' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '109'
+>> >> 'downloaded segment:' '110'
+>> >> 'downloaded segment:' '111'
+>> >> 'downloaded segment:' '112'
+>> >> completed segment:  109
+>> >> completed segment:  110
+>> >> completed segment:  111
+>> >> completed segment:  112
+>> >> 'worker' 2 'start seg:' '113' 'range:' '59244544-59768831' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '114' 'range:' '59768832-60293119' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '115' 'range:' '60293120-60817407' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '113'
+>> >> 'downloaded segment:' '115'
+>> >> 'downloaded segment:' '114'
+>> >> completed segment:  113
+>> >> completed segment:  114
+>> >> completed segment:  115
+>> >> 'worker' 6 'start seg:' '116' 'range:' '60817408-61341695' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '117' 'range:' '61341696-61865983' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '118' 'range:' '61865984-62390271' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '119' 'range:' '62390272-62914559' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '116'
+>> >> 'downloaded segment:' '119'
+>> >> 'downloaded segment:' '117'
+>> >> 'downloaded segment:' '118'
+>> >> completed segment:  116
+>> >> completed segment:  117
+>> >> completed segment:  118
+>> >> completed segment:  119
+>> >> 'worker' 8 'start seg:' '120' 'range:' '62914560-63438847' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '121' 'range:' '63438848-63963135' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '122' 'range:' '63963136-64487423' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '120'
+>> >> 'downloaded segment:' '121'
+>> >> 'downloaded segment:' '122'
+>> >> 'worker' 0 'start seg:' '123' 'range:' '64487424-65011711' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '124' 'range:' '65011712-65535999' 'size:' 524288 'SL=' 0
+>> >> completed segment:  120
+>> >> 'worker' 9 'start seg:' '125' 'range:' '65536000-66060287' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '126' 'range:' '66060288-66584575' 'size:' 524288 'SL=' 0
+>> >> completed segment:  121
+>> >> completed segment:  122
+>> >> 'downloaded segment:' '125'
+>> >> 'downloaded segment:' '126'
+>> >> 'downloaded segment:' '123'
+>> >> 'downloaded segment:' '124'
+>> >> 'worker' 1 'start seg:' '127' 'range:' '66584576-67108863' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '128' 'range:' '67108864-67633151' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '129' 'range:' '67633152-68157439' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '129'
+>> >> 'downloaded segment:' '127'
+>> >> 'downloaded segment:' '128'
+>> >> completed segment:  123
+>> >> completed segment:  124
+>> >> completed segment:  125
+>> >> completed segment:  126
+>> >> completed segment:  127
+>> >> completed segment:  128
+>> >> completed segment:  129
+>> >> 'worker' 3 'start seg:' '130' 'range:' '68157440-68681727' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '131' 'range:' '68681728-69206015' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '132' 'range:' '69206016-69730303' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '133' 'range:' '69730304-70254591' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '131'
+>> >> 'downloaded segment:' '132'
+>> >> 'downloaded segment:' '130'
+>> >> 'downloaded segment:' '133'
+>> >> completed segment:  130
+>> >> completed segment:  131
+>> >> completed segment:  132
+>> >> completed segment:  133
+>> >> 'worker' 7 'start seg:' '134' 'range:' '70254592-70778879' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '135' 'range:' '70778880-71303167' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '136' 'range:' '71303168-71827455' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '136'
+>> >> 'downloaded segment:' '134'
+>> >> 'downloaded segment:' '135'
+>> >> completed segment:  134
+>> >> completed segment:  135
+>> >> completed segment:  136
+>> >> 'worker' 6 'start seg:' '137' 'range:' '71827456-72351743' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '138' 'range:' '72351744-72876031' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '139' 'range:' '72876032-73400319' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '140' 'range:' '73400320-73924607' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '138'
+>> >> 'downloaded segment:' '139'
+>> >> 'downloaded segment:' '137'
+>> >> 'downloaded segment:' '140'
+>> >> completed segment:  137
+>> >> completed segment:  138
+>> >> completed segment:  139
+>> >> completed segment:  140
+>> >> 'worker' 9 'start seg:' '141' 'range:' '73924608-74448895' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '142' 'range:' '74448896-74973183' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '143' 'range:' '74973184-75497471' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '142'
+>> >> 'downloaded segment:' '141'
+>> >> 'downloaded segment:' '143'
+>> >> completed segment:  141
+>> >> completed segment:  142
+>> >> completed segment:  143
+>> >> 'worker' 0 'start seg:' '144' 'range:' '75497472-76021759' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '145' 'range:' '76021760-76546047' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '146' 'range:' '76546048-77070335' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '147' 'range:' '77070336-77594623' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '147'
+>> >> 'downloaded segment:' '144'
+>> >> 'downloaded segment:' '146'
+>> >> 'downloaded segment:' '145'
+>> >> completed segment:  144
+>> >> completed segment:  145
+>> >> completed segment:  146
+>> >> completed segment:  147
+>> >> 'worker' 5 'start seg:' '148' 'range:' '77594624-78118911' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '149' 'range:' '78118912-78643199' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '150' 'range:' '78643200-79167487' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '148'
+>> >> 'downloaded segment:' '149'
+>> >> 'downloaded segment:' '150'
+>> >> completed segment:  148
+>> >> completed segment:  149
+>> >> completed segment:  150
+>> >> 'worker' 3 'start seg:' '151' 'range:' '79167488-79691775' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '152' 'range:' '79691776-80216063' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '153' 'range:' '80216064-80740351' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '154' 'range:' '80740352-81264639' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '152'
+>> >> 'downloaded segment:' '151'
+>> >> 'downloaded segment:' '153'
+>> >> 'downloaded segment:' '154'
+>> >> completed segment:  151
+>> >> completed segment:  152
+>> >> completed segment:  153
+>> >> completed segment:  154
+>> >> 'worker' 2 'start seg:' '155' 'range:' '81264640-81788927' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '156' 'range:' '81788928-82313215' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '157' 'range:' '82313216-82837503' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '156'
+>> >> 'downloaded segment:' '155'
+>> >> 'downloaded segment:' '157'
+>> >> completed segment:  155
+>> >> completed segment:  156
+>> >> completed segment:  157
+>> >> 'worker' 6 'start seg:' '158' 'range:' '82837504-83361791' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '159' 'range:' '83361792-83886079' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '160' 'range:' '83886080-84410367' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '161' 'range:' '84410368-84934655' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '161'
+>> >> 'downloaded segment:' '160'
+>> >> 'downloaded segment:' '159'
+>> >> 'downloaded segment:' '158'
+>> >> completed segment:  158
+>> >> completed segment:  159
+>> >> completed segment:  160
+>> >> completed segment:  161
+>> >> 'worker' 8 'start seg:' '162' 'range:' '84934656-85458943' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '163' 'range:' '85458944-85983231' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '164' 'range:' '85983232-86507519' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '163'
+>> >> 'downloaded segment:' '162'
+>> >> 'downloaded segment:' '164'
+>> >> completed segment:  162
+>> >> completed segment:  163
+>> >> completed segment:  164
+>> >> 'worker' 0 'start seg:' '165' 'range:' '86507520-87031807' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '166' 'range:' '87031808-87556095' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '167' 'range:' '87556096-88080383' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '168' 'range:' '88080384-88604671' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '168'
+>> >> 'downloaded segment:' '165'
+>> >> 'downloaded segment:' '167'
+>> >> 'downloaded segment:' '166'
+>> >> completed segment:  165
+>> >> completed segment:  166
+>> >> completed segment:  167
+>> >> completed segment:  168
+>> >> 'worker' 1 'start seg:' '169' 'range:' '88604672-89128959' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '170' 'range:' '89128960-89653247' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '171' 'range:' '89653248-90177535' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '169'
+>> >> 'downloaded segment:' '170'
+>> >> 'downloaded segment:' '171'
+>> >> completed segment:  169
+>> >> completed segment:  170
+>> >> completed segment:  171
+>> >> 'worker' 3 'start seg:' '172' 'range:' '90177536-90701823' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '173' 'range:' '90701824-91226111' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '174' 'range:' '91226112-91750399' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '175' 'range:' '91750400-92274687' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '173'
+>> >> 'downloaded segment:' '174'
+>> >> 'downloaded segment:' '172'
+>> >> 'downloaded segment:' '175'
+>> >> completed segment:  172
+>> >> completed segment:  173
+>> >> completed segment:  174
+>> >> completed segment:  175
+>> >> 'worker' 7 'start seg:' '176' 'range:' '92274688-92798975' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '177' 'range:' '92798976-93323263' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '178' 'range:' '93323264-93847551' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '177'
+>> >> 'downloaded segment:' '178'
+>> >> 'downloaded segment:' '176'
+>> >> completed segment:  176
+>> >> completed segment:  177
+>> >> completed segment:  178
+>> >> 'worker' 6 'start seg:' '179' 'range:' '93847552-94371839' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '180' 'range:' '94371840-94896127' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '181' 'range:' '94896128-95420415' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '182' 'range:' '95420416-95944703' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '179'
+>> >> 'downloaded segment:' '181'
+>> >> 'downloaded segment:' '182'
+>> >> 'downloaded segment:' '180'
+>> >> completed segment:  179
+>> >> completed segment:  180
+>> >> completed segment:  181
+>> >> completed segment:  182
+>> >> 'worker' 9 'start seg:' '183' 'range:' '95944704-96468991' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '184' 'range:' '96468992-96993279' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '185' 'range:' '96993280-97517567' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '183'
+>> >> 'downloaded segment:' '184'
+>> >> 'downloaded segment:' '185'
+>> >> completed segment:  183
+>> >> completed segment:  184
+>> >> completed segment:  185
+>> >> 'worker' 0 'start seg:' '186' 'range:' '97517568-98041855' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '187' 'range:' '98041856-98566143' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '188' 'range:' '98566144-99090431' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '189' 'range:' '99090432-99614719' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '187'
+>> >> 'downloaded segment:' '186'
+>> >> 'downloaded segment:' '188'
+>> >> 'downloaded segment:' '189'
+>> >> completed segment:  186
+>> >> completed segment:  187
+>> >> completed segment:  188
+>> >> completed segment:  189
+>> >> 'worker' 5 'start seg:' '190' 'range:' '99614720-100139007' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '191' 'range:' '100139008-100663295' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '192' 'range:' '100663296-101187583' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '191'
+>> >> 'downloaded segment:' '192'
+>> >> 'downloaded segment:' '190'
+>> >> completed segment:  190
+>> >> completed segment:  191
+>> >> completed segment:  192
+>> >> 'worker' 3 'start seg:' '193' 'range:' '101187584-101711871' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '194' 'range:' '101711872-102236159' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '195' 'range:' '102236160-102760447' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '196' 'range:' '102760448-103284735' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '195'
+>> >> 'downloaded segment:' '196'
+>> >> 'downloaded segment:' '194'
+>> >> 'downloaded segment:' '193'
+>> >> completed segment:  193
+>> >> completed segment:  194
+>> >> completed segment:  195
+>> >> completed segment:  196
+>> >> 'worker' 2 'start seg:' '197' 'range:' '103284736-103809023' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '198' 'range:' '103809024-104333311' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '199' 'range:' '104333312-104857599' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '199'
+>> >> 'downloaded segment:' '198'
+>> >> 'downloaded segment:' '197'
+>> >> completed segment:  197
+>> >> completed segment:  198
+>> >> completed segment:  199
+>> >> 'worker' 6 'start seg:' '200' 'range:' '104857600-105381887' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '201' 'range:' '105381888-105906175' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '202' 'range:' '105906176-106430463' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '203' 'range:' '106430464-106954751' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '200'
+>> >> 'downloaded segment:' '203'
+>> >> 'downloaded segment:' '201'
+>> >> 'downloaded segment:' '202'
+>> >> completed segment:  200
+>> >> completed segment:  201
+>> >> completed segment:  202
+>> >> completed segment:  203
+>> >> 'worker' 8 'start seg:' '204' 'range:' '106954752-107479039' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '205' 'range:' '107479040-108003327' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '206' 'range:' '108003328-108527615' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '206'
+>> >> 'downloaded segment:' '205'
+>> >> 'downloaded segment:' '204'
+>> >> completed segment:  204
+>> >> completed segment:  205
+>> >> completed segment:  206
+>> >> 'worker' 0 'start seg:' '207' 'range:' '108527616-109051903' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '208' 'range:' '109051904-109576191' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '209' 'range:' '109576192-110100479' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '210' 'range:' '110100480-110624767' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '209'
+>> >> 'downloaded segment:' '207'
+>> >> 'downloaded segment:' '208'
+>> >> 'downloaded segment:' '210'
+>> >> completed segment:  207
+>> >> completed segment:  208
+>> >> completed segment:  209
+>> >> completed segment:  210
+>> >> 'worker' 1 'start seg:' '211' 'range:' '110624768-111149055' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '212' 'range:' '111149056-111673343' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '213' 'range:' '111673344-112197631' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '211'
+>> >> 'downloaded segment:' '212'
+>> >> 'downloaded segment:' '213'
+>> >> 'worker' 3 'start seg:' '214' 'range:' '112197632-112721919' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '215' 'range:' '112721920-113246207' 'size:' 524288 'SL=' 0
+>> >> completed segment:  211
+>> >> 'worker' 5 'start seg:' '216' 'range:' '113246208-113770495' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '217' 'range:' '113770496-114294783' 'size:' 524288 'SL=' 0
+>> >> completed segment:  212
+>> >> completed segment:  213
+>> >> 'downloaded segment:' '215'
+>> >> 'downloaded segment:' '216'
+>> >> 'downloaded segment:' '217'
+>> >> 'downloaded segment:' '214'
+>> >> 'worker' 7 'start seg:' '218' 'range:' '114294784-114819071' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '219' 'range:' '114819072-115343359' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '220' 'range:' '115343360-115867647' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '218'
+>> >> completed segment:  214
+>> >> completed segment:  215
+>> >> completed segment:  216
+>> >> completed segment:  217
+>> >> completed segment:  218
+>> >> 'downloaded segment:' '220'
+>> >> 'downloaded segment:' '219'
+>> >> 'worker' 6 'start seg:' '221' 'range:' '115867648-116391935' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '222' 'range:' '116391936-116916223' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '223' 'range:' '116916224-117440511' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '224' 'range:' '117440512-117964799' 'size:' 524288 'SL=' 0
+>> >> completed segment:  219
+>> >> completed segment:  220
+>> >> 'downloaded segment:' '221'
+>> >> 'downloaded segment:' '222'
+>> >> 'downloaded segment:' '223'
+>> >> 'downloaded segment:' '224'
+>> >> 'worker' 9 'start seg:' '225' 'range:' '117964800-118489087' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '226' 'range:' '118489088-119013375' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '227' 'range:' '119013376-119537663' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '225'
+>> >> completed segment:  221
+>> >> 'downloaded segment:' '226'
+>> >> 'downloaded segment:' '227'
+>> >> completed segment:  222
+>> >> completed segment:  223
+>> >> completed segment:  224
+>> >> completed segment:  225
+>> >> completed segment:  226
+>> >> completed segment:  227
+>> >> 'worker' 0 'start seg:' '228' 'range:' '119537664-120061951' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '229' 'range:' '120061952-120586239' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '230' 'range:' '120586240-121110527' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '231' 'range:' '121110528-121634815' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '228'
+>> >> completed segment:  228
+>> >> 'downloaded segment:' '230'
+>> >> 'downloaded segment:' '231'
+>> >> 'downloaded segment:' '229'
+>> >> 'worker' 5 'start seg:' '232' 'range:' '121634816-122159103' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '233' 'range:' '122159104-122683391' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '234' 'range:' '122683392-123207679' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '232'
+>> >> 'downloaded segment:' '233'
+>> >> 'downloaded segment:' '234'
+>> >> completed segment:  229
+>> >> completed segment:  230
+>> >> completed segment:  231
+>> >> completed segment:  232
+>> >> completed segment:  233
+>> >> completed segment:  234
+>> >> 'worker' 3 'start seg:' '235' 'range:' '123207680-123731967' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '236' 'range:' '123731968-124256255' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '237' 'range:' '124256256-124780543' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '238' 'range:' '124780544-125304831' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '235'
+>> >> completed segment:  235
+>> >> 'downloaded segment:' '237'
+>> >> 'downloaded segment:' '238'
+>> >> 'downloaded segment:' '236'
+>> >> 'worker' 2 'start seg:' '239' 'range:' '125304832-125829119' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '240' 'range:' '125829120-126353407' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '241' 'range:' '126353408-126877695' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '239'
+>> >> 'downloaded segment:' '240'
+>> >> 'downloaded segment:' '241'
+>> >> completed segment:  236
+>> >> completed segment:  237
+>> >> completed segment:  238
+>> >> completed segment:  239
+>> >> completed segment:  240
+>> >> completed segment:  241
+>> >> 'worker' 6 'start seg:' '242' 'range:' '126877696-127401983' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '243' 'range:' '127401984-127926271' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '244' 'range:' '127926272-128450559' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '245' 'range:' '128450560-128974847' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '242'
+>> >> 'downloaded segment:' '244'
+>> >> 'downloaded segment:' '245'
+>> >> completed segment:  242
+>> >> 'downloaded segment:' '243'
+>> >> 'worker' 8 'start seg:' '246' 'range:' '128974848-129499135' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '247' 'range:' '129499136-130023423' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '248' 'range:' '130023424-130547711' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '248'
+>> >> 'downloaded segment:' '246'
+>> >> 'downloaded segment:' '247'
+>> >> completed segment:  243
+>> >> completed segment:  244
+>> >> completed segment:  245
+>> >> completed segment:  246
+>> >> completed segment:  247
+>> >> completed segment:  248
+>> >> 'worker' 0 'start seg:' '249' 'range:' '130547712-131071999' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '250' 'range:' '131072000-131596287' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '251' 'range:' '131596288-132120575' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '252' 'range:' '132120576-132644863' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '252'
+>> >> 'downloaded segment:' '250'
+>> >> 'downloaded segment:' '251'
+>> >> 'downloaded segment:' '249'
+>> >> completed segment:  249
+>> >> completed segment:  250
+>> >> completed segment:  251
+>> >> completed segment:  252
+>> >> 'worker' 1 'start seg:' '253' 'range:' '132644864-133169151' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '254' 'range:' '133169152-133693439' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '255' 'range:' '133693440-134217727' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '253'
+>> >> 'downloaded segment:' '254'
+>> >> 'downloaded segment:' '255'
+>> >> completed segment:  253
+>> >> completed segment:  254
+>> >> completed segment:  255
+>> >> 'worker' 3 'start seg:' '256' 'range:' '134217728-134742015' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '257' 'range:' '134742016-135266303' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '258' 'range:' '135266304-135790591' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '259' 'range:' '135790592-136314879' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '256'
+>> >> 'downloaded segment:' '257'
+>> >> 'downloaded segment:' '259'
+>> >> 'downloaded segment:' '258'
+>> >> completed segment:  256
+>> >> completed segment:  257
+>> >> completed segment:  258
+>> >> completed segment:  259
+>> >> 'worker' 7 'start seg:' '260' 'range:' '136314880-136839167' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '261' 'range:' '136839168-137363455' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '262' 'range:' '137363456-137887743' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '260'
+>> >> 'downloaded segment:' '262'
+>> >> 'downloaded segment:' '261'
+>> >> completed segment:  260
+>> >> completed segment:  261
+>> >> completed segment:  262
+>> >> 'worker' 6 'start seg:' '263' 'range:' '137887744-138412031' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '264' 'range:' '138412032-138936319' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '265' 'range:' '138936320-139460607' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '266' 'range:' '139460608-139984895' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '266'
+>> >> 'downloaded segment:' '263'
+>> >> 'downloaded segment:' '264'
+>> >> 'downloaded segment:' '265'
+>> >> completed segment:  263
+>> >> completed segment:  264
+>> >> completed segment:  265
+>> >> completed segment:  266
+>> >> 'worker' 9 'start seg:' '267' 'range:' '139984896-140509183' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '268' 'range:' '140509184-141033471' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '269' 'range:' '141033472-141557759' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '267'
+>> >> 'downloaded segment:' '269'
+>> >> 'downloaded segment:' '268'
+>> >> completed segment:  267
+>> >> completed segment:  268
+>> >> completed segment:  269
+>> >> 'worker' 0 'start seg:' '270' 'range:' '141557760-142082047' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '271' 'range:' '142082048-142606335' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '272' 'range:' '142606336-143130623' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '273' 'range:' '143130624-143654911' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '271'
+>> >> 'downloaded segment:' '270'
+>> >> 'downloaded segment:' '273'
+>> >> 'downloaded segment:' '272'
+>> >> completed segment:  270
+>> >> completed segment:  271
+>> >> completed segment:  272
+>> >> completed segment:  273
+>> >> 'worker' 5 'start seg:' '274' 'range:' '143654912-144179199' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '275' 'range:' '144179200-144703487' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '276' 'range:' '144703488-145227775' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '275'
+>> >> 'downloaded segment:' '274'
+>> >> 'downloaded segment:' '276'
+>> >> completed segment:  274
+>> >> completed segment:  275
+>> >> completed segment:  276
+>> >> 'worker' 3 'start seg:' '277' 'range:' '145227776-145752063' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '278' 'range:' '145752064-146276351' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '279' 'range:' '146276352-146800639' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '280' 'range:' '146800640-147324927' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '277'
+>> >> 'downloaded segment:' '280'
+>> >> 'downloaded segment:' '279'
+>> >> 'downloaded segment:' '278'
+>> >> completed segment:  277
+>> >> completed segment:  278
+>> >> completed segment:  279
+>> >> completed segment:  280
+>> >> 'worker' 2 'start seg:' '281' 'range:' '147324928-147849215' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '282' 'range:' '147849216-148373503' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '283' 'range:' '148373504-148897791' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '282'
+>> >> 'downloaded segment:' '281'
+>> >> 'downloaded segment:' '283'
+>> >> completed segment:  281
+>> >> completed segment:  282
+>> >> completed segment:  283
+>> >> 'worker' 6 'start seg:' '284' 'range:' '148897792-149422079' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '285' 'range:' '149422080-149946367' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '286' 'range:' '149946368-150470655' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '287' 'range:' '150470656-150994943' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '284'
+>> >> 'downloaded segment:' '286'
+>> >> 'downloaded segment:' '285'
+>> >> 'downloaded segment:' '287'
+>> >> completed segment:  284
+>> >> completed segment:  285
+>> >> completed segment:  286
+>> >> completed segment:  287
+>> >> 'worker' 8 'start seg:' '288' 'range:' '150994944-151519231' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '289' 'range:' '151519232-152043519' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '290' 'range:' '152043520-152567807' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '288'
+>> >> 'downloaded segment:' '289'
+>> >> 'downloaded segment:' '290'
+>> >> completed segment:  288
+>> >> completed segment:  289
+>> >> completed segment:  290
+>> >> 'worker' 0 'start seg:' '291' 'range:' '152567808-153092095' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '292' 'range:' '153092096-153616383' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '293' 'range:' '153616384-154140671' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '294' 'range:' '154140672-154664959' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '292'
+>> >> 'downloaded segment:' '291'
+>> >> 'downloaded segment:' '294'
+>> >> 'downloaded segment:' '293'
+>> >> completed segment:  291
+>> >> completed segment:  292
+>> >> completed segment:  293
+>> >> completed segment:  294
+>> >> 'worker' 1 'start seg:' '295' 'range:' '154664960-155189247' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '296' 'range:' '155189248-155713535' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '297' 'range:' '155713536-156237823' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '295'
+>> >> 'downloaded segment:' '297'
+>> >> 'downloaded segment:' '296'
+>> >> completed segment:  295
+>> >> completed segment:  296
+>> >> completed segment:  297
+>> >> 'worker' 3 'start seg:' '298' 'range:' '156237824-156762111' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '299' 'range:' '156762112-157286399' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '300' 'range:' '157286400-157810687' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '301' 'range:' '157810688-158334975' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '299'
+>> >> 'downloaded segment:' '300'
+>> >> 'downloaded segment:' '301'
+>> >> 'downloaded segment:' '298'
+>> >> 'worker' 7 'start seg:' '302' 'range:' '158334976-158859263' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '303' 'range:' '158859264-159383551' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '304' 'range:' '159383552-159907839' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '302'
+>> >> 'downloaded segment:' '304'
+>> >> 'downloaded segment:' '303'
+>> >> completed segment:  298
+>> >> completed segment:  299
+>> >> completed segment:  300
+>> >> completed segment:  301
+>> >> completed segment:  302
+>> >> completed segment:  303
+>> >> completed segment:  304
+>> >> 'worker' 6 'start seg:' '305' 'range:' '159907840-160432127' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '306' 'range:' '160432128-160956415' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '307' 'range:' '160956416-161480703' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '308' 'range:' '161480704-162004991' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '306'
+>> >> 'downloaded segment:' '307'
+>> >> 'downloaded segment:' '308'
+>> >> 'downloaded segment:' '305'
+>> >> completed segment:  305
+>> >> completed segment:  306
+>> >> completed segment:  307
+>> >> completed segment:  308
+>> >> 'worker' 9 'start seg:' '309' 'range:' '162004992-162529279' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '310' 'range:' '162529280-163053567' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '309'
+>> >> 'worker' 1 'start seg:' '311' 'range:' '163053568-163577855' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '310'
+>> >> 'downloaded segment:' '311'
+>> >> completed segment:  309
+>> >> completed segment:  310
+>> >> completed segment:  311
+>> >> 'worker' 0 'start seg:' '312' 'range:' '163577856-164102143' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '313' 'range:' '164102144-164626431' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '314' 'range:' '164626432-165150719' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '315' 'range:' '165150720-165675007' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '312'
+>> >> 'downloaded segment:' '314'
+>> >> 'downloaded segment:' '315'
+>> >> 'downloaded segment:' '313'
+>> >> completed segment:  312
+>> >> completed segment:  313
+>> >> completed segment:  314
+>> >> completed segment:  315
+>> >> 'worker' 5 'start seg:' '316' 'range:' '165675008-166199295' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '317' 'range:' '166199296-166723583' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '318' 'range:' '166723584-167247871' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '316'
+>> >> 'downloaded segment:' '317'
+>> >> 'downloaded segment:' '318'
+>> >> completed segment:  316
+>> >> completed segment:  317
+>> >> completed segment:  318
+>> >> 'worker' 3 'start seg:' '319' 'range:' '167247872-167772159' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '320' 'range:' '167772160-168296447' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '321' 'range:' '168296448-168820735' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '322' 'range:' '168820736-169345023' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '320'
+>> >> 'downloaded segment:' '319'
+>> >> 'downloaded segment:' '321'
+>> >> 'downloaded segment:' '322'
+>> >> completed segment:  319
+>> >> completed segment:  320
+>> >> completed segment:  321
+>> >> completed segment:  322
+>> >> 'worker' 2 'start seg:' '323' 'range:' '169345024-169869311' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '324' 'range:' '169869312-170393599' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '325' 'range:' '170393600-170917887' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '323'
+>> >> 'downloaded segment:' '324'
+>> >> 'downloaded segment:' '325'
+>> >> completed segment:  323
+>> >> completed segment:  324
+>> >> completed segment:  325
+>> >> 'worker' 6 'start seg:' '326' 'range:' '170917888-171442175' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '327' 'range:' '171442176-171966463' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '328' 'range:' '171966464-172490751' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '329' 'range:' '172490752-173015039' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '328'
+>> >> 'downloaded segment:' '326'
+>> >> 'downloaded segment:' '327'
+>> >> 'downloaded segment:' '329'
+>> >> 'worker' 8 'start seg:' '330' 'range:' '173015040-173539327' 'size:' 524288 'SL=' 0
+>> >> completed segment:  326
+>> >> 'worker' 1 'start seg:' '331' 'range:' '173539328-174063615' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '332' 'range:' '174063616-174587903' 'size:' 524288 'SL=' 0
+>> >> completed segment:  327
+>> >> completed segment:  328
+>> >> completed segment:  329
+>> >> completed segment:  330
+>> >> 'downloaded segment:' '330'
+>> >> 'downloaded segment:' '331'
+>> >> 'downloaded segment:' '332'
+>> >> 'worker' 0 'start seg:' '333' 'range:' '174587904-175112191' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '334' 'range:' '175112192-175636479' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '335' 'range:' '175636480-176160767' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '336' 'range:' '176160768-176685055' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '335'
+>> >> 'downloaded segment:' '333'
+>> >> 'downloaded segment:' '336'
+>> >> 'downloaded segment:' '334'
+>> >> completed segment:  331
+>> >> completed segment:  332
+>> >> completed segment:  333
+>> >> completed segment:  334
+>> >> completed segment:  335
+>> >> completed segment:  336
+>> >> 'worker' 1 'start seg:' '337' 'range:' '176685056-177209343' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '338' 'range:' '177209344-177733631' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '339' 'range:' '177733632-178257919' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '337'
+>> >> 'downloaded segment:' '338'
+>> >> 'downloaded segment:' '339'
+>> >> completed segment:  337
+>> >> completed segment:  338
+>> >> completed segment:  339
+>> >> 'worker' 3 'start seg:' '340' 'range:' '178257920-178782207' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '341' 'range:' '178782208-179306495' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '342' 'range:' '179306496-179830783' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '343' 'range:' '179830784-180355071' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '342'
+>> >> 'downloaded segment:' '341'
+>> >> 'downloaded segment:' '340'
+>> >> 'downloaded segment:' '343'
+>> >> completed segment:  340
+>> >> completed segment:  341
+>> >> completed segment:  342
+>> >> completed segment:  343
+>> >> 'worker' 7 'start seg:' '344' 'range:' '180355072-180879359' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '345' 'range:' '180879360-181403647' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '346' 'range:' '181403648-181927935' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '344'
+>> >> 'downloaded segment:' '345'
+>> >> 'downloaded segment:' '346'
+>> >> completed segment:  344
+>> >> completed segment:  345
+>> >> completed segment:  346
+>> >> 'worker' 6 'start seg:' '347' 'range:' '181927936-182452223' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '348' 'range:' '182452224-182976511' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '349' 'range:' '182976512-183500799' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '350' 'range:' '183500800-184025087' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '349'
+>> >> 'downloaded segment:' '347'
+>> >> 'downloaded segment:' '350'
+>> >> 'downloaded segment:' '348'
+>> >> completed segment:  347
+>> >> completed segment:  348
+>> >> completed segment:  349
+>> >> completed segment:  350
+>> >> 'worker' 9 'start seg:' '351' 'range:' '184025088-184549375' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '352' 'range:' '184549376-185073663' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '353' 'range:' '185073664-185597951' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '351'
+>> >> 'downloaded segment:' '352'
+>> >> 'downloaded segment:' '353'
+>> >> completed segment:  351
+>> >> completed segment:  352
+>> >> completed segment:  353
+>> >> 'worker' 0 'start seg:' '354' 'range:' '185597952-186122239' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '355' 'range:' '186122240-186646527' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '356' 'range:' '186646528-187170815' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '357' 'range:' '187170816-187695103' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '355'
+>> >> 'downloaded segment:' '356'
+>> >> 'downloaded segment:' '357'
+>> >> 'downloaded segment:' '354'
+>> >> completed segment:  354
+>> >> completed segment:  355
+>> >> completed segment:  356
+>> >> completed segment:  357
+>> >> 'worker' 5 'start seg:' '358' 'range:' '187695104-188219391' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '359' 'range:' '188219392-188743679' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '360' 'range:' '188743680-189267967' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '358'
+>> >> 'downloaded segment:' '359'
+>> >> 'downloaded segment:' '360'
+>> >> completed segment:  358
+>> >> completed segment:  359
+>> >> completed segment:  360
+>> >> 'worker' 3 'start seg:' '361' 'range:' '189267968-189792255' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '362' 'range:' '189792256-190316543' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '363' 'range:' '190316544-190840831' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '364' 'range:' '190840832-191365119' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '362'
+>> >> 'downloaded segment:' '361'
+>> >> 'downloaded segment:' '364'
+>> >> 'downloaded segment:' '363'
+>> >> completed segment:  361
+>> >> completed segment:  362
+>> >> completed segment:  363
+>> >> completed segment:  364
+>> >> 'worker' 2 'start seg:' '365' 'range:' '191365120-191889407' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '366' 'range:' '191889408-192413695' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '367' 'range:' '192413696-192937983' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '365'
+>> >> 'downloaded segment:' '366'
+>> >> 'downloaded segment:' '367'
+>> >> completed segment:  365
+>> >> completed segment:  366
+>> >> 'worker' 6 'start seg:' '368' 'range:' '192937984-193462271' 'size:' 524288 'SL=' 0
+>> >> completed segment:  367
+>> >> 'worker' 4 'start seg:' '369' 'range:' '193462272-193986559' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '370' 'range:' '193986560-194510847' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '371' 'range:' '194510848-195035135' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '368'
+>> >> 'downloaded segment:' '370'
+>> >> 'downloaded segment:' '371'
+>> >> 'downloaded segment:' '369'
+>> >> completed segment:  368
+>> >> 'worker' 8 'start seg:' '372' 'range:' '195035136-195559423' 'size:' 524288 'SL=' 0
+>> >> completed segment:  369
+>> >> 'worker' 1 'start seg:' '373' 'range:' '195559424-196083711' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '374' 'range:' '196083712-196607999' 'size:' 524288 'SL=' 0
+>> >> completed segment:  370
+>> >> completed segment:  371
+>> >> 'downloaded segment:' '372'
+>> >> 'downloaded segment:' '373'
+>> >> 'downloaded segment:' '374'
+>> >> 'worker' 0 'start seg:' '375' 'range:' '196608000-197132287' 'size:' 524288 'SL=' 0
+>> >> completed segment:  372
+>> >> 'worker' 4 'start seg:' '376' 'range:' '197132288-197656575' 'size:' 524288 'SL=' 0
+>> >> completed segment:  373
+>> >> 'downloaded segment:' '375'
+>> >> 'worker' 9 'start seg:' '377' 'range:' '197656576-198180863' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '378' 'range:' '198180864-198705151' 'size:' 524288 'SL=' 0
+>> >> completed segment:  374
+>> >> 'downloaded segment:' '377'
+>> >> 'downloaded segment:' '378'
+>> >> 'downloaded segment:' '376'
+>> >> completed segment:  375
+>> >> completed segment:  376
+>> >> completed segment:  377
+>> >> completed segment:  378
+>> >> 'worker' 0 'start seg:' '379' 'range:' '198705152-199229439' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '380' 'range:' '199229440-199753727' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '381' 'range:' '199753728-200278015' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '382' 'range:' '200278016-200802303' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '382'
+>> >> 'downloaded segment:' '379'
+>> >> 'downloaded segment:' '380'
+>> >> 'downloaded segment:' '381'
+>> >> completed segment:  379
+>> >> completed segment:  380
+>> >> completed segment:  381
+>> >> 'worker' 9 'start seg:' '383' 'range:' '200802304-201326591' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '384' 'range:' '201326592-201850879' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '385' 'range:' '201850880-202375167' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '383'
+>> >> 'downloaded segment:' '384'
+>> >> 'downloaded segment:' '385'
+>> >> completed segment:  382
+>> >> completed segment:  383
+>> >> completed segment:  384
+>> >> completed segment:  385
+>> >> 'worker' 2 'start seg:' '386' 'range:' '202375168-202899455' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '387' 'range:' '202899456-203423743' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '388' 'range:' '203423744-203948031' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '389' 'range:' '203948032-204472319' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '386'
+>> >> 'downloaded segment:' '389'
+>> >> 'downloaded segment:' '388'
+>> >> 'downloaded segment:' '387'
+>> >> completed segment:  386
+>> >> completed segment:  387
+>> >> completed segment:  388
+>> >> completed segment:  389
+>> >> 'worker' 5 'start seg:' '390' 'range:' '204472320-204996607' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '391' 'range:' '204996608-205520895' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '392' 'range:' '205520896-206045183' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '390'
+>> >> 'downloaded segment:' '391'
+>> >> 'downloaded segment:' '392'
+>> >> 'worker' 8 'start seg:' '393' 'range:' '206045184-206569471' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '394' 'range:' '206569472-207093759' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '395' 'range:' '207093760-207618047' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '396' 'range:' '207618048-208142335' 'size:' 524288 'SL=' 0
+>> >> completed segment:  390
+>> >> completed segment:  391
+>> >> completed segment:  392
+>> >> 'downloaded segment:' '393'
+>> >> 'downloaded segment:' '394'
+>> >> 'downloaded segment:' '395'
+>> >> 'downloaded segment:' '396'
+>> >> 'worker' 7 'start seg:' '397' 'range:' '208142336-208666623' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '398' 'range:' '208666624-209190911' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '399' 'range:' '209190912-209715199' 'size:' 524288 'SL=' 0
+>> >> completed segment:  393
+>> >> 'downloaded segment:' '397'
+>> >> completed segment:  394
+>> >> completed segment:  395
+>> >> 'downloaded segment:' '399'
+>> >> 'downloaded segment:' '398'
+>> >> completed segment:  396
+>> >> completed segment:  397
+>> >> completed segment:  398
+>> >> completed segment:  399
+>> >> 'worker' 0 'start seg:' '400' 'range:' '209715200-210239487' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '401' 'range:' '210239488-210763775' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '402' 'range:' '210763776-211288063' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '403' 'range:' '211288064-211812351' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '400'
+>> >> 'downloaded segment:' '401'
+>> >> 'downloaded segment:' '402'
+>> >> 'downloaded segment:' '403'
+>> >> completed segment:  400
+>> >> completed segment:  401
+>> >> completed segment:  402
+>> >> completed segment:  403
+>> >> 'worker' 3 'start seg:' '404' 'range:' '211812352-212336639' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '405' 'range:' '212336640-212860927' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '406' 'range:' '212860928-213385215' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '405'
+>> >> 'downloaded segment:' '404'
+>> >> 'downloaded segment:' '406'
+>> >> completed segment:  404
+>> >> completed segment:  405
+>> >> completed segment:  406
+>> >> 'worker' 2 'start seg:' '407' 'range:' '213385216-213909503' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '408' 'range:' '213909504-214433791' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '409' 'range:' '214433792-214958079' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '410' 'range:' '214958080-215482367' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '407'
+>> >> 'downloaded segment:' '409'
+>> >> 'downloaded segment:' '408'
+>> >> 'downloaded segment:' '410'
+>> >> completed segment:  407
+>> >> completed segment:  408
+>> >> completed segment:  409
+>> >> completed segment:  410
+>> >> 'worker' 6 'start seg:' '411' 'range:' '215482368-216006655' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '412' 'range:' '216006656-216530943' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '413' 'range:' '216530944-217055231' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '411'
+>> >> 'downloaded segment:' '412'
+>> >> 'downloaded segment:' '413'
+>> >> completed segment:  411
+>> >> completed segment:  412
+>> >> completed segment:  413
+>> >> 'worker' 8 'start seg:' '414' 'range:' '217055232-217579519' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '415' 'range:' '217579520-218103807' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '416' 'range:' '218103808-218628095' 'size:' 524288 'SL=' 0
+>> >> 'worker' 0 'start seg:' '417' 'range:' '218628096-219152383' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '416'
+>> >> 'downloaded segment:' '414'
+>> >> 'downloaded segment:' '417'
+>> >> 'downloaded segment:' '415'
+>> >> completed segment:  414
+>> >> completed segment:  415
+>> >> completed segment:  416
+>> >> completed segment:  417
+>> >> 'worker' 4 'start seg:' '418' 'range:' '219152384-219676671' 'size:' 524288 'SL=' 0
+>> >> 'worker' 9 'start seg:' '419' 'range:' '219676672-220200959' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '420' 'range:' '220200960-220725247' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '418'
+>> >> 'downloaded segment:' '419'
+>> >> 'downloaded segment:' '420'
+>> >> 'worker' 0 'start seg:' '421' 'range:' '220725248-221249535' 'size:' 524288 'SL=' 0
+>> >> completed segment:  418
+>> >> 'worker' 1 'start seg:' '422' 'range:' '221249536-221773823' 'size:' 524288 'SL=' 0
+>> >> completed segment:  419
+>> >> 'worker' 7 'start seg:' '423' 'range:' '221773824-222298111' 'size:' 524288 'SL=' 0
+>> >> 'worker' 2 'start seg:' '424' 'range:' '222298112-222822399' 'size:' 524288 'SL=' 0
+>> >> completed segment:  420
+>> >> 'downloaded segment:' '421'
+>> >> 'downloaded segment:' '422'
+>> >> 'downloaded segment:' '424'
+>> >> 'downloaded segment:' '423'
+>> >> 'worker' 9 'start seg:' '425' 'range:' '222822400-223346687' 'size:' 524288 'SL=' 0
+>> >> 'worker' 5 'start seg:' '426' 'range:' '223346688-223870975' 'size:' 524288 'SL=' 0
+>> >> 'worker' 6 'start seg:' '427' 'range:' '223870976-224395263' 'size:' 524288 'SL=' 0
+>> >> completed segment:  421
+>> >> completed segment:  422
+>> >> completed segment:  423
+>> >> 'downloaded segment:' '426'
+>> >> 'downloaded segment:' '425'
+>> >> completed segment:  424
+>> >> 'downloaded segment:' '427'
+>> >> completed segment:  425
+>> >> completed segment:  426
+>> >> completed segment:  427
+>> >> 'worker' 2 'start seg:' '428' 'range:' '224395264-224919551' 'size:' 524288 'SL=' 0
+>> >> 'worker' 1 'start seg:' '429' 'range:' '224919552-225443839' 'size:' 524288 'SL=' 0
+>> >> 'worker' 3 'start seg:' '430' 'range:' '225443840-225968127' 'size:' 524288 'SL=' 0
+>> >> 'worker' 8 'start seg:' '431' 'range:' '225968128-226492415' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '428'
+>> >> 'downloaded segment:' '430'
+>> >> 'downloaded segment:' '429'
+>> >> 'downloaded segment:' '431'
+>> >> completed segment:  428
+>> >> completed segment:  429
+>> >> completed segment:  430
+>> >> completed segment:  431
+>> >> 'worker' 5 'start seg:' '432' 'range:' '226492416-227016703' 'size:' 524288 'SL=' 0
+>> >> 'worker' 7 'start seg:' '433' 'range:' '227016704-227540991' 'size:' 524288 'SL=' 0
+>> >> 'worker' 4 'start seg:' '434' 'range:' '227540992-228065279' 'size:' 524288 'SL=' 0
+>> >> 'downloaded segment:' '432'
+>> >> 'downloaded segment:' '433'
+>> >> 'downloaded segment:' '434'
+>> >> completed segment:  432
+>> >> completed segment:  433
+>> >> completed segment:  434
+>> >> 'worker' 8 'start seg:' '435' 'range:' '228065280-228637591' 'size:' 572312 'SL=' 0
+>> >> 'downloaded segment:' '435'
+>> >> completed segment:  435
+>> done renaming file: /home/annorion/Desktop/new/_temp_pyiconic.deb ... to: /home/annorion/Desktop/new/pyiconic.deb
+>> file_manager 90: quitting
+>> File: "pyiconic.deb", completed.
+>> brain 90: quitting
+>> thread_manager 90: quitting

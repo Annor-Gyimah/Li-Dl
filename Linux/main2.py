@@ -55,6 +55,8 @@ from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRe
 
 from functools import wraps
 
+from PySide6.QtCore import QPropertyAnimation, QRect
+
 class YouTubeThread(QThread):
     finished = Signal(object)  # Signal to emit when the process is complete
 
@@ -238,39 +240,59 @@ class LicenseDialog(QDialog):
     def __init__(self, license_manager, parent=None):
         super().__init__(parent)
         self.license_manager = license_manager
+        self.animation = None  # Store the animation as an attribute to keep it alive
         self.setup_ui()
 
     def setup_ui(self):
         self.setWindowTitle("License Registration")
-        self.setWindowFlag(Qt.WindowCloseButtonHint, False)  # Disable the system close button to avoid unexpected closures
+        self.setWindowFlag(Qt.WindowCloseButtonHint, True)  # Disable the system close button
+        self.setStyleSheet("""
+            QDialog {
+                background-color: rgb(33, 37, 43);
+                color: white;
+            }
+            """
+        )
 
         # Main layout for the dialog
         main_layout = QVBoxLayout(self)
 
-        # Header section (optional logo or title)
+        # Header section
         header_layout = QHBoxLayout()
         header_label = QLabel("License Activation")
         header_label.setFont(QFont("Arial", 16, QFont.Bold))
         header_label.setAlignment(Qt.AlignCenter)
         header_layout.addWidget(header_label)
-
-        # You can add a logo here if needed:
-        # logo_label = QLabel()
-        # logo_label.setPixmap(QPixmap("path_to_logo.png"))
-        # header_layout.addWidget(logo_label, 0, Qt.AlignLeft)
-
-        # Spacer to add space between header and form
-        header_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-
         main_layout.addLayout(header_layout)
 
-        # Form layout to organize the input fields
+        # Form layout
         form_layout = QFormLayout()
         form_layout.setContentsMargins(20, 20, 20, 10)
         
         # Machine ID display
-        machine_id_label = QLabel(f"{self.license_manager.get_machine_id()}")
-        form_layout.addRow(QLabel("Machine ID:"), machine_id_label)
+        machine_id = self.license_manager.get_machine_id()
+        machine_id_label = QLabel(f"{machine_id}")
+        machine_id_label.setStyleSheet("font-size: 14px; padding: 5px;")
+        
+        # Copy button
+        copy_button = QPushButton("Copy")
+        copy_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3; color: white; 
+                padding: 5px 10px; font-size: 12px; border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #0b7dda;
+            }
+        """)
+        copy_button.clicked.connect(lambda: self.copy_to_clipboard(machine_id))
+        
+        # Machine ID layout
+        machine_id_layout = QHBoxLayout()
+        machine_id_layout.addWidget(machine_id_label)
+        machine_id_layout.addWidget(copy_button)
+        
+        form_layout.addRow(QLabel("Machine ID:"), machine_id_layout)
 
         # License key input
         self.license_input = QLineEdit()
@@ -278,19 +300,19 @@ class LicenseDialog(QDialog):
         self.license_input.setStyleSheet("padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;")
         form_layout.addRow(QLabel("License Key:"), self.license_input)
 
-        # License Status display (if needed)
+        # License Status display
         self.license_status_label = QLabel("Current license status: Trial")
         self.license_status_label.setStyleSheet("font-size: 12px; color: gray;")
         form_layout.addRow(self.license_status_label)
 
-        # Error message display (if needed)
+        # Error message display
         self.error_label = QLabel("")
         self.error_label.setStyleSheet("font-size: 12px; color: red; font-weight: bold;")
         form_layout.addRow(self.error_label)
 
         main_layout.addLayout(form_layout)
 
-        # Action buttons (Activate, Purchase, Close)
+        # Action buttons
         buttons_layout = QHBoxLayout()
         activate_button = QPushButton("Activate License")
         activate_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px 20px; font-size: 14px; border-radius: 4px;")
@@ -308,28 +330,42 @@ class LicenseDialog(QDialog):
         buttons_layout.addWidget(close_button)
 
         buttons_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
-
         main_layout.addLayout(buttons_layout)
 
-        # Add a spacer at the bottom for better alignment
+        # Add a spacer at the bottom
         main_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
 
         self.setLayout(main_layout)
+
+    def copy_to_clipboard(self, text):
+        """Copy the machine ID to the clipboard"""
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text)
+        QMessageBox.information(self, "Copied", "Machine ID copied to clipboard!")
 
     def activate_license(self):
         """Handle the license activation"""
         license_key = self.license_input.text().strip()
         if self.license_manager.upgrade_license(license_key):
-            
-            self.error_label.setText('Licenses activated successfully!')
-            self.error_label.setStyleSheet("font-size: 12px; color: green; font-weight: bold;")
             self.accept()  # Close the dialog if license is activated successfully
             self.show_success_message()
             print("License activated successfully!")
         else:
             self.error_label.setText("Invalid license key.")
-            #self.reject()  # Keep the dialog open if license is invalid
+            self.shake_dialog()  # Trigger animation on failure
             print("Invalid license key")
+
+        
+    def show_critical(self,title, msg):
+        critical_box = QMessageBox(self)
+        critical_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+        critical_box.setWindowTitle(title)
+        critical_box.setText(msg)
+        critical_box.setIcon(QMessageBox.Critical)
+        critical_box.setStandardButtons(QMessageBox.Ok)
+        critical_box.exec()
+
+
 
     def show_success_message(self):
         # Create a custom QMessageBox
@@ -340,9 +376,30 @@ class LicenseDialog(QDialog):
         msg_box.setIconPixmap(QPixmap(":/icons/images/icons/checkmark.png"))  # Custom success icon
         msg_box.exec()
 
+
+    def shake_dialog(self):
+        """Create a back-and-forth shaking animation for the dialog"""
+        if self.animation:  # Stop any ongoing animation
+            self.animation.stop()
+
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(400)  # Duration of the shake effect
+        self.animation.setLoopCount(3)  # Number of shake cycles
+
+        current_geometry = self.geometry()
+        offset = 10  # Shake distance
+
+        # Create the animation sequence: left -> right -> original position
+        self.animation.setKeyValueAt(0, current_geometry)
+        self.animation.setKeyValueAt(0.25, QRect(current_geometry.x() - offset, current_geometry.y(), current_geometry.width(), current_geometry.height()))
+        self.animation.setKeyValueAt(0.5, QRect(current_geometry.x() + offset, current_geometry.y(), current_geometry.width(), current_geometry.height()))
+        self.animation.setKeyValueAt(0.75, QRect(current_geometry.x() - offset, current_geometry.y(), current_geometry.width(), current_geometry.height()))
+        self.animation.setKeyValueAt(1, current_geometry)
+
+        self.animation.start()
+
     def open_purchase_page(self):
         machine_id = self.license_manager.get_machine_id()
-        # Open purchase page with machine ID
         import webbrowser
         webbrowser.open(f"https://your-store.com/purchase?machine_id={machine_id}")
 
@@ -350,18 +407,16 @@ class LicenseDialog(QDialog):
         """Handle dialog closure"""
         self.close_signal.emit()  # Emit the signal when closing the dialog
 
-    # def close_app(self):
-    #     """Handle dialog closure"""
-    #     sys.exit()
-
     def closeEvent(self, event):
-        """Override the close event to prevent closing when the license is invalid or expired."""
-        status = self.license_manager.check_license_status()
-        if status.get('valid') is False:
-            self.error_label.setText("Your license has expired or is invalid. Please activate your license.")
-            event.ignore()  # Prevent closing the dialog if the license is invalid or expired
-        else:
-            event.accept()  # Allow closing the dialog if the license is valid
+        """Override the close event to keep the dialog open."""
+        QMessageBox.warning(
+            self,
+            "Warning",
+            "You cannot close the license dialog without activating or purchasing a license.",
+            QMessageBox.Ok
+        )
+        event.ignore()  # Prevent the dialog from closing
+
 
 
 class LicenseCheckWorker(QThread):
@@ -643,43 +698,8 @@ class MainWindow(QMainWindow):
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
         self.one_time = True
+        self.licenses_check_once = False
         
-
-        
-    # def check_license(self):
-    #     # Check license status
-    #     status = self.license_manager.check_license_status()
-
-    #     if status.get('valid'):
-    #         # License is valid
-    #         if status.get('status') == 'TRIAL':
-    #             self.show_trial_banner(status.get('days_remaining', 0))
-    #         elif status.get('status') == 'ACTIVE':
-    #             pass
-    #             #print('License is active')
-    #     else:
-    #         # No valid license
-    #         if status.get('status') == 'INVALID':
-    #             print("License is invalid")
-    #             self.show_license_dialog()
-    #         else:
-    #             print('License expired')
-    #             # License expired
-    #             self.show_license_dialog()
-
-    # def show_trial_banner(self, days_remaining):
-    #     # Show trial banner with remaining days
-    #     print(f"Trial expires in {days_remaining} days.")
-
-    # def show_license_dialog(self):
-    #     dialog = LicenseDialog(self.license_manager, self)
-    #     if dialog.exec() == QDialog.Accepted:
-    #         dialog.close()
-    #     else:
-    #         return
-        
-        
-
 
     def handle_license_status(self, status):
         """Handle the license status once it's received from the worker thread"""
@@ -712,16 +732,25 @@ class MainWindow(QMainWindow):
         self.show_information('Trial', "", f"Trial active for {days_remaining} days remaining.")
         #print(f"Trial active for {days_remaining} days remaining.")
 
+    # def show_license_dialog(self):
+    #     dialog = LicenseDialog(self.license_manager, self)
+
+    #     # Connect the close_signal from LicenseDialog to the close_app method
+    #     dialog.close_signal.connect(self.close_app)
+
+    #     if dialog.exec() == QDialog.Accepted:
+    #         dialog.close()
+    #     else:
+    #         return
+
     def show_license_dialog(self):
         dialog = LicenseDialog(self.license_manager, self)
 
         # Connect the close_signal from LicenseDialog to the close_app method
         dialog.close_signal.connect(self.close_app)
 
-        if dialog.exec() == QDialog.Accepted:
-            dialog.close()
-        else:
-            return
+        dialog.exec()  # Keep the dialog open until it's explicitly closed via `accept()`
+
         
     def close_app(self):
         """Override the close method to ensure threads are safely finished before closing."""
@@ -790,8 +819,8 @@ class MainWindow(QMainWindow):
             
             if not status.get('valid'):
                 # If the license is invalid or expired, show a message and prevent the method from running
-                QMessageBox.warning(self, "License Required", "Your license has expired or is invalid. Please activate your license.")
-                
+                #QMessageBox.warning(self, "License Required", "Your license has expired or is invalid. Please activate your license.")
+                pass
                 # Optionally, show the license dialog
                 #self.show_license_dialog()
                 return None  # Don't run the original function
@@ -1234,6 +1263,16 @@ class MainWindow(QMainWindow):
         #     self.show_warning("No Internet","Please check your internet connection and try again")
         #     return
         
+        if not self.licenses_check_once:
+            
+            licenses.EnhancedLicenseManager().final_license_status_check()
+            self.licenses_check_once = True
+            print('Yes we have checked it after the first download')
+        else:
+            print("Weve already done this")
+            
+
+            
 
         if d is None:
             return
@@ -3095,7 +3134,7 @@ def ask_for_sched_time(msg=''):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon("icon.ico"))
+    app.setWindowIcon(QIcon("images/images/Dynamite.png"))
     #app.aboutToQuit.connect(update.schedule_update)
 
     # Create the main window
