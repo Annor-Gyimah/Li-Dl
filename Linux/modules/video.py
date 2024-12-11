@@ -12,7 +12,7 @@ import re
 import shlex
 import subprocess
 import sys
-import zipfile
+import tarfile
 import time
 from threading import Thread
 from urllib.parse import urljoin
@@ -367,7 +367,7 @@ def download_ffmpeg(destination=config.sett_folder):
     # print('config.sett_folder = ', config.sett_folder)
     d = DownloadItem(url=url, folder=config.ffmpeg_download_folder)
     d.update(url)
-    d.name = 'ffmpeg.zip'  # must rename it for unzip to find it
+    d.name = 'ffmpeg.tar.xz'  # must rename it for unzip to find it
     # print('d.folder = ', d.folder)
 
     # post download
@@ -378,59 +378,56 @@ def download_ffmpeg(destination=config.sett_folder):
 
 
 def unzip_ffmpeg():
-    log('unzip_ffmpeg:', 'unzipping')
+    log('Unzip FFmpeg:', 'Unzipping')
 
     try:
-        file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.zip')
-        with zipfile.ZipFile(file_name, 'r') as zip_ref:  # extract zip file
-            zip_ref.extractall(config.ffmpeg_download_folder)
+        file_name = os.path.join(config.ffmpeg_download_folder, 'ffmpeg.tar.xz')
+        
+        # Extract using tarfile for .tar.xz files
+        with tarfile.open(file_name, 'r:xz') as tar_ref:
+            tar_ref.extractall(config.ffmpeg_download_folder)
 
-        log('ffmpeg update:', 'delete zip file')
+        log('FFmpeg update:', 'Deleted zip file')
         delete_file(file_name)
-        log('ffmpeg update:', 'ffmpeg .. is ready at: ', config.ffmpeg_download_folder)
+        log('FFmpeg update:', 'FFmpeg is ready at: ', config.ffmpeg_download_folder)
     except Exception as e:
-        log('unzip_ffmpeg: error ', e)
+        log('Unzip FFmpeg: error ', e)
 
 
 def check_ffmpeg():
-    """check for ffmpeg availability, first: current folder, second config.global_sett_folder,
-    and finally: system wide"""
+    """Check for ffmpeg availability, first in current folder, then config.global_sett_folder, 
+    and finally system-wide"""
 
-    log('check ffmpeg availability?')
+    log('Checking FFmpeg availability...')
     found = False
 
-    # search in current app directory then default setting folder
+    # Search in current app directory then default setting folder
     try:
         for folder in [config.current_directory, config.global_sett_folder]:
             for file in os.listdir(folder):
-                # print(file)
-                if file == 'ffmpeg.exe':
+                if file == 'ffmpeg':
                     found = True
                     config.ffmpeg_actual_path = os.path.join(folder, file)
                     break
-            if found:  # break outer loop
+            if found:  # Break outer loop
                 break
-    except:
-        pass
+    except Exception as e:
+        log(f"Error while checking directories: {e}")
 
-    # Search in the system
+    # Search in the system path
     if not found:
-        cmd = 'where ffmpeg' if config.operating_system == 'Windows' else 'which ffmpeg'
+        cmd = 'which ffmpeg'
         error, output = run_command(cmd, verbose=False)
         if not error:
             found = True
-
-            # fix issue 47 where command line return \n\r with path
-            # todo: just ignore the output path since ffmpeg in sys path and  we can call ffmpeg directly
-            output = output.strip()
-            config.ffmpeg_actual_path = os.path.realpath(output)
+            config.ffmpeg_actual_path = os.path.realpath(output.strip())
 
     if found:
-        log('ffmpeg checked ok! - at: ', config.ffmpeg_actual_path)
+        log('FFmpeg checked OK! - at: ', config.ffmpeg_actual_path)
         return True
     else:
-        log(f'can not find ffmpeg!!, install it, or add executable location to PATH, or copy executable to ',
-            config.global_sett_folder, 'or', config.current_directory)
+        log('Can not find FFmpeg!! Install it or add its executable location to PATH.')
+        return False
 
 
 def merge_video_audio(video, audio, output, d):

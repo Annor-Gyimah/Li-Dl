@@ -2,12 +2,16 @@ import sys
 import uuid
 import hashlib
 import requests
-import getmac
+from getmac import get_mac_address
 import json
 import os
 from .utils import log
 import psutil
 from cryptography.fernet import Fernet
+from Crypto.Cipher import AES
+from Crypto.Util.Padding import pad, unpad
+from Crypto.Random import get_random_bytes
+
 import base64
 
 
@@ -39,32 +43,44 @@ class EnhancedLicenseManager:
         self.machine_id = self.get_machine_id()
 
         # Key file path
-        self.key_file = os.path.join(config_dir, 'key.key')
+        self.key_file = os.path.join(config_dir, 'aes_key.key')
 
-        # Encryption key
-        self.cipher = self._initialize_cipher()
+        # Initialize or load encryption key
+        self.key = self._initialize_key()
 
 
-    def _initialize_cipher(self):
-        """Initialize or load the encryption key."""
+    
+
+    def _initialize_key(self):
+        """Initialize or load the AES encryption key."""
         if not os.path.exists(self.key_file):
-            # Generate a new key if it doesn't exist
-            key = Fernet.generate_key()
+            # Generate a new 256-bit key
+            key = get_random_bytes(32)  # AES-256
             with open(self.key_file, 'wb') as f:
                 f.write(key)
         else:
             # Load the existing key
             with open(self.key_file, 'rb') as f:
                 key = f.read()
-        return Fernet(key)
+        return key
 
     def _encrypt(self, data):
-        """Encrypt data using the encryption key."""
-        return self.cipher.encrypt(data.encode())
+        """Encrypt data using AES."""
+        cipher = AES.new(self.key, AES.MODE_CBC)  # AES with CBC mode
+        iv = cipher.iv  # Initialization vector
+        encrypted_data = cipher.encrypt(pad(data.encode(), AES.block_size))
+        return iv + encrypted_data  # Prepend IV to the encrypted data
 
     def _decrypt(self, encrypted_data):
-        """Decrypt data using the encryption key."""
-        return self.cipher.decrypt(encrypted_data).decode()
+        """Decrypt data using AES."""
+        try:
+            iv = encrypted_data[:AES.block_size]  # Extract the IV
+            cipher = AES.new(self.key, AES.MODE_CBC, iv)
+            decrypted_data = unpad(cipher.decrypt(encrypted_data[AES.block_size:]), AES.block_size)
+            return decrypted_data.decode()
+        except (ValueError, KeyError) as e:
+            print(f"Decryption error: {e}")
+            return None
 
     def _read_license_file(self):
         """Read and decrypt license information from the JSON file."""
@@ -72,10 +88,12 @@ class EnhancedLicenseManager:
             if os.path.exists(self.license_file):
                 with open(self.license_file, 'rb') as f:
                     encrypted_data = f.read()
+                    print(f"Encrypted data read from file: {encrypted_data}")
                     decrypted_data = self._decrypt(encrypted_data)
-                    return json.loads(decrypted_data)
+                    print(f"Decrypted data: {decrypted_data}")
+                    return json.loads(decrypted_data) if decrypted_data else None
             return None
-        except (json.JSONDecodeError, IOError, Exception) as e:
+        except Exception as e:
             print(f"Error reading license file: {e}")
             return None
 
@@ -83,41 +101,100 @@ class EnhancedLicenseManager:
         """Encrypt and write license information to the JSON file."""
         try:
             data_str = json.dumps(license_data, indent=4)
+            print(f"Data to be encrypted: {data_str}")
             encrypted_data = self._encrypt(data_str)
             with open(self.license_file, 'wb') as f:
                 f.write(encrypted_data)
+            print(f"Encrypted data written to file: {encrypted_data}")
         except Exception as e:
             print(f"Error writing to license file: {e}")
-    
-    def get_active_interface_mac(self):
-        """Identify the active network interface and get its MAC address."""
-        active_interfaces = []
-        
-        # Iterate through network interfaces and their statuses
-        for nic, addrs in psutil.net_if_addrs().items():
-            stats = psutil.net_if_stats().get(nic)
-            if stats and stats.isup:  # Check if the interface is up (active)
-                for addr in addrs:
-                    if addr.family == psutil.AF_LINK:  # Check if it's a MAC address
-                        active_interfaces.append((nic, addr.address))
-        
-        if active_interfaces:
-            # Assuming the first active interface is the main one
-            interface, mac = active_interfaces[1]
-            return interface, mac
-        return None, None
 
+
+
+    
+    # def get_active_interface_mac(self):
+    #     """Identify the active network interface and get its MAC address."""
+    #     active_interfaces = []
+        
+    #     # Iterate through network interfaces and their statuses
+    #     for nic, addrs in psutil.net_if_addrs().items():
+    #         stats = psutil.net_if_stats().get(nic)
+    #         if stats and stats.isup:  # Check if the interface is up (active)
+    #             for addr in addrs:
+    #                 if addr.family == psutil.AF_LINK:  # Check if it's a MAC address
+    #                     active_interfaces.append((nic, addr.address))
+        
+    #     if active_interfaces:
+    #         # Assuming the first active interface is the main one
+    #         interface, mac = active_interfaces[1]
+    #         return interface, mac
+    #     return None, None
+
+
+    # def get_machine_id(self):
+    #     """Get a hashed machine ID based on the MAC address of the active interface."""
+    #     interface, mac = self.get_active_interface_mac()
+    #     if interface and mac:
+    #         hashed_mac = hashlib.sha256(mac.encode()).hexdigest()
+    #         # print(f"Hashed MAC: {hashed_mac}")
+    #     else:
+    #         print("No active network interface found!")
+        
+    #     return hashed_mac
+
+    def get_available_interfaces(self):
+        """Detect all available network interfaces on the system."""
+        interfaces = []
+        
+        # Get interfaces using psutil (works across OSes)
+        for interface, addrs in psutil.net_if_addrs().items():
+            interfaces.append(interface)
+        
+        return interfaces
+
+    def get_mac_by_interface(self, interface):
+        """Get the MAC address for a specified interface using the getmac library."""
+        try:
+            mac = get_mac_address(interface=interface)
+            if mac:
+                return mac
+            else:
+                print(f"MAC address for interface {interface} could not be found.")
+                return None
+        except Exception as e:
+            print(f"Error retrieving MAC address: {e}")
+            return None
 
     def get_machine_id(self):
-        """Get a hashed machine ID based on the MAC address of the active interface."""
-        interface, mac = self.get_active_interface_mac()
-        if interface and mac:
-            hashed_mac = hashlib.sha256(mac.encode()).hexdigest()
-            # print(f"Hashed MAC: {hashed_mac}")
-        else:
-            print("No active network interface found!")
+        """Get a hashed machine ID based on the MAC address of a specified interface."""
+        interfaces = self.get_available_interfaces()
         
-        return hashed_mac
+        if 'wlo1' in interfaces:
+            interface = 'wlo1'  # Wi-Fi interface on Linux
+        elif 'enp0s25' in interfaces:
+            interface = 'enp0s25'  # Ethernet interface on Linux
+        elif 'Ethernet' in interfaces:
+            interface = 'Ethernet'  # Ethernet on Windows
+        elif 'Wi-Fi' in interfaces:
+            interface = 'Wi-Fi'  # Wi-Fi on Windows
+        elif 'en0' in interfaces:
+            interface = 'en0'  # Ethernet or Wi-Fi on macOS
+        elif 'en1' in interfaces:
+            interface = 'en1'  # Secondary network interface on macOS
+        else:
+            print("No known interfaces found.")
+            return None
+
+        mac = self.get_mac_by_interface(interface)
+        if mac:
+            hashed_mac = hashlib.sha256(mac.encode()).hexdigest()
+            return hashed_mac
+            # print(f"Hashed MAC: {hashed_mac}")
+            # print(f"Interface: {interface}")
+            # print(f"MAC: {mac}")
+        else:
+            print(f"Could not retrieve MAC address for {interface}")
+            return None
 
     # def get_machine_id(self):
     #     """Get unique machine identifier using MAC address"""

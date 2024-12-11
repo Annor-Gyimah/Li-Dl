@@ -1,6 +1,6 @@
 -C package
 -s dir
 -t deb
--n "pyiconic"
--v 2024.10.29
--p pyiconic.deb
+-n "dynamite"
+-v 2024.12.15
+-p dynamite.deb

@@ -22,7 +22,8 @@ import re
 import time
 import copy
 import subprocess
-from threading import Thread, Timer, Lock
+import shutil
+from threading import Thread, Barrier, Timer, Lock
 from collections import deque
 
 from modules.downloaditem import DownloadItem
@@ -39,7 +40,7 @@ widgets = None
 
 from modules.utils import (clipboard_read, clipboard_write, size_format, validate_file_name, compare_versions, 
                            log, log_recorder, delete_file, time_format, truncate, notify, popup, open_file, run_command, handle_exceptions)
-from modules import config, brain, setting, video, update
+from modules import config, brain, setting, video, update, licenses
 
 from modules.video import(Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, get_ytdl_options, get_ytdl_options)
 
@@ -54,59 +55,10 @@ from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRe
 
 from functools import wraps
 
-
-# class YouTubeThread(QThread):
-#     finished = Signal(object)  # Signal to emit when the process is complete
-
-#     def __init__(self, url):
-#         super().__init__()
-#         self.url = url
-
-#     def change_cursor(self, cursor_type):
-#         """Change cursor to busy or normal."""
-#         if cursor_type == 'busy':
-#             QApplication.setOverrideCursor(Qt.WaitCursor)  # Busy cursor
-#         elif cursor_type == 'normal':
-#             QApplication.restoreOverrideCursor()  # Restore normal cursor
-
-#     def run(self):
-#         try:
-#             # Ensure youtube-dl is loaded
-#             if video.ytdl is None:
-#                 log('youtube-dl module still loading, please wait')
-#                 while not video.ytdl:
-#                     time.sleep(0.1)
-#             widgets.DownloadButton.setEnabled(False)
-#             log(f"Extracting info for URL: {self.url}")
-#             self.change_cursor('busy')
-#             # Extract information with youtube-dl
-#             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-#                 info = ydl.extract_info(self.url, download=False, process=False)
-#                 log('Media info:', info, log_level=3)
-
-#                 # Process the info and create Video objects
-#                 if info.get('_type') == 'playlist' or 'entries' in info:
-#                     pl_info = list(info.get('entries', []))
-#                     playlist = []
-#                     for item in pl_info:
-#                         url = item.get('url') or item.get('webpage_url') or item.get('id')
-#                         if url:
-#                             playlist.append(Video(url))
-#                     result = playlist
-#                 else:
-#                     result = Video(self.url, vid_info=None)
-
-#                 self.finished.emit(result)
-#                 self.change_cursor('normal')
-#                 widgets.DownloadButton.setEnabled(True)
-#         except Exception as e:
-#             log('YouTubeThread error:', e)
-#             self.finished.emit(None)
-
+from PySide6.QtCore import QPropertyAnimation, QRect
 
 class YouTubeThread(QThread):
-    finished = Signal(object)  # Signal when the process is complete
-    progress = Signal(int)  # Signal to update progress bar (0-100%)
+    finished = Signal(object)  # Signal to emit when the process is complete
 
     def __init__(self, url):
         super().__init__()
@@ -127,41 +79,32 @@ class YouTubeThread(QThread):
                 while not video.ytdl:
                     time.sleep(0.1)
             widgets.DownloadButton.setEnabled(False)
-            widgets.combo_setting_c.clear()
-            widgets.stream_combo.clear()
-            
             log(f"Extracting info for URL: {self.url}")
             self.change_cursor('busy')
-            
+            # Extract information with youtube-dl
             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
                 info = ydl.extract_info(self.url, download=False, process=False)
                 log('Media info:', info, log_level=3)
 
+                # Process the info and create Video objects
                 if info.get('_type') == 'playlist' or 'entries' in info:
                     pl_info = list(info.get('entries', []))
                     playlist = []
-                    for index, item in enumerate(pl_info):
+                    for item in pl_info:
                         url = item.get('url') or item.get('webpage_url') or item.get('id')
                         if url:
                             playlist.append(Video(url))
-                        # Emit progress as we process each playlist entry
-                        self.progress.emit(int((index + 1) * 100 / len(pl_info)))  
                     result = playlist
                 else:
-                    # For a single video, update progress on extraction
                     result = Video(self.url, vid_info=None)
-                    self.progress.emit(50)  # Just after extracting the info
-                    time.sleep(1)  # Simulating some processing
-                    self.progress.emit(100)  # Video info extraction complete
 
                 self.finished.emit(result)
                 self.change_cursor('normal')
                 widgets.DownloadButton.setEnabled(True)
-
         except Exception as e:
             log('YouTubeThread error:', e)
             self.finished.emit(None)
-
+    
 
 class CheckUpdateAppThread(QThread):
     app_update = Signal(bool)  # Emits True if a new version is available
@@ -289,16 +232,231 @@ class LogRecorderThread(QThread):
                 self.msleep(100)
 
 
+
+
+class LicenseDialog(QDialog):
+    close_signal = Signal()
+
+    def __init__(self, license_manager, parent=None):
+        super().__init__(parent)
+        self.license_manager = license_manager
+        self.animation = None  # Store the animation as an attribute to keep it alive
+        self.setup_ui()
+
+    def setup_ui(self):
+        self.setWindowTitle("License Registration")
+        self.setWindowFlag(Qt.WindowCloseButtonHint, True)  # Disable the system close button
+        self.setStyleSheet("""
+            QDialog {
+                background-color: rgb(33, 37, 43);
+                color: white;
+            }
+            """
+        )
+
+        # Main layout for the dialog
+        main_layout = QVBoxLayout(self)
+
+        # Header section
+        header_layout = QHBoxLayout()
+        header_label = QLabel("License Activation")
+        header_label.setFont(QFont("Arial", 16, QFont.Bold))
+        header_label.setAlignment(Qt.AlignCenter)
+        header_layout.addWidget(header_label)
+        main_layout.addLayout(header_layout)
+
+        # Form layout
+        form_layout = QFormLayout()
+        form_layout.setContentsMargins(20, 20, 20, 10)
+        
+        # Machine ID display
+        machine_id = self.license_manager.get_machine_id()
+        machine_id_label = QLabel(f"{machine_id}")
+        machine_id_label.setStyleSheet("font-size: 14px; padding: 5px;")
+        
+        # Copy button
+        copy_button = QPushButton("Copy")
+        copy_button.setStyleSheet("""
+            QPushButton {
+                background-color: #2196F3; color: white; 
+                padding: 5px 10px; font-size: 12px; border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #0b7dda;
+            }
+        """)
+        copy_button.clicked.connect(lambda: self.copy_to_clipboard(machine_id))
+        
+        # Machine ID layout
+        machine_id_layout = QHBoxLayout()
+        machine_id_layout.addWidget(machine_id_label)
+        machine_id_layout.addWidget(copy_button)
+        
+        form_layout.addRow(QLabel("Machine ID:"), machine_id_layout)
+
+        # License key input
+        self.license_input = QLineEdit()
+        self.license_input.setPlaceholderText("Enter your license key")
+        self.license_input.setStyleSheet("padding: 5px; font-size: 14px; border: 1px solid #ccc; border-radius: 4px;")
+        form_layout.addRow(QLabel("License Key:"), self.license_input)
+
+        # License Status display
+        self.license_status_label = QLabel("Current license status: Trial")
+        self.license_status_label.setStyleSheet("font-size: 12px; color: gray;")
+        form_layout.addRow(self.license_status_label)
+
+        # Error message display
+        self.error_label = QLabel("")
+        self.error_label.setStyleSheet("font-size: 12px; color: red; font-weight: bold;")
+        form_layout.addRow(self.error_label)
+
+        main_layout.addLayout(form_layout)
+
+        # Action buttons
+        buttons_layout = QHBoxLayout()
+        activate_button = QPushButton("Activate License")
+        activate_button.setStyleSheet("background-color: #4CAF50; color: white; padding: 10px 20px; font-size: 14px; border-radius: 4px;")
+        activate_button.clicked.connect(self.activate_license)
+        buttons_layout.addWidget(activate_button)
+
+        purchase_button = QPushButton("Purchase License")
+        purchase_button.setStyleSheet("background-color: #2196F3; color: white; padding: 10px 20px; font-size: 14px; border-radius: 4px;")
+        purchase_button.clicked.connect(self.open_purchase_page)
+        buttons_layout.addWidget(purchase_button)
+
+        close_button = QPushButton("Close")
+        close_button.setStyleSheet("background-color: #f44336; color: white; padding: 10px 20px; font-size: 14px; border-radius: 4px;")
+        close_button.clicked.connect(self.close_dialog)
+        buttons_layout.addWidget(close_button)
+
+        buttons_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Expanding, QSizePolicy.Minimum))
+        main_layout.addLayout(buttons_layout)
+
+        # Add a spacer at the bottom
+        main_layout.addItem(QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding))
+
+        self.setLayout(main_layout)
+
+    def copy_to_clipboard(self, text):
+        """Copy the machine ID to the clipboard"""
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text)
+        QMessageBox.information(self, "Copied", "Machine ID copied to clipboard!")
+
+    def activate_license(self):
+        """Handle the license activation"""
+        license_key = self.license_input.text().strip()
+        if self.license_manager.upgrade_license(license_key):
+            self.accept()  # Close the dialog if license is activated successfully
+            self.show_success_message()
+            print("License activated successfully!")
+        else:
+            self.error_label.setText("Invalid license key.")
+            self.shake_dialog()  # Trigger animation on failure
+            print("Invalid license key")
+
+        
+    def show_critical(self,title, msg):
+        critical_box = QMessageBox(self)
+        critical_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+        critical_box.setWindowTitle(title)
+        critical_box.setText(msg)
+        critical_box.setIcon(QMessageBox.Critical)
+        critical_box.setStandardButtons(QMessageBox.Ok)
+        critical_box.exec()
+
+
+
+    def show_success_message(self):
+        # Create a custom QMessageBox
+        msg_box = QMessageBox(self)
+        msg_box.setWindowTitle("Success")
+        msg_box.setText("Licenses activated successfully!")
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.setIconPixmap(QPixmap(":/icons/images/icons/checkmark.png"))  # Custom success icon
+        msg_box.exec()
+
+
+    def shake_dialog(self):
+        """Create a back-and-forth shaking animation for the dialog"""
+        if self.animation:  # Stop any ongoing animation
+            self.animation.stop()
+
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(400)  # Duration of the shake effect
+        self.animation.setLoopCount(3)  # Number of shake cycles
+
+        current_geometry = self.geometry()
+        offset = 10  # Shake distance
+
+        # Create the animation sequence: left -> right -> original position
+        self.animation.setKeyValueAt(0, current_geometry)
+        self.animation.setKeyValueAt(0.25, QRect(current_geometry.x() - offset, current_geometry.y(), current_geometry.width(), current_geometry.height()))
+        self.animation.setKeyValueAt(0.5, QRect(current_geometry.x() + offset, current_geometry.y(), current_geometry.width(), current_geometry.height()))
+        self.animation.setKeyValueAt(0.75, QRect(current_geometry.x() - offset, current_geometry.y(), current_geometry.width(), current_geometry.height()))
+        self.animation.setKeyValueAt(1, current_geometry)
+
+        self.animation.start()
+
+    def open_purchase_page(self):
+        machine_id = self.license_manager.get_machine_id()
+        import webbrowser
+        webbrowser.open(f"https://your-store.com/purchase?machine_id={machine_id}")
+
+    def close_dialog(self):
+        """Handle dialog closure"""
+        self.close_signal.emit()  # Emit the signal when closing the dialog
+
+    def closeEvent(self, event):
+        """Override the close event to keep the dialog open."""
+        QMessageBox.warning(
+            self,
+            "Warning",
+            "You cannot close the license dialog without activating or purchasing a license.",
+            QMessageBox.Ok
+        )
+        event.ignore()  # Prevent the dialog from closing
+
+
+
+class LicenseCheckWorker(QThread):
+    # Define a signal to send license status back to the main thread
+    license_status_signal = Signal(dict)
+
+    def __init__(self, license_manager):
+        super().__init__()
+        self.license_manager = license_manager
+
+    def run(self):
+        """Override run method to perform the license check in the background"""
+        # Perform the license check
+        status = self.license_manager.check_license_status()
+        # Emit the result using the signal
+        self.license_status_signal.emit(status)
+
 class MainWindow(QMainWindow):
     update_gui_signal = Signal(dict)
     def __init__(self, d_list):
         QMainWindow.__init__(self)
 
+        self.license_manager = licenses.EnhancedLicenseManager()
+
+        # Initialize the license check worker thread
+        self.license_check_worker = LicenseCheckWorker(self.license_manager)
+
+        # Connect the signal to handle the license check result
+        self.license_check_worker.license_status_signal.connect(self.handle_license_status)
+
+        # Start the worker thread to run the license check once
+        self.license_check_worker.start()
+
+        # Regular license check timer
+        # self.timer = QTimer(self)
+        # self.timer.timeout.connect(self.check_license)
+        # self.timer.start(1000)  # Check every 1 second
+
         # current download_item
         self.d = DownloadItem()
-
-        # Setup YouTube thread and connect signals
-        self.yt_thread = None
 
         self.dragPos = None
         # download windows
@@ -540,7 +698,79 @@ class MainWindow(QMainWindow):
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
         self.one_time = True
+        self.licenses_check_once = False
         
+
+    def handle_license_status(self, status):
+        """Handle the license status once it's received from the worker thread"""
+        if status.get('valid'):
+            # License is valid
+            if status.get('status') == 'TRIAL':
+                self.show_trial_banner(status.get('days_remaining', 0))
+            elif status.get('status') == 'ACTIVE':
+                print('License is active.')
+            elif status.get('status') == 'EXPIRED':
+                self.show_critical("Trial", "License has expired")
+                self.show_license_dialog()
+        else:
+            # No valid license
+            if status.get('status') == 'INVALID':
+                # Try to activate trial
+                trial_status = self.license_manager.activate_trial()
+                if trial_status:
+                    self.show_trial_banner(trial_status.get('days_remaining', 0))
+                else:
+                    self.show_license_dialog()
+            else:
+                self.show_critical("Trial", "License has expired")
+                print('License expired.')
+                # License expired
+                self.show_license_dialog()
+
+    def show_trial_banner(self, days_remaining):
+        # Show trial banner with remaining days
+        self.show_information('Trial', "", f"Trial active for {days_remaining} days remaining.")
+        #print(f"Trial active for {days_remaining} days remaining.")
+
+    # def show_license_dialog(self):
+    #     dialog = LicenseDialog(self.license_manager, self)
+
+    #     # Connect the close_signal from LicenseDialog to the close_app method
+    #     dialog.close_signal.connect(self.close_app)
+
+    #     if dialog.exec() == QDialog.Accepted:
+    #         dialog.close()
+    #     else:
+    #         return
+
+    def show_license_dialog(self):
+        dialog = LicenseDialog(self.license_manager, self)
+
+        # Connect the close_signal from LicenseDialog to the close_app method
+        dialog.close_signal.connect(self.close_app)
+
+        dialog.exec()  # Keep the dialog open until it's explicitly closed via `accept()`
+
+        
+    def close_app(self):
+        """Override the close method to ensure threads are safely finished before closing."""
+        
+        # Stop the background thread safely
+
+
+        if self.license_check_worker.isRunning():
+            log("Stopping background thread...")
+            self.license_check_worker.quit()  # Stop the thread gracefully
+            self.license_check_worker.wait()  # Wait for the thread to finish before closing the app
+        
+        # self.log_recorder_thread.wait()
+        # self.log_recorder_thread.quit()
+        
+        print("Exiting the application.")
+        sys.exit()  # Exit the app after the thread has been safely stopped
+
+       
+
 
     # BUTTONS CLICK
     # ///////////////////////////////////////////////////////////////
@@ -581,7 +811,27 @@ class MainWindow(QMainWindow):
         self.dragPos = event.globalPosition().toPoint()  # Use globalPosition() and convert to QPoint
 
 
+    def license_required(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            # Check the current license status
+            status = self.license_manager.check_license_status()
+            
+            if not status.get('valid'):
+                # If the license is invalid or expired, show a message and prevent the method from running
+                #QMessageBox.warning(self, "License Required", "Your license has expired or is invalid. Please activate your license.")
+                pass
+                # Optionally, show the license dialog
+                #self.show_license_dialog()
+                return None  # Don't run the original function
+                
+            # If license is valid, proceed with the method
+            return func(self, *args, **kwargs)
+        
+        return wrapper
+
     
+    @license_required  # This method now requires a valid license to run
     def on_clipboard_change(self):
         try:
             new_data = self.clipboard.text()
@@ -603,6 +853,10 @@ class MainWindow(QMainWindow):
         except Exception as e:
             log(f'Clipboard error: {str(e)}')
     
+    # def show_window(self):
+    #     """Show and raise window"""
+    #     self.show()
+    #     self.raise_()
     
     def handle_clipboard_error(self, error_msg: str):
         """Handle clipboard errors"""
@@ -625,6 +879,7 @@ class MainWindow(QMainWindow):
         if reply == QMessageBox.Yes:
             # Run the function from utils.py
             config.terminate = True
+            licenses.EnhancedLicenseManager().final_license_status_check()
             self.log_recorder_thread.wait()
             self.log_recorder_thread.quit()
             
@@ -634,6 +889,14 @@ class MainWindow(QMainWindow):
         else:
             # Ignore the event to keep the application running
             event.ignore()
+
+        
+    # def closeEvent(self, event):
+    #     # Ensure clean shutdown of all threads
+    #     config.terminate = True
+    #     self.log_recorder_thread.wait()
+    #     super().closeEvent(event)
+
 
     def setup(self):
         """initial setup"""
@@ -820,7 +1083,6 @@ class MainWindow(QMainWindow):
             # Use QThread for YouTube function
             self.yt_thread = YouTubeThread(url)
             self.yt_thread.finished.connect(self.on_youtube_finished)
-            self.yt_thread.progress.connect(self.update_progress_bar_value)  # Connect progress signal to update progress bar
             self.yt_thread.start()
 
     def on_youtube_finished(self, result):
@@ -842,15 +1104,6 @@ class MainWindow(QMainWindow):
 
         self.update_pl_menu()
         self.update_stream_menu()
-
-    
-
-    def update_progress_bar_value(self, value):
-        """Update the progress bar value in the GUI."""
-        try:
-            widgets.progressBar.setValue(value)  # Update progress bar with value (0-100)
-        except Exception as e:
-            print(f"Error updating progress bar: {e}")
 
     # region download folder
     def open_folder_dialog(self):
@@ -940,7 +1193,7 @@ class MainWindow(QMainWindow):
                     self.set_log()
                
                
-            # Save settings 
+            # Save settings (consider if this needs to be done every update)
             setting.save_setting()
             setting.save_d_list(self.d_list)
 
@@ -1009,7 +1262,17 @@ class MainWindow(QMainWindow):
         # if not self.check_internet():
         #     self.show_warning("No Internet","Please check your internet connection and try again")
         #     return
-         
+        
+        if not self.licenses_check_once:
+            
+            licenses.EnhancedLicenseManager().final_license_status_check()
+            self.licenses_check_once = True
+            print('Yes we have checked it after the first download')
+        else:
+            print("Weve already done this")
+            
+
+            
 
         if d is None:
             return
@@ -1266,7 +1529,7 @@ class MainWindow(QMainWindow):
     def reset_to_default_thumbnail(self):
         default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
         widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
-        log("Reset to default thumbnail due to error")
+        print("Reset to default thumbnail due to error")
 
 
     def ytdl_downloader(self):
@@ -1607,7 +1870,7 @@ class MainWindow(QMainWindow):
                 layout.addWidget(label)
 
                 # Radio buttons for choosing destination folder
-                recommended_radio = QRadioButton(f"Recommended: {config.ffmpeg_actual_path_2}")
+                recommended_radio = QRadioButton(f"Recommended: {config.global_sett_folder}")
                 recommended_radio.setChecked(True)
                 local_radio = QRadioButton(f"Local folder: {config.current_directory}")
 
@@ -1654,10 +1917,10 @@ class MainWindow(QMainWindow):
             else:
                 # Show error popup for non-Windows systems
                 QMessageBox.critical(self, 
-                                    f'FFmpeg is missing',
-                                    f'"ffmpeg" is required to merge an audio stream with your video.\n'
-                                    f'Executable must be found at {config.ffmpeg_actual_path_2} folder or add the ffmpeg path to system PATH.\n'
-                                    f"Please do 'sudo apt-get update' and 'sudo apt-get install ffmpeg' on Linux or 'brew install ffmpeg' on MacOS.")
+                                    'FFmpeg is missing',
+                                    '"ffmpeg" is required to merge an audio stream with your video.\n'
+                                    'Executable must be copied into the PyIDM folder or add the ffmpeg path to system PATH.\n'
+                                    'You can download it manually from https://www.ffmpeg.org/download.html.')
 
             return False
         else:
@@ -2395,9 +2658,10 @@ class MainWindow(QMainWindow):
             )
 
             if not self.start_update_thread.new_version_description:
-                self.show_critical(
+                self.show_information(
                     title="App Update",
-                    msg="Couldn't check for update \n Check your internet connection"
+                    inform="Check your internet connection",
+                    msg="Couldn't check for update"
                 )
     # def update_app(self, remote=True):
     #     """show changelog with latest version and ask user for update

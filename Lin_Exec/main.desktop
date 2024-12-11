@@ -4,7 +4,7 @@
 Type=Application
 
 # The application name.
-Name=PyIconic
+Name=Dynamite
 
 # Tooltip comment to show in menus.
 Comment= An open source (Internet Download Manager) with multi-connections and high speed engine.
@@ -17,5 +17,5 @@ Exec=/opt/main/main
 
 # The icon for the entry, using the name from `hicolor/scalable` without the extension.
 # You can also use a full path to a file in /opt.
-Icon=penguin
+Icon=Dynamite
 

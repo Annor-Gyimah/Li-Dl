@@ -95,8 +95,10 @@ download_folder = DEFAULT_DOWNLOAD_FOLDER
 
 # ffmpeg
 #ffmpeg_actual_path = None
-#ffmpeg_actual_path = "/usr/bin/ffmpeg"
-ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg/ffmpeg")
+ffmpeg_actual_path = "/usr/bin/ffmpeg"
+##ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "/usr/bin/ffmpeg")
+#ffmpeg_actual_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ffmpeg/ffmpeg")
+ffmpeg_actual_path_2 = "/usr/bin/"
 ffmpeg_download_folder = sett_folder
 
 # downloads

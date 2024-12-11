@@ -1935,7 +1935,7 @@ class Ui_MainWindow(object):
 
         # Combo box for Max Concurrent Downloads (1 to 100)
         self.combo_max_downloads = QComboBox(self.concurrentDownloadsRow)
-        self.combo_max_downloads.addItems([str(i) for i in range(1, 101)])  # Values from 1 to 100
+        self.combo_max_downloads.addItems([str(i) for i in range(1, 11)])  # Values from 1 to 100
 
         # Add to row layout
         self.concurrentRowLayout.addWidget(self.label_max_downloads)
