@@ -16,3 +16,6 @@ Linux/update.sh
 .fpm
 package.sh
 PyIconic.aip
+Linux/modules/downloads.cfg
+Linux/modules/log.txt
+Linux/modules/update.py
