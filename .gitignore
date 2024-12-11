@@ -9,4 +9,10 @@ PyIconic-cache
 PyIconic-MsiBuild-SetupFiles
 dynamite.deb
 Lin_Exec/penguin.png
-
+Linux/setup_file.json
+Linux/setup_file2.json
+Linux/setup_file3.json
+Linux/update.sh
+.fpm
+package.sh
+PyIconic.aip

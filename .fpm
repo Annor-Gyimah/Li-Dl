@@ -1,6 +1,0 @@
--C package
--s dir
--t deb
--n "dynamite"
--v 2024.12.15
--p dynamite.deb
