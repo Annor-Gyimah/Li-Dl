@@ -16,8 +16,8 @@ Presentation and tutorial video with the main functions of the user interface.
 > 🔗 https://youtu.be/9DnaHg4M_AM
 
 # Screenshots
-![PyDracula_Default_Dark](https://user-images.githubusercontent.com/60605512/112993874-0b647700-9140-11eb-8670-61322d70dbe3.png)
-![PyDracula_Light](https://user-images.githubusercontent.com/60605512/112993918-18816600-9140-11eb-837c-e7a7c3d2b05e.png)
+![PyDracula_Default_Dark](https://github.com/Annor-Gyimah/Li-Dl/blob/master/Linux/images/down.png)
+![PyDracula_Light](https://github.com/Annor-Gyimah/Li-Dl/blob/master/Linux/images/down2.png)
 
 # High DPI
 > Qt Widgets is an old technology and does not have a good support for high DPI settings, making these images look distorted when your system has DPI applied above 100%.
@@ -34,8 +34,12 @@ os.environ["QT_FONT_DPI"] = "96"
 > Inside your preferred terminal run the commands below depending on your system, remembering before installing Python 3.9> and requirements.txt "pip install -r requirements.txt".
 > ## **Windows**:
 ```console
+pip install -r requirements.txt
+```
+```console
 python main.py
 ```
+
 > ## **MacOS and Linux**:
 ```console
 python3 main.py
