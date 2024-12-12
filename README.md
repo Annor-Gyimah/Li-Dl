@@ -1,5 +1,9 @@
-# PyDracula - Modern GUI PySide6 / PyQt6
+# Dynamite Download Manager (DDM)
 # 
+
+Dynamite DM is a powerful download manager equipped with multi-connections and a high-speed engine,  designed to enhance your downloading experience. By utilizing multiple connections, 
+DDM splits files into smaller segments and downloads them simultaneously, significantly increasing download speeds. Its advanced high-speed engine ensures faster and more efficient downloading, even for large files.
+DDM supports a wide variety of file formats, enabling you to download general files, software, documents, and much more with ease. Additionally, it allows you to download videos from platforms like YouTube and Vimeo, as well as from tons of other streaming websites, making it a go-to tool for both regular and media-centric downloads. Its intuitive interface and robust features make it an essential tool for anyone looking to speed up their internet downloads while managing files effortlessly.
 
 > ## :gift: **//// DONATE ////**
 > ## 🔗 Donate (Gumroad): https://gum.co/mHsRC
