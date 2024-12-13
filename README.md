@@ -90,10 +90,4 @@ python3 main.py
 - **Link to `CONTRIBUTING.md`**: "https://github.com/Annor-Gyimah/Li-Dl/blob/master/CONTRIBUTING.md".
 
 
-# Projects Created Using PyDracula
-**See the projects that were created using PyDracula.**
-> To participate create a "Issue" with the name beginning with "#pydracula_project", leaving the link of your project on Github, name of the creator and what is its functionality. Your project will be added and this list will be deleted from "Issue".
-**Malicious programs will not be added**!
-
-
 
