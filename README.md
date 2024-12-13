@@ -37,6 +37,10 @@ DDM supports a wide variety of file formats, enabling you to download general fi
 # Download DDM Now
 # 🔗 Link: https://dynamite0.pythonanywhere.com/
 
+> ## :gift: **//// DONATE ////**
+> ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
+> Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
+
 
 # Screenshots
 ![image1](https://github.com/Annor-Gyimah/Li-Dl/blob/master/Linux/images/down.png)
@@ -67,9 +71,7 @@ python3 main.py
 - [ ] Add a multiple themes feature.
 
 
-> ## :gift: **//// DONATE ////**
-> ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
-> Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
+
 
 
 # How to Contribute
@@ -85,7 +87,7 @@ python3 main.py
 9. If your pull request is not merged, you will be notified of the reason why.
 10. If you have any questions or need help, please don't hesitate to contact us.
 
-- **Link to `CONTRIBUTING.md`**: Directs users to the full contribution guide that contains detailed steps.
+- **Link to `CONTRIBUTING.md`**: "https://github.com/Annor-Gyimah/Li-Dl/blob/master/CONTRIBUTING.md".
 
 
 # Projects Created Using PyDracula
