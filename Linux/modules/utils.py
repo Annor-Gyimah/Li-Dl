@@ -1,11 +1,4 @@
-"""
-    pyIDM
 
-    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySimpleGUI"
-
-    :copyright: (c) 2019-2020 by Mahmoud Elshahat.
-    :license: GNU LGPLv3, see LICENSE for more details.
-"""
 import base64
 import os
 import sys
@@ -29,7 +22,7 @@ except:
     print('pillow module is missing try to install it to display video thumbnails')
 
 from . import config
-from .iconsbase64 import thumbnail_icon
+
 
 
 def notify(msg, title='', timeout=5):
