@@ -6,14 +6,12 @@ DDM splits files into smaller segments and downloads them simultaneously, signif
 DDM supports a wide variety of file formats, enabling you to download general files, software, documents, and much more with ease. Additionally, it allows you to download videos from platforms like YouTube and Vimeo, as well as from tons of other streaming websites, making it a go-to tool for both regular and media-centric downloads. Its intuitive interface and robust features make it an essential tool for anyone looking to speed up their internet downloads while managing files effortlessly.
 
 > ## :gift: **//// DONATE ////**
-> ## 🔗 Donate (Gumroad): https://gum.co/mHsRC
-> This interface is free for any use, but if you are going to use it commercially, consider helping to maintain this project and others with a donation by Gumroado at the link above. This helps to keep this and other projects active.
+> ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
+> Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
 
-> **Warning**: this project was created using PySide6 and Python 3.9, using previous versions can cause compatibility problems.
+# Download DDM Now
+# 🔗 Donate Now: https://dynamite0.pythonanywhere.com/
 
-# YouTube - Presentation And Tutorial
-Presentation and tutorial video with the main functions of the user interface.
-> 🔗 https://youtu.be/9DnaHg4M_AM
 
 # Screenshots
 ![image1](https://github.com/Annor-Gyimah/Li-Dl/blob/master/Linux/images/down.png)
@@ -38,6 +36,10 @@ pip install -r requirements.txt
 ```console
 python3 main.py
 ```
+
+# To Dos
+- [ ] Add a multiple language feature.
+- [ ] Add a multiple themes feature.
 
 
 
