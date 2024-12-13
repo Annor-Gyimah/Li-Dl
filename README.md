@@ -1,6 +1,6 @@
 <p align="center">
   <img src="Linux/images/images/Dynamite.png" alt="Dynamite" width="200"/>
-  <h1 align="center">Limbo</h1>
+  <h1 align="center">DDM</h1>
 </p>
 
 # Dynamite Download Manager (DDM)
@@ -13,29 +13,29 @@ DDM supports a wide variety of file formats, enabling you to download general fi
 ## Features
 **These are the awesome features of DDM**
 - [ ] High download speeds "based on libcurl".
-- [ ]Multi-connection downloading "Multithreading"
-- [ ]Scan and resume uncompleted downloads.
-- [ ]Support for Youtube, and a lot of stream websites "using youtube-dl to fetch info and libcurl to download data".
-- [ ]download entire video playlist or selected videos.
-- [ ]support for fragmented video streams.
-- [ ]support for encrypted/nonencrypted HLS media streams.
-- [ ]watch videos while downloading*   "some videos will have no audio until finish downloading"
-- [ ]Auto check for application updates.
-- [ ]Scheduling downloads
-- [ ]Re-using existing connection to remote server.
-- [ ]Clipboard Monitor.
-- [ ]Refresh expired urls.
-- [ ]Simple GUI interface with 140 themes available.
-- [ ]proxy support (http, https, socks4, and socks5).
-- [ ]user can control a lot of options:
-    - set proxy.
-    - selecting Segment size.
-    - Speed limit.
-    - Max. Concurrent downloads.
-    - Max. connections per download.
+- [ ] Multi-connection downloading "Multithreading"
+- [ ] Scan and resume uncompleted downloads.
+- [ ] Support for Youtube, and a lot of stream websites "using youtube-dl to fetch info and libcurl to download data".
+- [ ] download entire video playlist or selected videos.
+- [ ] support for fragmented video streams.
+- [ ] support for encrypted/nonencrypted HLS media streams.
+- [ ] watch videos while downloading*   "some videos will have no audio until finish downloading"
+- [ ] Auto check for application updates.
+- [ ] Scheduling downloads
+- [ ] Re-using existing connection to remote server.
+- [ ] Clipboard Monitor.
+- [ ] Refresh expired urls.
+- [ ] Simple GUI interface with 140 themes available.
+- [ ] proxy support (http, https, socks4, and socks5).
+- [ ] user can control a lot of options:
+    - [ ] set proxy.
+    - [ ] selecting Segment size.
+    - [ ] Speed limit.
+    - [ ] Max. Concurrent downloads.
+    - [ ] Max. connections per download.
 
 # Download DDM Now
-# 🔗 Donate Now: https://dynamite0.pythonanywhere.com/
+# 🔗 Link: https://dynamite0.pythonanywhere.com/
 
 
 # Screenshots
