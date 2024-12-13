@@ -1,6 +1,8 @@
 <RCC>
   <qresource prefix="images">
     <file>images/images/PyDracula.png</file>
+    <file>images/images/Dynamite.png</file>
+    <file>images/images/Dynamite2.png</file>
     <file>images/images/PyDracula_vertical.png</file>
   </qresource>
   <qresource prefix="icons">
@@ -269,5 +271,6 @@
     <file>images/icons/thumbnail-default.png</file>
     <file>images/icons/icon_info.svg</file>
     <file>images/icons/cil-playlist.png</file>
+    <file>images/icons/checkmark.png</file>
   </qresource>
 </RCC>
