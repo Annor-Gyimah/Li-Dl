@@ -71,6 +71,23 @@ python3 main.py
 > ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
 > Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
 
+
+# How to Contribute
+**Please follow the rules below to contribute to this project:**
+1. Fork the repository.
+2. Create a new branch.
+3. Make your changes.
+4. Commit your changes.
+5. Push your changes.
+6. Create a pull request.
+7. Wait for the pull request to be reviewed and merged.
+8. If your pull request is merged, you will be added to the contributors list.
+9. If your pull request is not merged, you will be notified of the reason why.
+10. If you have any questions or need help, please don't hesitate to contact us.
+
+- **Link to `CONTRIBUTING.md`**: Directs users to the full contribution guide that contains detailed steps.
+
+
 # Projects Created Using PyDracula
 **See the projects that were created using PyDracula.**
 > To participate create a "Issue" with the name beginning with "#pydracula_project", leaving the link of your project on Github, name of the creator and what is its functionality. Your project will be added and this list will be deleted from "Issue".
