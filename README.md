@@ -15,7 +15,7 @@ DDM supports a wide variety of file formats, enabling you to download general fi
 - [ ] High download speeds "based on libcurl".
 - [ ] Multi-connection downloading "Multithreading"
 - [ ] Scan and resume uncompleted downloads.
-- [ ] Support for Youtube, and a lot of stream websites "using youtube-dl to fetch info and libcurl to download data".
+- [ ] Support for Youtube, and a lot of stream websites "using yt-dlp to fetch info and libcurl to download data".
 - [ ] download entire video playlist or selected videos.
 - [ ] support for fragmented video streams.
 - [ ] support for encrypted/nonencrypted HLS media streams.
