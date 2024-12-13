@@ -37,10 +37,6 @@ DDM supports a wide variety of file formats, enabling you to download general fi
 # Download DDM Now
 # 🔗 Link: https://dynamite0.pythonanywhere.com/
 
-> ## :gift: **//// DONATE ////**
-> ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
-> Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
-
 
 # Screenshots
 ![image1](https://github.com/Annor-Gyimah/Li-Dl/blob/master/Linux/images/down.png)
@@ -91,3 +87,6 @@ python3 main.py
 
 
 
+> ## :gift: **//// DONATE ////**
+> ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
+> Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
