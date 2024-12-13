@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="Linux/images/images/Dynamite.png" alt="Dynamite" width="200"/>
+  <h1 align="center">Limbo</h1>
+</p>
+
 # Dynamite Download Manager (DDM)
 # 
 
@@ -5,9 +10,29 @@ Dynamite Download Manager is a powerful download manager equipped with multi-con
 DDM splits files into smaller segments and downloads them simultaneously, significantly increasing download speeds. Its advanced high-speed engine ensures faster and more efficient downloading, even for large files.
 DDM supports a wide variety of file formats, enabling you to download general files, software, documents, and much more with ease. Additionally, it allows you to download videos from platforms like YouTube and Vimeo, as well as from tons of other streaming websites, making it a go-to tool for both regular and media-centric downloads. Its intuitive interface and robust features make it an essential tool for anyone looking to speed up their internet downloads while managing files effortlessly.
 
-> ## :gift: **//// DONATE ////**
-> ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
-> Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
+## Features
+**These are the awesome features of DDM**
+- [ ] High download speeds "based on libcurl".
+- [ ]Multi-connection downloading "Multithreading"
+- [ ]Scan and resume uncompleted downloads.
+- [ ]Support for Youtube, and a lot of stream websites "using youtube-dl to fetch info and libcurl to download data".
+- [ ]download entire video playlist or selected videos.
+- [ ]support for fragmented video streams.
+- [ ]support for encrypted/nonencrypted HLS media streams.
+- [ ]watch videos while downloading*   "some videos will have no audio until finish downloading"
+- [ ]Auto check for application updates.
+- [ ]Scheduling downloads
+- [ ]Re-using existing connection to remote server.
+- [ ]Clipboard Monitor.
+- [ ]Refresh expired urls.
+- [ ]Simple GUI interface with 140 themes available.
+- [ ]proxy support (http, https, socks4, and socks5).
+- [ ]user can control a lot of options:
+    - set proxy.
+    - selecting Segment size.
+    - Speed limit.
+    - Max. Concurrent downloads.
+    - Max. connections per download.
 
 # Download DDM Now
 # 🔗 Donate Now: https://dynamite0.pythonanywhere.com/
@@ -42,6 +67,9 @@ python3 main.py
 - [ ] Add a multiple themes feature.
 
 
+> ## :gift: **//// DONATE ////**
+> ## 🔗 Donate Now: https://dynamite0.pythonanywhere.com/donations_page
+> Please help us keep the app alive and add more interesting features by donating. Click on the Donate Now link above to make a contribution.
 
 # Projects Created Using PyDracula
 **See the projects that were created using PyDracula.**
