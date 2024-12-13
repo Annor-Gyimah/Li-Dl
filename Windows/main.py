@@ -2699,7 +2699,7 @@ def ask_for_sched_time(msg=''):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon("images/images/Dynamite.png"))
+    app.setWindowIcon(QIcon("Dynamite.ico"))
 
     # Create the main window
     window = MainWindow(config.d_list)

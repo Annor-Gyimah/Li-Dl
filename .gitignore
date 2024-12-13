@@ -24,3 +24,22 @@ dynamite_v*
 package/
 Lin_Exec/
 README copy.md
+Windows/app_run.py
+Windows/lic.txt
+Windows/linkss.txt
+Windows/run.py
+Windows/ref1.py
+Windows/ref2.py
+Windows/ref3.py
+Windows/setup.py
+Windows/Trial.dll
+Windows/Untitled-1.py
+Windows/update.bat
+Windows/modules/update.py
+Windows/modules/config.py
+Windows/modules/downloads.cfg
+Windows/modules/log.txt
+Windows/setup_file.json
+Windows/icon.ico
+cleanup.bat
+
