@@ -1,18 +1,3 @@
-2025.2.25:
-- New GUI design with fresh button icons for main tab.
-- Thumbnail auto preview for selected video.
-- Ability to show download window offline per user option.
-- fixed resume/overwrite existing download item.
-- Ability to cancel ongoing ffmpeg operation, i.e. merging audio/video or handling hls streams.
-- arrange settings tab.
-- right click options for url widget.
-- various GUI tweaks.
-- stop creating global settings folder automatically.
-- playlist/video info extracting process becomes faster 2 times.
-- Fixed problem of scheduled downloads
-
-
-
 2024.11.25:
 - New GUI design with fresh button icons for main tab.
 - Thumbnail auto preview for selected video.
