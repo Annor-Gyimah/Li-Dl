@@ -1,4 +1,4 @@
-2024.11.25:
+2024.12.25:
 - New GUI design with fresh button icons for main tab.
 - Thumbnail auto preview for selected video.
 - Ability to show download window offline per user option.
