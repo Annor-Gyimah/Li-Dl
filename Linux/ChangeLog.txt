@@ -1,3 +1,6 @@
+2025.1.25
+- Support for multiple languages such as French, Spanish, Japanese, Chinese, Korean
+
 2024.12.25:
 - New GUI design with fresh button icons for main tab.
 - Thumbnail auto preview for selected video.

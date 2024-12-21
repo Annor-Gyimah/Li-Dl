@@ -48,6 +48,7 @@ terminate = False
 # settings parameters
 current_theme = DEFAULT_THEME
 all_themes = []
+lang = "English"
 monitor_clipboard = True
 show_download_window = True
 auto_close_download_window = True
@@ -108,7 +109,7 @@ d_list = []
 main_window_q = Queue()  # queue for Main application window
 
 # settings parameters to be saved on disk
-settings_keys = ['current_theme', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
+settings_keys = ['current_theme', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
                  'segment_size', 'show_thumbnail', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
                  'log_level', 'download_folder']
