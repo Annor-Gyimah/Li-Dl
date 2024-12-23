@@ -1860,12 +1860,31 @@ class Ui_MainWindow(object):
         
         self.checkBox2 = QCheckBox("Show Download Window", self.generalFrame)
         self.checkBox3 = QCheckBox("Auto close DL Window", self.generalFrame)
-        self.checkBox4 = QCheckBox("Show Thumbnail", self.generalFrame)
-
+        #self.checkBox4 = QCheckBox("Show Thumbnail", self.generalFrame)
+        #self.checkBox5 = QCheckBox("On Startup", self.generalFrame)
         self.generalLayout.addWidget(self.monitor_clipboard)
         self.generalLayout.addWidget(self.checkBox2)
         self.generalLayout.addWidget(self.checkBox3)
-        self.generalLayout.addWidget(self.checkBox4)
+        #self.generalLayout.addWidget(self.checkBox4)
+        #self.generalLayout.addWidget(self.checkBox5)
+
+        # Create a row for checkbox4 and checkbox5
+        self.checkboxRow = QFrame(self.generalFrame)
+        self.checkboxRow.setObjectName(u"checkboxRow")
+        self.checkboxRowLayout = QHBoxLayout(self.checkboxRow)
+        self.checkboxRowLayout.setSpacing(10)
+        self.checkboxRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Add checkbox4 to the new row
+        self.checkBox4 = QCheckBox("Show Thumbnail", self.checkboxRow)
+        self.checkboxRowLayout.addWidget(self.checkBox4)
+
+        # Add checkbox5 to the new row
+        self.checkBox5 = QCheckBox("On Startup", self.checkboxRow)
+        self.checkboxRowLayout.addWidget(self.checkBox5)
+
+        # Add the new checkbox row to the general layout
+        self.generalLayout.addWidget(self.checkboxRow)
 
 
         # QLabel and QComboBox on one row
@@ -1894,10 +1913,12 @@ class Ui_MainWindow(object):
         self.generalSegRowLayout.addWidget(self.label_segment)
         self.generalSegRowLayout.addWidget(self.lineEdit_segment)
         self.generalSegRowLayout.addWidget(self.segment_combo_setting)
+
         
 
         # Add row to general layout
         self.generalLayout.addWidget(self.generalSegmentRow)
+        
 
         
         
@@ -2201,6 +2222,16 @@ class Ui_MainWindow(object):
         self.totalSpeedValue.setText("⬇⬆ 0 bytes/s")  # Default value
         #self.totalSpeedValue.setStyleSheet(u"background-color: white;")
         self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedValue)
+
+        # Network widget
+        self.wifi = QLabel(self.statusSpeedFrame)
+        # self.wifi.setFixedSize(15, 10)
+        self.wifi.setPixmap(QPixmap(":/icons/images/icons/cil-wifi-signal-0.png").scaled(15, 15, Qt.KeepAspectRatio))
+        self.horizontalLayout_statusSpeed.addWidget(self.wifi)
+
+        # self.home_video_thumbnail_label = QLabel(self.home_row_6)
+        # self.home_video_thumbnail_label.setFixedSize(150, 100)  # Fixed size for thumbnail
+        # self.home_video_thumbnail_label.setPixmap(QPixmap(":/icons/images/icons/thumbnail-default.png").scaled(150, 150, Qt.KeepAspectRatio))
 
         # Add the statusSpeedFrame to the bottom bar's layout
         self.horizontalLayout_5.addWidget(self.statusSpeedFrame)

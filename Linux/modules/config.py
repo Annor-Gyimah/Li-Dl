@@ -1,7 +1,7 @@
 """
     pyIDM
 
-    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySimpleGUI"
+    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySide6"
 
     :copyright: (c) 2019-2020 by Mahmoud Elshahat.
     :license: GNU LGPLv3, see LICENSE for more details.
@@ -54,6 +54,7 @@ show_download_window = True
 auto_close_download_window = True
 segment_size = DEFAULT_SEGMENT_SIZE  # in bytes
 show_thumbnail = True  # auto preview video thumbnail at main tab
+on_startup = True
 
 # connection / network
 speed_limit = 0  # in kbytes, zero == no limit  todo: make it in bytes instead of kb
@@ -110,7 +111,7 @@ main_window_q = Queue()  # queue for Main application window
 
 # settings parameters to be saved on disk
 settings_keys = ['current_theme', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
-                 'segment_size', 'show_thumbnail', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
+                 'segment_size', 'show_thumbnail', 'on_startup', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
                  'log_level', 'download_folder']
 

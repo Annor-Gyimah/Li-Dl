@@ -31,7 +31,8 @@ widgets = None
 from modules.utils import (size_format, validate_file_name, compare_versions, 
                            log, delete_file, time_format, truncate, 
                            notify, popup, run_command, handle_exceptions)
-from modules import config, brain, setting, video, update
+from modules import config, brain, setting, video, update, startup
+#from modules.startup import(checkStartUp)
 from modules.video import (Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, 
                            get_ytdl_options, get_ytdl_options)
 from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication
@@ -41,8 +42,30 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageB
                                QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
                                QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
-                               QHeaderView, QScrollArea, QCheckBox)
+                               QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+
+
+class InternetChecker(QThread):
+    # Define a signal to send the result back to the main thread
+    internet_status_changed = Signal(bool)
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.is_connected = False  # Add a flag to store the connection status
+
+    def run(self):
+        """Runs the internet check in the background."""
+        url = "https://www.google.com"
+        timeout = 10
+        try:
+            # Requesting URL to check for internet connectivity
+            request = requests.get(url, timeout=timeout)
+            self.is_connected = True  # Update the connection status
+            self.internet_status_changed.emit(True)
+        except (requests.ConnectionError, requests.Timeout):
+            self.is_connected = False  # Update the connection status
+            self.internet_status_changed.emit(False)
 
 
 class YouTubeThread(QThread):
@@ -445,6 +468,7 @@ class MainWindow(QMainWindow):
         widgets.checkBox2.setChecked(config.show_download_window)
         widgets.checkBox3.setChecked(config.auto_close_download_window)
         widgets.checkBox4.setChecked(config.show_thumbnail)
+        widgets.checkBox5.setChecked(config.on_startup)
         
         widgets.combo_setting.setCurrentText('Global' if config.sett_folder == config.global_sett_folder else 'Local')
         seg_size = config.segment_size // 1024  # kb
@@ -458,7 +482,6 @@ class MainWindow(QMainWindow):
         widgets.segment_combo_setting.setCurrentText(seg_size_unit)
         # Connect the stateChanged signal of the checkbox to the update function
 
-        #widgets.combo_language.addItems(self.__language_dict.keys())
         widgets.lineEdit_network.setText(str(config.speed_limit) if config.speed_limit > 0 else "")
         widgets.checkBox_network.setChecked(True if config.speed_limit > 0 else False)
         widgets.combo_max_downloads.setCurrentText(str(config.max_concurrent_downloads))
@@ -489,8 +512,14 @@ class MainWindow(QMainWindow):
         self.current_language = config.lang
         self.apply_language(self.current_language)
 
-        #widgets.combo_language.currentTextChanged.connect(self.__langChanged)
-        
+        # Initialize the InternetChecker thread
+        self.internet_checker = InternetChecker()
+        self.internet_checker.internet_status_changed.connect(self.update_wifi_icon)
+
+        # Set up a QTimer to periodically check the internet connection
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_internet)
+        self.timer.start(5000)  # 5 seconds interval (can be adjusted)
         
 
     # BUTTONS CLICK
@@ -532,40 +561,6 @@ class MainWindow(QMainWindow):
         self.dragPos = event.globalPosition().toPoint()  # Use globalPosition() and convert to QPoint
 
 
-    # def __initVal(self):
-    #     self.__language_dict = {
-    #         "en_US": "English",
-    #         "es_ES": "Spanish",
-    #         "zh_CN": "Chinese",
-    #         "ru_RU": "Russian",
-    #         "ko_KR": "Korean",
-    #         "fr_FR": "French",
-    #         "de_DE": "German",
-    #         "it_IT": "Italian",
-    #         "hi_IN": "Hindi",
-    #         "ar_AE": "Arabic"
-    #     }
-    
-    # def __langChanged(self, lang=None):
-    #     translations = {}
-    #     with open('translations.json', 'r', encoding='utf-8') as file:
-    #         translations = json.load(file)
-
-    #     language = lang
-    #     if not lang:
-    #         language = QLocale.system().name()
-    #         if language not in translations:
-    #             language = 'en_US'  # Default language
-
-
-    #     translation = translations[language]
-    #     print(translation)
-    #     widgets.home_open_pushButton.setText(translation['Open'])
-    #     # self.__sampleLbl.setText(translation['Hello World!'])
-    #     # self.setWindowTitle(translation['Translation Example'])
-    #     # self.__langLbl.setText(translation['Language'])
-
-   
     def resource_path2(self, relative_path):
         """ Get absolute path to resource, works for dev and for PyInstaller """
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
@@ -593,6 +588,31 @@ class MainWindow(QMainWindow):
 
         # Update the UI
         self.retrans()
+
+    # This is used when running the application from an IDE
+
+    # def apply_language(self, language):
+    #     # Load and apply the selected language
+    #     if language == "French":
+    #         if self.translator.load("translations/app_fr.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Spanish":
+    #         if self.translator.load("translations/app_es.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Chinese":
+    #         if self.translator.load("translations/app_zh.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Korean":
+    #         if self.translator.load("translations/app_ko.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Japanese":
+    #         if self.translator.load("translations/app_ja.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     else:
+    #         QCoreApplication.instance().removeTranslator(self.translator)
+
+    #     # Update the UI
+    #     self.retrans()
 
     def retrans(self):
         # Home Translations
@@ -628,6 +648,7 @@ class MainWindow(QMainWindow):
         widgets.btn_new.setText(self.tr("Logs"))
         widgets.toggleButton.setText(self.tr("Hide"))
         widgets.toggleLeftBox.setText(self.tr("About"))
+        # widgets.combo_language.addItems([self.tr("English"), self.tr("Spanish"), self.tr("French"), self.tr("Japanese"), self.tr("Chinese"), self.tr("Korean")])
 
         # Settings Translations
         widgets.label_general.setText(self.tr("General"))
@@ -637,6 +658,7 @@ class MainWindow(QMainWindow):
         widgets.checkBox2.setText(self.tr("Show Download Window"))
         widgets.checkBox3.setText(self.tr("Auto close DL Window"))
         widgets.checkBox4.setText(self.tr("Show Thumbnail"))
+        widgets.checkBox5.setText(self.tr("On Startup"))
         widgets.label_segment.setText(self.tr("Segment"))
         widgets.label_connection.setText(self.tr("Connection / Network"))
         widgets.checkBox_network.setText(self.tr("Speed Limit"))
@@ -688,7 +710,33 @@ class MainWindow(QMainWindow):
         log(error_msg)
 
     def closeEvent(self, event):
-        # Optionally confirm with the user
+        """
+        Quit the application and put it at the system's tray.
+        """
+        
+        event.ignore()  # Prevent the window from closing
+        self.hide()
+        config.terminate = False
+        
+
+
+    def restore_window(self):
+        """
+        Show the main window again when clicking the tray icon.
+        """
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
+    def quit_app(self):
+        """
+        Quit the application completely (triggered by the tray icon 'Exit' action).
+        """
+
+        self.show()
+        self.raise_()
+        self.activateWindow()
+
         reply = QMessageBox.question(
             self,
             self.tr("Confirm Exit"),
@@ -703,12 +751,18 @@ class MainWindow(QMainWindow):
             self.log_recorder_thread.wait()
             self.log_recorder_thread.quit()
             
-            super().closeEvent(event)
-            # Accept the event to close the application
-            event.accept()
+            QApplication.quit()
+            
         else:
-            # Ignore the event to keep the application running
-            event.ignore()
+            pass
+
+    def minimize_to_tray(self):
+        """
+        Minimize the main window to the system tray.
+        """
+        self.hide()
+        
+
 
     def setup(self):
         """initial setup"""
@@ -768,6 +822,10 @@ class MainWindow(QMainWindow):
             elif k == 'show_update_gui':  # show update gui
                 self.show_update_gui()
             
+            elif k == "restore_window":
+                config.terminate = False
+                self.restore_window()
+
             elif k == 'popup':
                 type_ = v['type_']
                 if type_ == 'info':
@@ -1009,6 +1067,8 @@ class MainWindow(QMainWindow):
                     self.set_log()
                 elif key == 'switch_language':
                     self.switch_language()
+                elif key == 'on_startup':
+                    self.on_startup()
                 
                
                
@@ -1049,6 +1109,8 @@ class MainWindow(QMainWindow):
         self.queue_update('set_log', None)
         self.queue_update('switch_language', None)
         self.queue_update('current_lang', None)
+        self.queue_update('on_startup', None)
+        
         #self.queue_update('thumbnail', None)
     
     
@@ -1110,11 +1172,12 @@ class MainWindow(QMainWindow):
         except FileNotFoundError:
             df, dne = self.tr('destination folder'), self.tr('does not exist')
             self.show_information(f'{fe}', self.tr('Please enter a valid folder name'), f'{df} {folder} {dne}')
-           
             return
+        
         except PermissionError:
             ydh = self.tr("you don't have enough permission for destination folder")
             self.show_information(f'{fe}', f"{ydh} {folder}", "")
+            return
            
         except Exception as e:
             pidf = self.tr("problem in destination folder")
@@ -1154,12 +1217,19 @@ class MainWindow(QMainWindow):
 
             if not silent:
                 # show dialogue
-                msg_text = (f'File with the same name: \n{self.d.name},\n already exists in download list\n'
-                'Do you want to resume this file?\n'
-                'Resume ==> continue if it has been partially downloaded ... \n'
-                'Overwrite ==> delete old downloads and overwrite existing item... \n'
-                'Note: if you need a fresh download, you have to change file name \n'
-                'or target folder, or delete the same entry from the download list.')
+                msg_text_a = self.tr("File with the same name:")
+                msg_text_b = self.tr("already exists in download list")
+                msg_text_c = self.tr("Do you want to resume this file?")
+                msg_text_d = self.tr("Resume ==> continue if it has been partially downloaded ...")
+                msg_text_e = self.tr("Overwrite ==> delete old downloads and overwrite existing item... ")
+                msg_text_f = self.tr("Note: if you need a fresh download, you have to change file name ")
+                msg_text_g = self.tr("or target folder, or delete the same entry from the download list.")
+                msg_text = (f'{msg_text_a} \n{self.d.name},\n {msg_text_b}\n'
+                f'{msg_text_c}\n'
+                f'{msg_text_d} \n'
+                f'{msg_text_e}\n'
+                f'{msg_text_f}\n'
+                f'{msg_text_g}')
 
                 # Create a QMessageBox
                 msg = QMessageBox()
@@ -1227,11 +1297,18 @@ class MainWindow(QMainWindow):
             return
 
         # start downloading
-        if config.show_download_window and not silent:
+        if config.show_download_window:
             # create download window
             self.download_windows[d.id] = DownloadWindow(d)
-            self.download_windows[d.id].show()  # Add this line
+            self.download_windows[d.id].show()  
 
+        # Using this will not the progress bar work for resuming downloads.
+        # if config.show_download_window and not silent:
+        #     # create download window
+        #     self.download_windows[d.id] = DownloadWindow(d)
+        #     self.download_windows[d.id].show()
+        
+        
         # create and start brain in a separate thread
         Thread(target=brain.brain, daemon=True, args=(d, downloader)).start()
 
@@ -1303,17 +1380,14 @@ class MainWindow(QMainWindow):
 
                 if thumbnail.startswith(('http://', 'https://')):
                     # If it's a URL, download the image
-                    print(f"Downloading thumbnail from URL: {thumbnail}")
                     request = QNetworkRequest(QUrl(thumbnail))
                     self.network_manager.get(request)
                 else:
                     # If it's a local file path
                     pixmap = QPixmap(thumbnail)
                     if not pixmap.isNull():
-                        print(f"Loaded local thumbnail: {thumbnail}")
                         widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
                     else:
-                        print(f"Failed to load local thumbnail: {thumbnail}")
                         self.reset_to_default_thumbnail()
 
         except Exception as e:
@@ -1816,48 +1890,52 @@ class MainWindow(QMainWindow):
         information_box.exec()
         return
 
-    def check_internet(self):
-        """Check if the system has internet connectivity."""
-
-        # initializing URL
-        url = "https://www.google.com"
-        timeout = 10
-        try:
-            # requesting URL
-            request = requests.get(url,
-                                timeout=timeout)
-            log("Internet is on")
-            return True
-        # catching exception
-        except (requests.ConnectionError,
-                requests.Timeout) as exception:
-            log("Internet is off")
-        
+    # endregion
 
     def resume_btn(self):
         # Ensure a row is selected
         selected_row = widgets.tableWidget.currentRow()
-
-        # Set selected_row_num to the selected row
         self.selected_row_num = selected_row
 
-        # Now, self.selected_d should be properly set by the property
         if self.selected_d is None:
-            self.show_warning(self.tr("Error"),self.tr("No download item selected"))
-            # QMessageBox.warning(self, 'Error', "No download item selected.", QMessageBox.Ok)
-            # return
+            self.show_warning(self.tr("Error"), self.tr("No download item selected"))
+            return
 
-        # Check if there is internet connectivity
-        if not self.check_internet():
-            self.show_warning(self.tr("No Internet"),self.tr("Please check your internet connection and try again"))
-            # QMessageBox.warning(self, 'No Internet', "Please check your internet connection and try again.", QMessageBox.Ok)
-            # return
+        # Check if the internet_checker is already running
+        if not self.internet_checker.isRunning():
+            # Start the internet check if it's not running
+            self.internet_checker.internet_status_changed.connect(self.on_internet_check_done)
+            self.internet_checker.start()  # Start the thread to check internet status
+        else:
+            # If the thread is already running, proceed directly with the result from the last check
+            self.on_internet_check_done(self.internet_checker.is_connected)
 
-        # If everything is good, resume the download
-        # try:
+    def on_internet_check_done(self, is_connected):
+        """This method is triggered when the internet check is done."""
+        # Disconnect the signal to avoid multiple connections
+        self.internet_checker.internet_status_changed.disconnect(self.on_internet_check_done)
+
+        # Check if the internet is available
+        if not is_connected:
+            self.show_warning(self.tr("No Internet"), self.tr("Please check your internet connection and try again"))
+            #return
+
+        # If internet is available, resume the download
         self.start_download(self.selected_d, silent=True)
-        # except Exception as e:
-        #     QMessageBox.critical(self, 'Error', f"An error occurred while resuming the download: {e}", QMessageBox.Ok)
+
+    def check_internet(self):
+        """Start the internet checker thread every time the timer times out."""
+        self.internet_checker.start()
+
+    def update_wifi_icon(self, is_connected):
+        """Update the wifi icon based on internet connectivity."""
+        if is_connected:
+            default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-4.png")
+        else:
+            default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-0.png")
+        
+        # Update the wifi icon in the UI
+        widgets.wifi.setPixmap(default_pixmap.scaled(15, 15, Qt.KeepAspectRatio))
 
 
         
@@ -2168,6 +2246,7 @@ class MainWindow(QMainWindow):
         response = ask_for_sched_time(msg=self.selected_d.name)
         if response:
             self.selected_d.sched = response
+
     
     def cancel_schedule(self):
         selected_row = widgets.tableWidget.currentRow()
@@ -2196,17 +2275,27 @@ class MainWindow(QMainWindow):
 
         d = self.selected_d
         if d:
-            text = f'Name: {d.name} \n' \
-                    f'Folder: {d.folder} \n' \
-                    f'Progress: {d.progress}% \n' \
-                    f'Downloaded: {size_format(d.downloaded)} \n' \
-                    f'Total size: {size_format(d.total_size)} \n' \
-                    f'Status: {d.status} \n' \
-                    f'Resumable: {d.resumable} \n' \
-                    f'Type: {d.type} \n' \
-                    f'Protocol: {d.protocol} \n' \
-                    f'Webpage url: {d.url}'
-            self.show_information("File Properties", inform="", msg=f"{text}")
+            d_name = self.tr("Name:")
+            d_folder = self.tr("Folder:")
+            d_progress = self.tr("Progress:")
+            d_total_size = self.tr("Total size:")
+            d_status = self.tr("Status:")
+            d_resumable = self.tr("Resumable:")
+            d_type = self.tr("Type:")
+            d_protocol = self.tr("Protocol:")
+            d_webpage_url = self.tr("Webpage url:")
+
+            text = f'{d_name} {d.name} \n' \
+                    f'{d_folder} {d.folder} \n' \
+                    f'{d_progress} {d.progress}% \n' \
+                    f'{d_total_size} {size_format(d.downloaded)} \n' \
+                    f'{d_total_size} {size_format(d.total_size)} \n' \
+                    f'{d_status} {d.status} \n' \
+                    f'{d_resumable} {d.resumable} \n' \
+                    f'{d_type} {d.type} \n' \
+                    f'{d_protocol} {d.protocol} \n' \
+                    f'{d_webpage_url} {d.url}'
+            self.show_information(self.tr("File Properties"), inform="", msg=f"{text}")
 
         
     # endregion
@@ -2304,6 +2393,17 @@ class MainWindow(QMainWindow):
     def show_thumb_nail(self):
         checked = widgets.checkBox4.isChecked()
         config.show_thumbnail = checked
+
+    def on_startup(self):
+        checked = widgets.checkBox5.isChecked()
+        if checked:
+            if not (startup.checkStartUp()): 
+                startup.addStartUp()
+        else:
+            if startup.checkStartUp():
+                startup.removeStartUp()
+
+        config.on_startup = checked
 
     def segment_size_set(self):
         selected_seg_unit = widgets.segment_combo_setting.currentText()
@@ -2879,9 +2979,60 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("images/images/Dynamite.png"))
 
+    # Create the system tray icon and set it visible
+    tray = QSystemTrayIcon()
+    tray.setIcon(
+            QIcon.fromTheme('Dynamite', QIcon(':images/images/Dynamite.png')))
+    tray.setVisible(True)
+
+    # Create the menu for the tray icon
+    menu = QMenu()
+
+    # Create the exit action that quits the application
+    ea = app.tr("Quit")
+    exit_action = QAction(QIcon(":/icons/images/icons/cil-power-standby.png"),f"{ea} {config.APP_NAME}")
+    exit_action.triggered.connect(lambda: window.quit_app())
+
+    # Create the restore window action
+    ra = app.tr("Open")
+    restore_action = QAction(QIcon(":/icons/images/icons/icon_restore.png"),f"{ra} {config.APP_NAME}")
+    restore_action.triggered.connect(lambda: window.restore_window())
+
+    # Create the minimize to tray action
+    minimize_action = QAction(QIcon(":/icons/images/icons/icon_minimize.png"), app.tr(f"Minimize to Tray"))
+    minimize_action.triggered.connect(lambda: window.minimize_to_tray())
+
+    # Add actions to the tray menu
+    menu.addAction(restore_action)
+    menu.addAction(minimize_action)
+    menu.addAction(exit_action)
+
+    # Set the context menu for the tray icon
+    tray.setContextMenu(menu)
+
+    # Connect the left-click (activated signal) to restore the window
+    tray.activated.connect(lambda reason: window.restore_window() if reason == QSystemTrayIcon.Trigger else None)
+
     # Create the main window
     window = MainWindow(config.d_list)
+
+    # Show the window initially
     window.show()
+
+    # Function to update the tray menu based on window state (minimized or not)
+    def update_tray_menu():
+        if window.isHidden():  # If the window is hidden (minimized to tray)
+            restore_action.setEnabled(True)  # Enable restore action
+            minimize_action.setEnabled(False)  # Disable minimize action
+        else:
+            restore_action.setEnabled(False)  # Disable restore action
+            minimize_action.setEnabled(True)  # Enable minimize action
+
+    # Connect to the window's state change signals
+    window.showEvent = lambda event: update_tray_menu()  # Window is shown
+    window.hideEvent = lambda event: update_tray_menu()  # Window is hidden
+
+    # Optionally, run a method after the main window is initialized
     QTimer.singleShot(0, video.import_ytdl)
 
     # Start the event loop
