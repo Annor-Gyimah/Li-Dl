@@ -23,7 +23,7 @@ APP_DEC = "Free download manager"
 APP_TITLE = f'{APP_NAME} version {APP_VERSION} .. an open source download manager'
 DEFAULT_DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), 'Downloads')
 DEFAULT_THEME = 'DarkGrey2'
-DEFAULT_CONNECTIONS = 50
+DEFAULT_CONNECTIONS = 64
 DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
 

@@ -222,7 +222,7 @@ class FileOpenThread(QThread):
                 run_command(f'open "{self.file_path}"', verbose=False)
 
         except Exception as e:
-            print(f'Error opening file: {e}')
+            log(f'Error opening file: {e}')
 
 
 class LogRecorderThread(QThread):
@@ -781,7 +781,7 @@ class MainWindow(QMainWindow):
                     contents = widgets.logDisplay.toPlainText()
 
                     
-                    # print(size_format(len(contents)))
+                   
                     if len(contents) > config.max_log_size:
                         # delete 20% of contents to keep size under max_log_size
                         slice_size = int(config.max_log_size * 0.2)
@@ -906,7 +906,7 @@ class MainWindow(QMainWindow):
             widgets.progressBar.setValue(value)
             
         except Exception as e:
-            print(f"Error updating progress bar: {e}")
+            log(f"Error updating progress bar: {e}")
 
 
     def retry(self):
@@ -971,14 +971,6 @@ class MainWindow(QMainWindow):
         self.update_stream_menu()
 
     
-
-    def update_progress_bar_value(self, value):
-        """Update the progress bar value in the GUI."""
-        try:
-            widgets.progressBar.setValue(value)  # Update progress bar with value (0-100)
-        except Exception as e:
-            print(f"Error updating progress bar: {e}")
-
     # region download folder
     def open_folder_dialog(self):
         """Open a dialog to select a folder and update the line edit."""
@@ -1069,6 +1061,8 @@ class MainWindow(QMainWindow):
                     self.switch_language()
                 elif key == 'on_startup':
                     self.on_startup()
+                elif key == 'selecting_stream':
+                    self.selecting_stream()
                 
                
                
@@ -1110,6 +1104,7 @@ class MainWindow(QMainWindow):
         self.queue_update('switch_language', None)
         self.queue_update('current_lang', None)
         self.queue_update('on_startup', None)
+        self.queue_update('selecting_stream', None)
         
         #self.queue_update('thumbnail', None)
     
@@ -1367,7 +1362,6 @@ class MainWindow(QMainWindow):
 
     def show_thumbnail(self, thumbnail=None):
         """Show video thumbnail in thumbnail image widget in main tab, call without parameter to reset thumbnail."""
-        print(f"Attempting to show thumbnail: {thumbnail}")
 
         try:
             if thumbnail is None or thumbnail == "":
@@ -1401,12 +1395,9 @@ class MainWindow(QMainWindow):
             if image.loadFromData(data):
                 pixmap = QPixmap.fromImage(image)
                 widgets.home_video_thumbnail_label.setPixmap(pixmap.scaled(150, 150, Qt.KeepAspectRatio))
-                print("Successfully downloaded and set thumbnail")
             else:
-                print("Failed to create image from downloaded data")
                 self.reset_to_default_thumbnail()
         else:
-            print(f"Error downloading thumbnail: {reply.errorString()}")
             self.reset_to_default_thumbnail()
 
     def reset_to_default_thumbnail(self):
@@ -1557,7 +1548,6 @@ class MainWindow(QMainWindow):
         # Find the selected video index and set it as the current download item
         index = self.playlist.index(selected_video)
         self.video = self.playlist[index]
-        print(f"This is the thumbnails url {self.video.thumbnail_url}")
         self.d = self.video  # Update current download item to the selected video
 
         # Update the stream menu based on the selected video
@@ -1569,19 +1559,42 @@ class MainWindow(QMainWindow):
         
             self.show_thumbnail(thumbnail=self.video.thumbnail_url)
         
-        # Update the GUI to reflect the current selection
-        #self.update_gui()
-
-
+        
     def stream_OnChoice(self, selected_stream):
         """Handle stream selection."""
-        if selected_stream not in self.video.stream_names:
-            selected_stream = self.video.stream_names[0]  # Default to the first stream
-        # else: 
-        #     selected_stream = widgets.stream_combo.setCurrentText(self.video.stream_names)
+    
+        # Check if the selected stream is different from the current one
+        if selected_stream == getattr(self.video, 'selected_stream_name', None):
+            # If it's the same stream as the current one, skip further processing
+            log(f"Stream '{selected_stream}' is already selected. No update needed.")
+            return
 
-        self.video.selected_stream = self.video.streams[selected_stream]  # Set the selected stream
-        #self.update_gui()  # Update the GUI to reflect the selected stream
+        # Check if the selected stream exists in the available stream names
+        if selected_stream not in self.video.stream_names:
+            log(f"Warning: Selected stream '{selected_stream}' is not valid, defaulting to the first stream.")
+            selected_stream = self.video.stream_names[0]  # Default to the first stream if invalid
+        
+        # Update the selected stream in the video object
+        self.video.selected_stream = self.video.streams[selected_stream]  # Update with stream object
+        self.video.selected_stream_name = selected_stream  # Keep track of the selected stream name
+
+        log(f"Stream '{selected_stream}' selected for video {self.video.title}")
+
+
+    def selecting_stream(self):
+        # Connect the stream combo box signal to the handler
+        widgets.stream_combo.currentTextChanged.connect(self.stream_OnChoice)
+
+    
+    # def stream_OnChoice(self, selected_stream):
+    #     """Handle stream selection."""
+    #     if selected_stream not in self.video.stream_names:
+    #         selected_stream = self.video.stream_names[0]  # Default to the first stream
+    #     # else: 
+    #     #     selected_stream = widgets.stream_combo.setCurrentText(self.video.stream_names)
+
+    #     self.video.selected_stream = self.video.streams[selected_stream]  # Set the selected stream
+      
 
     def download_playlist(self):
         """Download playlist with video stream selection using PyQt."""
@@ -1692,9 +1705,6 @@ class MainWindow(QMainWindow):
             for num, video in enumerate(self.playlist):
                 selected_text = stream_combos[num].currentText()
                 video.selected_stream = video.raw_streams[selected_text]
-                print("Available keys in raw_streams:", video.raw_streams.keys())
-                print("Selected text:", selected_text)
-
                 if video_checkboxes[num].isChecked():
                     chosen_videos.append(video)
 
@@ -2432,7 +2442,6 @@ class MainWindow(QMainWindow):
 
             match = re.fullmatch(r'\d+([mk]b?)?', sl, re.I)
             if match:
-                # print(match.group())
 
                 digits = re.match(r"[0-9]+", sl, re.I).group()
                 digits = int(digits)
@@ -2440,7 +2449,6 @@ class MainWindow(QMainWindow):
                 letters = re.search(r"[a-z]+", sl, re.I)
                 letters = letters.group().lower() if letters else None
 
-                # print(digits, letters)
 
                 if letters in ('k', 'kb', None):
                     sl = digits
@@ -2641,11 +2649,7 @@ class MainWindow(QMainWindow):
 
     def on_update_finished(self):
         self.show_information(title=config.APP_NAME, inform=self.tr("Update scheduled to run on the next reboot."), msg=self.tr("Please you can reboot now to install updates."))
-        # Handle what happens after the update finishes
-        # print("Update completed!")  # Replace with your logic (e.g., notifying the user)
-
-    # def handle_update(self):
-    #     update.update()  # Call the update method
+        
 
     def check_for_ytdl_update(self):
         config.ytdl_LATEST_VERSION = update.check_for_ytdl_update()
