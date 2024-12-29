@@ -1409,82 +1409,7 @@ class MainWindow(QMainWindow):
         log("Reset to default thumbnail due to error")
 
 
-    def ytdl_downloader(self):
-        """Launch youtube-dl with proper command arguments."""
-        
-        # Check for youtube-dl executable in current folder if app is FROZEN
-        if config.FROZEN:
-            cmd = 'where youtube-dl' if config.operating_system == 'Windows' else 'which yt-dlp'
-            error, output = run_command(cmd, verbose=True)
-            if not error:
-                ytdl_executable = output.strip()
-            else:
-                # Show dialog for missing youtube-dl
-                msg = ('Alternative Download with youtube-dl\n'
-                    'youtube-dl executable is required. To use this option,\n'
-                    'please download the right version into the application folder,\n'
-                    'i.e. "youtube-dl.exe" for Windows or "youtube-dl" for other OS.')
-                
-                dialog = QDialog(self)
-                dialog.setWindowTitle('Youtube-dl missing')
-                layout = QVBoxLayout(dialog)
-
-                label = QLabel(msg)
-                layout.addWidget(label)
-
-                open_website_btn = QPushButton('Open website', dialog)
-                cancel_btn = QPushButton('Cancel', dialog)
-                
-                layout.addWidget(open_website_btn)
-                layout.addWidget(cancel_btn)
-
-                def on_open_website():
-                    webbrowser.open_new('https://github.com/ytdl-org/youtube-dl/releases/latest')
-                    dialog.close()
-
-                def on_cancel():
-                    dialog.close()
-
-                open_website_btn.clicked.connect(on_open_website)
-                cancel_btn.clicked.connect(on_cancel)
-
-                dialog.exec()
-
-                return  # exit if youtube-dl is missing
-        else:
-            ytdl_executable = f'"{sys.executable}" -m yt-dlp'
-
-        # Preparing the download command
-        d = self.d
-        verbose = '-v' if config.log_level >= 3 else ''
-
-        if not self.video:
-            requested_format = 'best'
-            name = os.path.join(config.download_folder, '%(title)s.%(ext)s').replace("\\", "/")
-        else:
-            name = d.target_file.replace("\\", "/")
-            if d.type == 'dash':
-                requested_format = f'"{d.format_id}"+"{d.audio_format_id}"/"{d.format_id}"+bestaudio/best'
-            else:
-                requested_format = f'"{d.format_id}"/best'
-
-        # Creating command
-        cmd = (f'{ytdl_executable} -f {requested_format} {d.url} -o "{name}" {verbose} '
-            f'--hls-use-mpegts --ffmpeg-location {config.ffmpeg_actual_path} --proxy "{config.proxy}"')
-        log('cmd:', cmd)
-
-        # Execute the command
-        if config.operating_system == 'Windows':
-            # Write a batch file to start a new cmd terminal
-            batch_file = os.path.join(config.current_directory, 'ytdl_cmd.bat')
-            with open(batch_file, 'w') as f:
-                f.write(cmd + '\npause')
-
-            # Execute the batch file
-            os.startfile(batch_file)
-        else:
-            # For Linux/macOS (not tested)
-            subprocess.Popen([os.getenv('SHELL'), '-i', '-c', cmd])
+    
     
 
 
@@ -2149,6 +2074,9 @@ class MainWindow(QMainWindow):
         except Exception as e:
             log(f'Error in scheduling: {e}')
 
+
+   
+
     
     
 
@@ -2173,6 +2101,7 @@ class MainWindow(QMainWindow):
         action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-clock.png"), self.tr('Schedule download'), context_menu)
         action_cancel_schedule = QAction(QIcon(":/icons/images/icons/cil-x.png"), self.tr('Cancel schedule!'), context_menu)
         action_file_properties = QAction(QIcon(":/icons/images/icons/cil-info.png"), self.tr('File Properties'), context_menu)
+        # action_ytdl_download = QAction(self.tr('Re-download'), context_menu) # Not implemented yet
 
 
         # Add actions to the context menu
@@ -2182,6 +2111,7 @@ class MainWindow(QMainWindow):
         context_menu.addAction(action_schedule_download)
         context_menu.addAction(action_cancel_schedule)
         context_menu.addAction(action_file_properties)
+        # context_menu.addAction(action_ytdl_download) # Not implemented yet
 
         # Connect actions to methods
         action_open_file.triggered.connect(self.open_item)
@@ -2190,7 +2120,8 @@ class MainWindow(QMainWindow):
         action_schedule_download.triggered.connect(self.schedule_download)
         action_cancel_schedule.triggered.connect(self.cancel_schedule)
         action_file_properties.triggered.connect(self.file_properties)
-        # action_view_details.triggered.connect(self.view_details)
+        # action_ytdl_download.triggered.connect(self.ytdl_downloader) # not implemented yet
+        
 
         # Show the context menu at the cursor position
         context_menu.exec(widgets.tableWidget.viewport().mapToGlobal(pos))
@@ -2319,6 +2250,79 @@ class MainWindow(QMainWindow):
                     f'{d_protocol} {d.protocol} \n' \
                     f'{d_webpage_url} {d.url}'
             self.show_information(self.tr("File Properties"), inform="", msg=f"{text}")
+
+
+    def ytdl_downloader(self):
+        """Launch yt-dlp with proper command arguments."""
+        if config.FROZEN:
+            # For frozen app, use the yt-dlp executable in the app directory
+            ytdl_executable = os.path.join(config.current_directory, "yt-dlp.exe")
+        else:
+            ytdl_executable = os.path.join(config.sett_folder, "yt-dlp.exe")
+
+        if not os.path.exists(ytdl_executable):
+            # Show dialog for missing yt-dlp
+            msg = ('yt-dlp executable is missing.\n'
+                'Please ensure yt-dlp.exe is in the application folder.')
+            
+            dialog = QDialog(self)
+            dialog.setWindowTitle('yt-dlp missing')
+            layout = QVBoxLayout(dialog)
+            label = QLabel(msg)
+            layout.addWidget(label)
+            open_website_btn = QPushButton('Download yt-dlp', dialog)
+            cancel_btn = QPushButton('Cancel', dialog)
+            
+            layout.addWidget(open_website_btn)
+            layout.addWidget(cancel_btn)
+            
+            def on_open_website():
+                webbrowser.open_new('https://github.com/yt-dlp/yt-dlp/releases/latest')
+                dialog.close()
+                
+            def on_cancel():
+                dialog.close()
+                
+            open_website_btn.clicked.connect(on_open_website)
+            cancel_btn.clicked.connect(on_cancel)
+            dialog.exec()
+            return
+
+        # Get the selected video's URL and format
+        selected_row = widgets.tableWidget.currentRow()
+        self.selected_row_num = selected_row
+        d = self.selected_d
+        url = d.url
+        
+        verbose = '-v' if config.log_level >= 3 else ''
+        
+        if not self.video:
+            requested_format = 'best'
+            name = os.path.join(config.download_folder, '%(title)s.%(ext)s').replace("\\", "/")
+        else:
+            name = d.target_file.replace("\\", "/")
+            if d.type == 'dash':
+                requested_format = f'"{d.format_id}"+"{d.audio_format_id}"/"{d.format_id}"+bestaudio/best'
+            else:
+                requested_format = f'"{d.format_id}"/best'
+
+        # Create command
+        cmd = f'"{ytdl_executable}" -f b "{url}" -o "{name}" {verbose}  --hls-use-mpegts'
+        if config.sett_folder:
+            cmd += f' --ffmpeg-location "{config.sett_folder}"'
+        if config.proxy:
+            cmd += f' --proxy "{config.proxy}"'
+
+        # Write batch file
+        batch_file = os.path.join(config.current_directory, 'ytdl_cmd.bat')
+        with open(batch_file, 'w', encoding='utf-8') as f:
+            f.write(f'@echo off\n{cmd}\npause')
+
+        # Execute batch file
+        if config.operating_system == 'Windows':
+            subprocess.Popen(['cmd', '/c', batch_file], creationflags=subprocess.CREATE_NEW_CONSOLE)
+        else:
+            subprocess.Popen([os.getenv('SHELL'), '-i', '-c', batch_file])
 
         
     # endregion
@@ -2994,23 +2998,23 @@ def ask_for_sched_time(msg=''):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    app.setWindowIcon(QIcon(resource_path("Dynamite.png")))
-    tray = QSystemTrayIcon(QIcon(resource_path("Dynamite.png")))
+    app.setWindowIcon(QIcon(resource_path("images/images/Dynamite.png")))
+    tray = QSystemTrayIcon(QIcon(resource_path("images/images/Dynamite.png")))
     tray.setVisible(True)
 
     # Create the menu for the tray icon
     menu = QMenu()
 
     # Create the exit action that quits the application
-    exit_action = QAction(QIcon(":/icons/images/icons/cil-power-standby.png"), f"Quit {config.APP_NAME}")
+    exit_action = QAction(QIcon(":/icons/images/icons/exit.svg"), f"Quit {config.APP_NAME}")
     exit_action.triggered.connect(lambda: window.quit_app())
 
     # Create the restore window action
-    restore_action = QAction(QIcon(":/icons/images/icons/icon_restore.png"), f"Open {config.APP_NAME}")
+    restore_action = QAction(QIcon(":/icons/images/icons/window.svg"), f"Open {config.APP_NAME}")
     restore_action.triggered.connect(lambda: window.restore_window())
 
     # Create the minimize to tray action
-    minimize_action = QAction(QIcon(":/icons/images/icons/icon_minimize.png"), f"Minimize to Tray")
+    minimize_action = QAction(QIcon(":/icons/images/icons/minimize.svg"), f"Minimize to Tray")
     minimize_action.triggered.connect(lambda: window.minimize_to_tray())
 
     # Add actions to the tray menu
