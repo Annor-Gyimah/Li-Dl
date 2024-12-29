@@ -1,11 +1,4 @@
-"""
-    pyIDM
 
-    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySimpleGUI"
-
-    :copyright: (c) 2019-2020 by Mahmoud Elshahat.
-    :license: GNU LGPLv3, see LICENSE for more details.
-"""
 import io
 import os
 import time
@@ -65,6 +58,7 @@ def brain(d=None, downloader=None):
         time.sleep(0.1)  # a sleep time to make the program responsive
 
         if d.status == Status.completed:
+            config.main_window_q.put(('restore_window', ''))
             # os notification popup
             notification = f"File: {d.name} \nsaved at: {d.folder}"
             notify(notification, title=f'{APP_NAME} - Download completed')

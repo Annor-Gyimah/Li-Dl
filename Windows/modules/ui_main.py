@@ -1263,7 +1263,8 @@ class Ui_MainWindow(object):
 
                 layout.addLayout(pair_layout)
 
-                return value_label  # Return the QLabel for the value
+                return {'label': label, 'value_label': value_label}  # Return as a dictionary
+
 
 
         # Add the label-value pairs to the horizontal layout
@@ -1807,7 +1808,7 @@ class Ui_MainWindow(object):
 
         self.generalLayout = QVBoxLayout(self.generalFrame)
         self.generalLayout.setSpacing(10)
-        self.generalLayout.setContentsMargins(10, 10, 10, 10)
+        self.generalLayout.setContentsMargins(10, 0, 10, 10)
 
         # General Label
         self.label_general = QLabel(self.generalFrame)
@@ -1817,43 +1818,84 @@ class Ui_MainWindow(object):
 
         self.generalLayout.addWidget(self.label_general)
 
-        # QLabel and QComboBox on one row
-        self.generalSettingsRow = QFrame(self.generalFrame)
-        self.generalSettingsRow.setObjectName(u"generalSettingsRow")
-        self.generalRowLayout = QHBoxLayout(self.generalSettingsRow)
-        self.generalRowLayout.setSpacing(10)
-        self.generalRowLayout.setContentsMargins(0, 0, 0, 0)
+        # Row 1: QLabel and QComboBox for language
+        self.languageSettingsRow = QFrame(self.generalFrame)
+        self.languageSettingsRow.setObjectName(u"languageSettingsRow")
+        self.languageRowLayout = QHBoxLayout(self.languageSettingsRow)
+        self.languageRowLayout.setSpacing(10)
+        self.languageRowLayout.setContentsMargins(0, 0, 0, 0)
 
-        # Label for combo box
-        self.label_setting = QLabel(self.generalSettingsRow)
+        # Label for language combo box
+        self.label_language = QLabel(self.languageSettingsRow)
+        self.label_language.setObjectName(u"label_language")
+        self.label_language.setText("Choose Language:")
+
+        # Combo box for languages
+        self.combo_language = QComboBox(self.languageSettingsRow)
+        self.combo_language.setObjectName(u"combo_language")
+        self.combo_language.addItems(["English", "Spanish", "French", "Japanese", "Chinese", "Korean"])
+
+        # Add language label and combo box to row layout
+        self.languageRowLayout.addWidget(self.label_language)
+        self.languageRowLayout.addWidget(self.combo_language)
+
+        # Add the language row layout to the general layout
+        self.generalLayout.addWidget(self.languageSettingsRow)
+
+        # Row 2: QLabel and QComboBox for settings
+        self.settingSettingsRow = QFrame(self.generalFrame)
+        self.settingSettingsRow.setObjectName(u"settingSettingsRow")
+        self.settingRowLayout = QHBoxLayout(self.settingSettingsRow)
+        self.settingRowLayout.setSpacing(10)
+        self.settingRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Label for setting combo box
+        self.label_setting = QLabel(self.settingSettingsRow)
         self.label_setting.setObjectName(u"label_setting")
         self.label_setting.setText("Choose Setting:")
 
         # Combo box for settings
-        self.combo_setting = QComboBox(self.generalSettingsRow)
+        self.combo_setting = QComboBox(self.settingSettingsRow)
         self.combo_setting.setObjectName(u"combo_setting")
         self.combo_setting.addItems(["Local", "Global"])
 
-        # Add to row layout
-        self.generalRowLayout.addWidget(self.label_setting)
-        self.generalRowLayout.addWidget(self.combo_setting)
+        # Add setting label and combo box to row layout
+        self.settingRowLayout.addWidget(self.label_setting)
+        self.settingRowLayout.addWidget(self.combo_setting)
 
-        # Add row to general layout
-        self.generalLayout.addWidget(self.generalSettingsRow)
+        # Add the setting row layout to the general layout
+        self.generalLayout.addWidget(self.settingSettingsRow)
 
         # Four Checkboxes for general settings
         self.monitor_clipboard = QCheckBox("Monitor Copied Urls", self.generalFrame)
-        # Set default value (checked or unchecked)
-        # self.monitor_clipboard.setChecked(True)  # This will set it as checked by default
-
+        
         self.checkBox2 = QCheckBox("Show Download Window", self.generalFrame)
         self.checkBox3 = QCheckBox("Auto close DL Window", self.generalFrame)
-        self.checkBox4 = QCheckBox("Show Thumbnail", self.generalFrame)
-
+        #self.checkBox4 = QCheckBox("Show Thumbnail", self.generalFrame)
+        #self.checkBox5 = QCheckBox("On Startup", self.generalFrame)
         self.generalLayout.addWidget(self.monitor_clipboard)
         self.generalLayout.addWidget(self.checkBox2)
         self.generalLayout.addWidget(self.checkBox3)
-        self.generalLayout.addWidget(self.checkBox4)
+        #self.generalLayout.addWidget(self.checkBox4)
+        #self.generalLayout.addWidget(self.checkBox5)
+
+        # Create a row for checkbox4 and checkbox5
+        self.checkboxRow = QFrame(self.generalFrame)
+        self.checkboxRow.setObjectName(u"checkboxRow")
+        self.checkboxRowLayout = QHBoxLayout(self.checkboxRow)
+        self.checkboxRowLayout.setSpacing(10)
+        self.checkboxRowLayout.setContentsMargins(0, 0, 0, 0)
+
+        # Add checkbox4 to the new row
+        self.checkBox4 = QCheckBox("Show Thumbnail", self.checkboxRow)
+        self.checkboxRowLayout.addWidget(self.checkBox4)
+
+        # Add checkbox5 to the new row
+        self.checkBox5 = QCheckBox("On Startup", self.checkboxRow)
+        self.checkboxRowLayout.addWidget(self.checkBox5)
+
+        # Add the new checkbox row to the general layout
+        self.generalLayout.addWidget(self.checkboxRow)
 
 
         # QLabel and QComboBox on one row
@@ -1882,10 +1924,17 @@ class Ui_MainWindow(object):
         self.generalSegRowLayout.addWidget(self.label_segment)
         self.generalSegRowLayout.addWidget(self.lineEdit_segment)
         self.generalSegRowLayout.addWidget(self.segment_combo_setting)
+
         
 
         # Add row to general layout
         self.generalLayout.addWidget(self.generalSegmentRow)
+        
+
+        
+        
+        # Add the first frame to the right sidebar layout
+        self.verticalLayout_7.addWidget(self.generalFrame)
 
         
         
@@ -2189,6 +2238,12 @@ class Ui_MainWindow(object):
         self.totalSpeedValue.setText("⬇⬆ 0 bytes/s")  # Default value
         #self.totalSpeedValue.setStyleSheet(u"background-color: white;")
         self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedValue)
+
+        # Network widget
+        self.wifi = QLabel(self.statusSpeedFrame)
+        # self.wifi.setFixedSize(15, 10)
+        self.wifi.setPixmap(QPixmap(":/icons/images/icons/cil-wifi-signal-0.png").scaled(15, 15, Qt.KeepAspectRatio))
+        self.horizontalLayout_statusSpeed.addWidget(self.wifi)
 
         # Add the statusSpeedFrame to the bottom bar's layout
         self.horizontalLayout_5.addWidget(self.statusSpeedFrame)

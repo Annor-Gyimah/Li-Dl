@@ -4,6 +4,7 @@
     <file>images/images/Dynamite.png</file>
     <file>images/images/Dynamite2.png</file>
     <file>images/images/PyDracula_vertical.png</file>
+    <file>Dynamite.ico</file>
   </qresource>
   <qresource prefix="icons">
     <file>images/icons/cil-3d.png</file>
