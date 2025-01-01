@@ -272,5 +272,8 @@
     <file>images/icons/icon_info.svg</file>
     <file>images/icons/cil-playlist.png</file>
     <file>images/icons/checkmark.png</file>
+    <file>images/icons/exit.svg</file>
+    <file>images/icons/minimize.svg</file>
+    <file>images/icons/window.svg</file>
   </qresource>
 </RCC>

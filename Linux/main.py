@@ -13,7 +13,6 @@ import os
 import re
 import time
 import subprocess
-import configparser
 import json
 from threading import Thread, Timer, Lock
 from collections import deque
@@ -44,6 +43,8 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageB
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+
+
 
 
 class InternetChecker(QThread):
@@ -522,6 +523,8 @@ class MainWindow(QMainWindow):
         self.timer.start(5000)  # 5 seconds interval (can be adjusted)
         
 
+        
+
     # BUTTONS CLICK
     # ///////////////////////////////////////////////////////////////
     def buttonClick(self):
@@ -848,6 +851,8 @@ class MainWindow(QMainWindow):
                 # check_for_update
                 t = time.localtime()
                 today = t.tm_yday  # today number in the year range (1 to 366)
+                server_check = update.SoftwareUpdateChecker(api_url="http://localhost:8000/api/licenses", software_version=config.APP_VERSION)
+                server_check.server_check_update()
 
                 try:
                     days_since_last_update = today - config.last_update_check
@@ -1601,7 +1606,7 @@ class MainWindow(QMainWindow):
 
         # Check if there is a video file or quit
         if not self.video:
-            self.show_information("Play Download", "Please check the url",  "Playlist is empty, nothing to download :", )
+            self.show_information(self.tr("Play Download"), self.tr("Please check the url"),  self.tr("Playlist is empty, nothing to download :", ))
             #QMessageBox.information(self, "Playlist Download", "Playlist is empty, nothing to download :)")
             return
 
@@ -2994,16 +2999,16 @@ if __name__ == "__main__":
 
     # Create the exit action that quits the application
     ea = app.tr("Quit")
-    exit_action = QAction(QIcon(":/icons/images/icons/cil-power-standby.png"),f"{ea} {config.APP_NAME}")
+    exit_action = QAction(QIcon(":/icons/images/icons/exit.svg"),f"{ea} {config.APP_NAME}")
     exit_action.triggered.connect(lambda: window.quit_app())
 
     # Create the restore window action
     ra = app.tr("Open")
-    restore_action = QAction(QIcon(":/icons/images/icons/icon_restore.png"),f"{ra} {config.APP_NAME}")
+    restore_action = QAction(QIcon(":/icons/images/icons/window.svg"),f"{ra} {config.APP_NAME}")
     restore_action.triggered.connect(lambda: window.restore_window())
 
     # Create the minimize to tray action
-    minimize_action = QAction(QIcon(":/icons/images/icons/icon_minimize.png"), app.tr(f"Minimize to Tray"))
+    minimize_action = QAction(QIcon(":/icons/images/icons/minimize.svg"), app.tr(f"Minimize to Tray"))
     minimize_action.triggered.connect(lambda: window.minimize_to_tray())
 
     # Add actions to the tray menu

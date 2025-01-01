@@ -41,6 +41,7 @@ FROZEN = getattr(sys, "frozen", False)  # check if app is being compiled by cx_f
 # current operating system  ('Windows', 'Linux', 'Darwin')
 operating_system = platform.system()
 operating_system_info = f'{platform.platform()} - {platform.machine()}'   # i.e. Win7-64 and Vista-32
+machine_id = None
 
 # application exit flag
 terminate = False 
@@ -110,7 +111,7 @@ d_list = []
 main_window_q = Queue()  # queue for Main application window
 
 # settings parameters to be saved on disk
-settings_keys = ['current_theme', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
+settings_keys = ['current_theme','machine_id', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
                  'segment_size', 'show_thumbnail', 'on_startup', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
                  'log_level', 'download_folder']
