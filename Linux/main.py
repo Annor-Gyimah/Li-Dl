@@ -504,7 +504,7 @@ class MainWindow(QMainWindow):
         
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
-        self.one_time = True
+        self.one_time, self.check_time = True, True
 
         # Translator
         self.translator = QTranslator()
@@ -851,8 +851,7 @@ class MainWindow(QMainWindow):
                 # check_for_update
                 t = time.localtime()
                 today = t.tm_yday  # today number in the year range (1 to 366)
-                server_check = update.SoftwareUpdateChecker(api_url="http://localhost:8000/api/licenses", software_version=config.APP_VERSION)
-                server_check.server_check_update()
+                
 
                 try:
                     days_since_last_update = today - config.last_update_check
@@ -1145,7 +1144,11 @@ class MainWindow(QMainWindow):
         # if not self.check_internet():
         #     self.show_warning("No Internet","Please check your internet connection and try again")
         #     return
-         
+
+        if self.check_time:
+            self.check_time = False
+            server_check = update.SoftwareUpdateChecker(api_url="http://localhost:8000/api/licenses", software_version=config.APP_VERSION)
+            server_check.server_check_update() 
 
         if d is None:
             return
