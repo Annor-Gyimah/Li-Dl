@@ -1,5 +1,3 @@
-
-
 2024.12.25:
 - New GUI design with fresh button icons for main tab.
 - Thumbnail auto preview for selected video.
