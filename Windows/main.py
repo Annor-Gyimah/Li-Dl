@@ -571,53 +571,53 @@ class MainWindow(QMainWindow):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
         
-    def apply_language(self, language):
-        # Load and apply the selected language
-        if language == "French":
-            if self.translator.load(self.resource_path2("app_fr.qm")):
-                QCoreApplication.instance().installTranslator(self.translator)
-        elif language == "Spanish":
-            if self.translator.load(self.resource_path2("app_es.qm")):
-                QCoreApplication.instance().installTranslator(self.translator)
-        elif language == "Chinese":
-            if self.translator.load(self.resource_path2("app_zh.qm")):
-                QCoreApplication.instance().installTranslator(self.translator)
-        elif language == "Korean":
-            if self.translator.load(self.resource_path2("app_ko.qm")):
-                QCoreApplication.instance().installTranslator(self.translator)
-        elif language == "Japanese":
-            if self.translator.load(self.resource_path2("app_ja.qm")):
-                QCoreApplication.instance().installTranslator(self.translator)
-        else:
-            QCoreApplication.instance().removeTranslator(self.translator)
-
-        # Update the UI
-        self.retrans()
-
-    # This is used when running the application from an IDE
-
     # def apply_language(self, language):
     #     # Load and apply the selected language
     #     if language == "French":
-    #         if self.translator.load("translations/app_fr.qm"):
+    #         if self.translator.load(self.resource_path2("app_fr.qm")):
     #             QCoreApplication.instance().installTranslator(self.translator)
     #     elif language == "Spanish":
-    #         if self.translator.load("translations/app_es.qm"):
+    #         if self.translator.load(self.resource_path2("app_es.qm")):
     #             QCoreApplication.instance().installTranslator(self.translator)
     #     elif language == "Chinese":
-    #         if self.translator.load("translations/app_zh.qm"):
+    #         if self.translator.load(self.resource_path2("app_zh.qm")):
     #             QCoreApplication.instance().installTranslator(self.translator)
     #     elif language == "Korean":
-    #         if self.translator.load("translations/app_ko.qm"):
+    #         if self.translator.load(self.resource_path2("app_ko.qm")):
     #             QCoreApplication.instance().installTranslator(self.translator)
     #     elif language == "Japanese":
-    #         if self.translator.load("translations/app_ja.qm"):
+    #         if self.translator.load(self.resource_path2("app_ja.qm")):
     #             QCoreApplication.instance().installTranslator(self.translator)
     #     else:
     #         QCoreApplication.instance().removeTranslator(self.translator)
 
     #     # Update the UI
     #     self.retrans()
+
+    # This is used when running the application from an IDE
+
+    def apply_language(self, language):
+        # Load and apply the selected language
+        if language == "French":
+            if self.translator.load("translations/app_fr.qm"):
+                QCoreApplication.instance().installTranslator(self.translator)
+        elif language == "Spanish":
+            if self.translator.load("translations/app_es.qm"):
+                QCoreApplication.instance().installTranslator(self.translator)
+        elif language == "Chinese":
+            if self.translator.load("translations/app_zh.qm"):
+                QCoreApplication.instance().installTranslator(self.translator)
+        elif language == "Korean":
+            if self.translator.load("translations/app_ko.qm"):
+                QCoreApplication.instance().installTranslator(self.translator)
+        elif language == "Japanese":
+            if self.translator.load("translations/app_ja.qm"):
+                QCoreApplication.instance().installTranslator(self.translator)
+        else:
+            QCoreApplication.instance().removeTranslator(self.translator)
+
+        # Update the UI
+        self.retrans()
 
     def retrans(self):
         # Home Translations
@@ -1536,7 +1536,7 @@ class MainWindow(QMainWindow):
 
         # Check if there is a video file or quit
         if not self.video:
-            self.show_information("Play Download", "Please check the url",  "Playlist is empty, nothing to download :", )
+            self.show_information(self.tr("Play Download"), self.tr("Please check the url"),  self.tr("Playlist is empty, nothing to download :"))
             #QMessageBox.information(self, "Playlist Download", "Playlist is empty, nothing to download :)")
             return
 
