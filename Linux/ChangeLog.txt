@@ -1,3 +1,11 @@
+2025.1.25
+- Support for multiple languages such as French, Spanish, Japanese, Chinese, Korean.
+- Fixed Download window not showing progress on resume.
+- Add autostart on startup.
+- DDM can now hide at the system's tray.
+- Wifi icon for indicating network connectivity.
+- Fixed stream combo selection.
+
 2024.12.25:
 - New GUI design with fresh button icons for main tab.
 - Thumbnail auto preview for selected video.

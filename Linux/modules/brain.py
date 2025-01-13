@@ -58,6 +58,7 @@ def brain(d=None, downloader=None):
         time.sleep(0.1)  # a sleep time to make the program responsive
 
         if d.status == Status.completed:
+            config.main_window_q.put(('restore_window', ''))
             # os notification popup
             notification = f"File: {d.name} \nsaved at: {d.folder}"
             notify(notification, title=f'{APP_NAME} - Download completed')

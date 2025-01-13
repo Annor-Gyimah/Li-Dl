@@ -16,13 +16,15 @@ import time
 import plyer
 import certifi
 import shutil
-import zipfile
+import psutil
 import subprocess
 import py_compile
 import shlex
 import re
 import json
+import uuid
 import pyperclip as clipboard
+from getmac import get_mac_address
 try:
     from PIL import Image
 except:
@@ -724,6 +726,61 @@ def process_thumbnail(url):
     except Exception as e:
         log('process_thumbnail()> error', e)
         return None
+def get_available_interfaces():
+    """Detect all available network interfaces on the system."""
+    interfaces = []
+    
+    # Get interfaces using psutil (works across OSes)
+    for interface, addrs in psutil.net_if_addrs().items():
+        interfaces.append(interface)
+    
+    return interfaces
+
+def get_mac_by_interface(interface):
+    """Get the MAC address for a specified interface using the getmac library."""
+    try:
+        mac = get_mac_address(interface=interface)
+        if mac:
+            return mac
+        else:
+            return None
+    except Exception as e:
+        return None
+
+def get_mac_id():
+    """Get a hashed machine ID based on the MAC address of a specified interface."""
+    interfaces = get_available_interfaces()
+    
+    if 'wlo1' in interfaces:
+        interface = 'wlo1'  # Wi-Fi interface on Linux
+    elif 'enp0s25' in interfaces:
+        interface = 'enp0s25'  # Ethernet interface on Linux
+    elif 'Ethernet' in interfaces:
+        interface = 'Ethernet'  # Ethernet on Windows
+    elif 'Wi-Fi' in interfaces:
+        interface = 'Wi-Fi'  # Wi-Fi on Windows
+    elif 'en0' in interfaces:
+        interface = 'en0'  # Ethernet or Wi-Fi on macOS
+    elif 'en1' in interfaces:
+        interface = 'en1'  # Secondary network interface on macOS
+    else:
+        return None
+
+    mac = get_mac_by_interface(interface)
+    if mac:
+        return mac
+        
+    else:
+        return None
+    
+
+def get_machine_id(self):
+    """Get a hashed machine ID based on the MAC address of a specified interface."""
+    mac_address = get_mac_id()
+    machine_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, mac_address))  # Stable machine ID based on MAC
+
+    
+    return machine_id
 
 
 __all__ = [

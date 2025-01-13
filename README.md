@@ -63,8 +63,9 @@ python3 main.py
 ```
 
 # To Dos
-- [ ] Add a multiple language feature.
+- [x] Add a multiple language feature.
 - [ ] Add a multiple themes feature.
+- [ ] Revamp the UI.
 
 
 

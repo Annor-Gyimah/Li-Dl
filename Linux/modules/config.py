@@ -1,7 +1,7 @@
 """
     pyIDM
 
-    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySimpleGUI"
+    multi-connections internet download manager, based on "pyCuRL/curl", "youtube_dl", and "PySide6"
 
     :copyright: (c) 2019-2020 by Mahmoud Elshahat.
     :license: GNU LGPLv3, see LICENSE for more details.
@@ -23,7 +23,7 @@ APP_DEC = "Free download manager"
 APP_TITLE = f'{APP_NAME} version {APP_VERSION} .. an open source download manager'
 DEFAULT_DOWNLOAD_FOLDER = os.path.join(os.path.expanduser("~"), 'Downloads')
 DEFAULT_THEME = 'DarkGrey2'
-DEFAULT_CONNECTIONS = 50
+DEFAULT_CONNECTIONS = 64
 DEFAULT_SEGMENT_SIZE = 524288  # 1048576  in bytes
 DEFAULT_CONCURRENT_CONNECTIONS = 3
 
@@ -41,6 +41,7 @@ FROZEN = getattr(sys, "frozen", False)  # check if app is being compiled by cx_f
 # current operating system  ('Windows', 'Linux', 'Darwin')
 operating_system = platform.system()
 operating_system_info = f'{platform.platform()} - {platform.machine()}'   # i.e. Win7-64 and Vista-32
+machine_id = None
 
 # application exit flag
 terminate = False 
@@ -48,11 +49,13 @@ terminate = False
 # settings parameters
 current_theme = DEFAULT_THEME
 all_themes = []
+lang = "English"
 monitor_clipboard = True
 show_download_window = True
 auto_close_download_window = True
 segment_size = DEFAULT_SEGMENT_SIZE  # in bytes
 show_thumbnail = True  # auto preview video thumbnail at main tab
+on_startup = True
 
 # connection / network
 speed_limit = 0  # in kbytes, zero == no limit  todo: make it in bytes instead of kb
@@ -108,8 +111,8 @@ d_list = []
 main_window_q = Queue()  # queue for Main application window
 
 # settings parameters to be saved on disk
-settings_keys = ['current_theme', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
-                 'segment_size', 'show_thumbnail', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
+settings_keys = ['current_theme','machine_id', 'lang', 'monitor_clipboard', 'show_download_window', 'auto_close_download_window',
+                 'segment_size', 'show_thumbnail', 'on_startup', 'speed_limit', 'max_concurrent_downloads', 'max_connections',
                  'update_frequency', 'last_update_check', 'confirm_update', 'proxy', 'proxy_type', 'raw_proxy', 'enable_proxy',
                  'log_level', 'download_folder']
 

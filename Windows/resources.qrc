@@ -4,6 +4,7 @@
     <file>images/images/Dynamite.png</file>
     <file>images/images/Dynamite2.png</file>
     <file>images/images/PyDracula_vertical.png</file>
+    <file>Dynamite.ico</file>
   </qresource>
   <qresource prefix="icons">
     <file>images/icons/cil-3d.png</file>
@@ -272,5 +273,8 @@
     <file>images/icons/icon_info.svg</file>
     <file>images/icons/cil-playlist.png</file>
     <file>images/icons/checkmark.png</file>
+    <file>images/icons/exit.svg</file>
+    <file>images/icons/minimize.svg</file>
+    <file>images/icons/window.svg</file>
   </qresource>
 </RCC>
