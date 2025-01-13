@@ -648,10 +648,8 @@ def compare_versions(version1, version2):
 
         # Compare lengths if versions have different lengths
         if len(v1_parts) > len(v2_parts):
-            print("Yes new version")
             return version1
         elif len(v1_parts) < len(v2_parts):
-            print("No new version")
             return version2
 
         # Versions are equal
