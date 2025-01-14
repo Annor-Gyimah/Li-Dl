@@ -33,13 +33,11 @@ Windows/ref3.py
 Windows/setup.py
 Windows/Trial.dll
 Windows/Untitled-1.py
-Windows/update.bat
 Windows/modules/update.py
 Windows/modules/config.py
 Windows/modules/downloads.cfg
 Windows/modules/log.txt
 Windows/setup_file.json
 Windows/icon.ico
-cleanup.bat
 Windows/License.rtf
 
