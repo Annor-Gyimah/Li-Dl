@@ -1,7 +1,7 @@
 @echo off
 SETLOCAL ENABLEEXTENSIONS
 SET SOURCE_FILE=%1
-SET DESTINATION_DIR=C:\Program Files\Annorion\PyIconic\pyiconic\
+SET DESTINATION_DIR=C:\Program Files\Annorion\Dynamite\
 SET LOG_FILE=C:\update_success.txt
 SET TEMP_DIR=%~dp0  
 REM This gets the directory of the running script
