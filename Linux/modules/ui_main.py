@@ -1462,12 +1462,12 @@ class Ui_MainWindow(object):
         icon9.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
         self.resume.setIcon(icon9)
         ###################################################################################################
-        self.cancel = QPushButton("Cancel", self.frame1)
-        self.cancel.setMinimumSize(QSize(150, 50))
-        self.cancel.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        self.pause = QPushButton("Pause", self.frame1)
+        self.pause.setMinimumSize(QSize(150, 50))
+        self.pause.setStyleSheet(u"background-color: rgb(52, 59, 72);")
         icon10 = QIcon()
         icon10.addFile(u":/icons/images/icons/cil-cancel.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.cancel.setIcon(icon10)
+        self.pause.setIcon(icon10)
         ###################################################################################################
         self.refresh = QPushButton("Refresh", self.frame1)
         self.refresh.setMinimumSize(QSize(150, 50))
@@ -1493,7 +1493,7 @@ class Ui_MainWindow(object):
 
         # Add first 5 buttons to the first row
         self.row1Layout.addWidget(self.resume)
-        self.row1Layout.addWidget(self.cancel)
+        self.row1Layout.addWidget(self.pause)
         self.row1Layout.addWidget(self.refresh)
         #self.row1Layout.addWidget(self.folder)
         self.row1Layout.addWidget(self.d_window)
@@ -1604,7 +1604,9 @@ class Ui_MainWindow(object):
         self.tableWidget.setHorizontalHeaderLabels(headers)
         # Enable row selection
         self.tableWidget.setSelectionBehavior(QTableView.SelectRows)
-        self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
+        # self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
+        self.tableWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+
 
         # # Set the table widget's size policy to expand
         self.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -2224,10 +2226,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedValue)
 
         # Network widget
-        self.wifi = QLabel(self.statusSpeedFrame)
+        # self.wifi = QLabel(self.statusSpeedFrame)
         # self.wifi.setFixedSize(15, 10)
-        self.wifi.setPixmap(QPixmap(":/icons/images/icons/cil-wifi-signal-0.png").scaled(15, 15, Qt.KeepAspectRatio))
-        self.horizontalLayout_statusSpeed.addWidget(self.wifi)
+        # self.wifi.setPixmap(QPixmap(":/icons/images/icons/cil-wifi-signal-0.png").scaled(15, 15, Qt.KeepAspectRatio))
+        # self.horizontalLayout_statusSpeed.addWidget(self.wifi)
 
         # self.home_video_thumbnail_label = QLabel(self.home_row_6)
         # self.home_video_thumbnail_label.setFixedSize(150, 100)  # Fixed size for thumbnail

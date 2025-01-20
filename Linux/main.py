@@ -47,26 +47,26 @@ from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRe
 
 
 
-class InternetChecker(QThread):
-    # Define a signal to send the result back to the main thread
-    internet_status_changed = Signal(bool)
+# class InternetChecker(QThread):
+#     # Define a signal to send the result back to the main thread
+#     internet_status_changed = Signal(bool)
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.is_connected = False  # Add a flag to store the connection status
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         self.is_connected = False  # Add a flag to store the connection status
 
-    def run(self):
-        """Runs the internet check in the background."""
-        url = "https://www.google.com"
-        timeout = 10
-        try:
-            # Requesting URL to check for internet connectivity
-            request = requests.get(url, timeout=timeout)
-            self.is_connected = True  # Update the connection status
-            self.internet_status_changed.emit(True)
-        except (requests.ConnectionError, requests.Timeout):
-            self.is_connected = False  # Update the connection status
-            self.internet_status_changed.emit(False)
+#     def run(self):
+#         """Runs the internet check in the background."""
+#         url = "https://www.google.com"
+#         timeout = 10
+#         try:
+#             # Requesting URL to check for internet connectivity
+#             request = requests.get(url, timeout=timeout)
+#             self.is_connected = True  # Update the connection status
+#             self.internet_status_changed.emit(True)
+#         except (requests.ConnectionError, requests.Timeout):
+#             self.is_connected = False  # Update the connection status
+#             self.internet_status_changed.emit(False)
 
 
 class YouTubeThread(QThread):
@@ -95,6 +95,7 @@ class YouTubeThread(QThread):
                 while not video.ytdl:
                     time.sleep(0.1)
             widgets.DownloadButton.setEnabled(False)
+            widgets.monitor_clipboard.setChecked(False)
             widgets.combo_setting_c.clear()
             widgets.stream_combo.clear()
 
@@ -125,6 +126,7 @@ class YouTubeThread(QThread):
                 self.finished.emit(result)
                 self.change_cursor('normal')
                 widgets.DownloadButton.setEnabled(True)
+                widgets.monitor_clipboard.setChecked(True)
 
         except Exception as e:
             log('YouTubeThread error:', e)
@@ -431,7 +433,7 @@ class MainWindow(QMainWindow):
         widgets.delete.clicked.connect(self.delete_btn)
         widgets.resume.clicked.connect(self.resume_btn)
         widgets.resume_all.clicked.connect(self.resume_all_downloads)
-        widgets.cancel.clicked.connect(self.cancel_btn)
+        widgets.pause.clicked.connect(self.pause_btn)
         widgets.refresh.clicked.connect(self.refresh_link_btn)
         widgets.d_window.clicked.connect(self.download_window)
         widgets.schedule_all.clicked.connect(self.schedule_all)
@@ -514,13 +516,13 @@ class MainWindow(QMainWindow):
         self.apply_language(self.current_language)
 
         # Initialize the InternetChecker thread
-        self.internet_checker = InternetChecker()
-        self.internet_checker.internet_status_changed.connect(self.update_wifi_icon)
+        # self.internet_checker = InternetChecker()
+        # self.internet_checker.internet_status_changed.connect(self.update_wifi_icon)
 
-        # Set up a QTimer to periodically check the internet connection
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.check_internet)
-        self.timer.start(5000)  # 5 seconds interval (can be adjusted)
+        # # Set up a QTimer to periodically check the internet connection
+        # self.timer = QTimer(self)
+        # self.timer.timeout.connect(self.check_internet)
+        # self.timer.start(5000)  # 5 seconds interval (can be adjusted)
         
 
         
@@ -635,7 +637,7 @@ class MainWindow(QMainWindow):
 
         # Download Translations
         widgets.resume.setText(self.tr("Resume"))
-        widgets.cancel.setText(self.tr("Cancel"))
+        widgets.pause.setText(self.tr("Pause"))
         widgets.refresh.setText(self.tr("Refresh"))
         widgets.d_window.setText(self.tr("D. Window"))
         widgets.resume_all.setText(self.tr("Resume All"))
@@ -1067,6 +1069,8 @@ class MainWindow(QMainWindow):
                     self.on_startup()
                 elif key == 'selecting_stream':
                     self.selecting_stream()
+                elif key == 'button_state_table':
+                    self.button_state_table()
                 
                
                
@@ -1109,6 +1113,7 @@ class MainWindow(QMainWindow):
         self.queue_update('current_lang', None)
         self.queue_update('on_startup', None)
         self.queue_update('selecting_stream', None)
+        self.queue_update('button_state_table', None)
         
         #self.queue_update('thumbnail', None)
     
@@ -1918,46 +1923,49 @@ class MainWindow(QMainWindow):
         if self.selected_d is None:
             self.show_warning(self.tr("Error"), self.tr("No download item selected"))
             return
-
-        # Check if the internet_checker is already running
-        if not self.internet_checker.isRunning():
-            # Start the internet check if it's not running
-            self.internet_checker.internet_status_changed.connect(self.on_internet_check_done)
-            self.internet_checker.start()  # Start the thread to check internet status
-        else:
-            # If the thread is already running, proceed directly with the result from the last check
-            self.on_internet_check_done(self.internet_checker.is_connected)
-
-    def on_internet_check_done(self, is_connected):
-        """This method is triggered when the internet check is done."""
-        # Disconnect the signal to avoid multiple connections
-        self.internet_checker.internet_status_changed.disconnect(self.on_internet_check_done)
-
-        # Check if the internet is available
-        if not is_connected:
-            self.show_warning(self.tr("No Internet"), self.tr("Please check your internet connection and try again"))
-            #return
-
+        
         # If internet is available, resume the download
         self.start_download(self.selected_d, silent=True)
 
-    def check_internet(self):
-        """Start the internet checker thread every time the timer times out."""
-        self.internet_checker.start()
+        # Check if the internet_checker is already running
+        # if not self.internet_checker.isRunning():
+        #     # Start the internet check if it's not running
+        #     self.internet_checker.internet_status_changed.connect(self.on_internet_check_done)
+        #     self.internet_checker.start()  # Start the thread to check internet status
+        # else:
+        #     # If the thread is already running, proceed directly with the result from the last check
+        #     self.on_internet_check_done(self.internet_checker.is_connected)
 
-    def update_wifi_icon(self, is_connected):
-        """Update the wifi icon based on internet connectivity."""
-        if is_connected:
-            default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-4.png")
-        else:
-            default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-0.png")
+    # def on_internet_check_done(self, is_connected):
+    #     """This method is triggered when the internet check is done."""
+    #     # Disconnect the signal to avoid multiple connections
+    #     self.internet_checker.internet_status_changed.disconnect(self.on_internet_check_done)
+
+    #     # Check if the internet is available
+    #     if not is_connected:
+    #         self.show_warning(self.tr("No Internet"), self.tr("Please check your internet connection and try again"))
+    #         #return
+
+    #     # If internet is available, resume the download
+    #     self.start_download(self.selected_d, silent=True)
+
+    # def check_internet(self):
+    #     """Start the internet checker thread every time the timer times out."""
+    #     self.internet_checker.start()
+
+    # def update_wifi_icon(self, is_connected):
+    #     """Update the wifi icon based on internet connectivity."""
+    #     if is_connected:
+    #         default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-4.png")
+    #     else:
+    #         default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-0.png")
         
-        # Update the wifi icon in the UI
-        widgets.wifi.setPixmap(default_pixmap.scaled(15, 15, Qt.KeepAspectRatio))
+    #     # Update the wifi icon in the UI
+    #     widgets.wifi.setPixmap(default_pixmap.scaled(15, 15, Qt.KeepAspectRatio))
 
 
         
-    def cancel_btn(self):
+    def pause_btn(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
            self.show_warning(self.tr("Error"),self.tr("No download item selected"))
@@ -2032,24 +2040,58 @@ class MainWindow(QMainWindow):
             if d.status == config.Status.cancelled:
                 self.start_download(d, silent=True)
 
-    
+    def button_state_table(self):
+        # Connect selection change signal
+        widgets.tableWidget.selectionModel().selectionChanged.connect(self.update_buttons_state)
+
+
+    def update_buttons_state(self):
+        # Get the number of selected rows
+        selected_rows = widgets.tableWidget.selectionModel().selectedRows()
+        selected_count = len(selected_rows)
+
+        
+        if selected_count == 1 or selected_count == 0:
+            widgets.resume.setEnabled(True)
+            widgets.resume_all.setEnabled(True)
+            widgets.pause.setEnabled(True)
+            widgets.d_window.setEnabled(True)
+            widgets.stop_all.setEnabled(True)
+            widgets.refresh.setEnabled(True)
+            widgets.schedule_all.setEnabled(True)
+            widgets.delete_all.setEnabled(True)
+        
+        else:
+            widgets.resume.setEnabled(False)  
+            widgets.resume_all.setEnabled(False)
+            widgets.pause.setEnabled(False)
+            widgets.d_window.setEnabled(False)
+            widgets.stop_all.setEnabled(False)
+            widgets.refresh.setEnabled(False)
+            widgets.schedule_all.setEnabled(False)
+            widgets.delete_all.setEnabled(False)
+
+           
     def delete_btn(self):
-        selected_items = widgets.tableWidget.selectedItems()
-        if not selected_items:
+        # Get all selected rows
+        selected_rows = [index.row() for index in widgets.tableWidget.selectedIndexes()]
+        selected_rows = list(set(selected_rows))  # Remove duplicates, as some items may be selected in multiple columns
+
+        if not selected_rows:
             return
 
-        selected_row = widgets.tableWidget.currentRow()
-
-        # Assuming self.d_list is your list of download items
+        # Ensure no downloads are active
         if self.active_downloads:
-            self.show_critical(self.tr("Error"),self.tr("Can't delete items while downloading. Stop or cancel all downloads first!"))
+            self.show_critical(self.tr("Error"), self.tr("Can't delete items while downloading. Stop or cancel all downloads first!"))
             return
-            
-        warn,asf = self.tr("Warning!!!"), self.tr("Are you sure you want to delete")
-        msg = f"{warn}\n {asf} {self.d_list[selected_row].name}?"
+        
+        # Prepare the warning message
+        warn, asf = self.tr("Warning!!!"), self.tr("Are you sure you want to delete these items?")
+        msg = f"{warn}\n {asf}?"
+        
         confirmation_box = QMessageBox(self)
         confirmation_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
-        confirmation_box.setWindowTitle(self.tr('Delete file?'))
+        confirmation_box.setWindowTitle(self.tr('Delete files?'))
         confirmation_box.setText(msg)
         confirmation_box.setIcon(QMessageBox.Question)
         confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
@@ -2059,27 +2101,83 @@ class MainWindow(QMainWindow):
             return
 
         try:
-            # Remove the item from the list and update the table
-            d = self.d_list.pop(selected_row)
+            # Sort the rows in reverse order to avoid issues with shifting rows when deleting
+            selected_rows.sort(reverse=True)
+            
+            # Remove each selected item from the list and table
+            for row in selected_rows:
+                d = self.d_list.pop(row)
 
-            # Update the remaining items' IDs
-            for i, item in enumerate(self.d_list):
-                item.id = i
+                # Update the remaining items' IDs
+                for i, item in enumerate(self.d_list):
+                    item.id = i
 
-            # Log the deleted item (for debugging)
-            log(f"D:  {d}")
+                # Log the deleted item (for debugging)
+                log(f"D:  {d}")
 
-            # Remove the row from the table
-            widgets.tableWidget.removeRow(selected_row)
-            nt1, nt2 = self.tr("File:"), self.tr("has been deleted.")    
-            notification = f"{nt1} {d.name} {nt2}"
-            notify(notification, title=f'{config.APP_NAME}')
-            # popup(msg=notification, title=f'{config.APP_NAME}')
-            d.delete_tempfiles()
-            os.remove(f"{d.folder}/{d.name}")
+                # Remove the row from the table
+                widgets.tableWidget.removeRow(row)
+
+                # Notify user about the deleted file
+                nt1, nt2 = self.tr("File:"), self.tr("has been deleted.")
+                notification = f"{nt1} {d.name} {nt2}"
+                notify(notification, title=f'{config.APP_NAME}')
+
+                # Clean up the deleted item
+                d.delete_tempfiles()
+                os.remove(f"{d.folder}/{d.name}")
 
         except Exception as e:
-            log(f"Error deleting item: {e}")
+            log(f"Error deleting items: {e}")
+
+        
+    # def delete_btn(self):
+    #     selected_items = widgets.tableWidget.selectedItems()
+    #     if not selected_items:
+    #         return
+
+    #     selected_row = widgets.tableWidget.currentRow()
+
+    #     # Assuming self.d_list is your list of download items
+    #     if self.active_downloads:
+    #         self.show_critical(self.tr("Error"),self.tr("Can't delete items while downloading. Stop or cancel all downloads first!"))
+    #         return
+            
+    #     warn,asf = self.tr("Warning!!!"), self.tr("Are you sure you want to delete")
+    #     msg = f"{warn}\n {asf} {self.d_list[selected_row].name}?"
+    #     confirmation_box = QMessageBox(self)
+    #     confirmation_box.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+    #     confirmation_box.setWindowTitle(self.tr('Delete file?'))
+    #     confirmation_box.setText(msg)
+    #     confirmation_box.setIcon(QMessageBox.Question)
+    #     confirmation_box.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+    #     reply = confirmation_box.exec()
+
+    #     if reply != QMessageBox.Yes:
+    #         return
+
+    #     try:
+    #         # Remove the item from the list and update the table
+    #         d = self.d_list.pop(selected_row)
+
+    #         # Update the remaining items' IDs
+    #         for i, item in enumerate(self.d_list):
+    #             item.id = i
+
+    #         # Log the deleted item (for debugging)
+    #         log(f"D:  {d}")
+
+    #         # Remove the row from the table
+    #         widgets.tableWidget.removeRow(selected_row)
+    #         nt1, nt2 = self.tr("File:"), self.tr("has been deleted.")    
+    #         notification = f"{nt1} {d.name} {nt2}"
+    #         notify(notification, title=f'{config.APP_NAME}')
+    #         # popup(msg=notification, title=f'{config.APP_NAME}')
+    #         d.delete_tempfiles()
+    #         os.remove(f"{d.folder}/{d.name}")
+
+    #     except Exception as e:
+    #         log(f"Error deleting item: {e}")
 
     def delete_all_downloads(self):
         # Check if there are any active downloads
