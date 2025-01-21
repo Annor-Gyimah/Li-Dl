@@ -42,7 +42,8 @@ from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageB
                                QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
-from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
+
 
 
 
@@ -67,6 +68,25 @@ from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkRe
 #         except (requests.ConnectionError, requests.Timeout):
 #             self.is_connected = False  # Update the connection status
 #             self.internet_status_changed.emit(False)
+
+
+class SingleInstanceApp:
+    def __init__(self, app_id):
+        self.app_id = app_id
+        self.server = QLocalServer()
+
+    def is_running(self):
+        socket = QLocalSocket()
+        socket.connectToServer(self.app_id)
+        is_running = socket.waitForConnected(500)
+        socket.close()
+        return is_running
+
+    def start_server(self):
+        if not self.server.listen(self.app_id):
+            # Clean up any leftover server instance if it wasn't closed properly
+            QLocalServer.removeServer(self.app_id)
+            self.server.listen(self.app_id)
 
 
 class YouTubeThread(QThread):
@@ -823,7 +843,8 @@ class MainWindow(QMainWindow):
                 self.start_download(*v)
             elif k == "monitor":
                 widgets.monitor_clipboard.setChecked(v)
-            
+
+                        
             elif k == 'show_update_gui':  # show update gui
                 self.show_update_gui()
             
@@ -3086,7 +3107,20 @@ def ask_for_sched_time(msg=''):
 
 
 if __name__ == "__main__":
+
+    app_id = "main.exe"  # Replace with a unique identifier for your app
     app = QApplication(sys.argv)
+
+    single_instance = SingleInstanceApp(app_id)
+
+    if single_instance.is_running():
+        QMessageBox.warning(None, "Warning", "Another instance of this application is already running.")
+        sys.exit(0)
+
+    # Start the server to mark this instance as active
+    single_instance.start_server()
+
+    #app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("images/images/Dynamite.png"))
 
     # Create the system tray icon and set it visible

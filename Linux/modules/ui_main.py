@@ -1466,7 +1466,7 @@ class Ui_MainWindow(object):
         self.pause.setMinimumSize(QSize(150, 50))
         self.pause.setStyleSheet(u"background-color: rgb(52, 59, 72);")
         icon10 = QIcon()
-        icon10.addFile(u":/icons/images/icons/cil-cancel.png", QSize(), QIcon.Normal, QIcon.Off)
+        icon10.addFile(u":/icons/images/icons/cil-media-pause.png", QSize(), QIcon.Normal, QIcon.Off)
         self.pause.setIcon(icon10)
         ###################################################################################################
         self.refresh = QPushButton("Refresh", self.frame1)
