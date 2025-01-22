@@ -1438,6 +1438,7 @@ class MainWindow(QMainWindow):
         default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
         widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
         log("Reset to default thumbnail due to error")
+        widgets.monitor_clipboard.setChecked(True)
 
 
     def ytdl_downloader(self):
@@ -1900,6 +1901,27 @@ class MainWindow(QMainWindow):
                 cell_value = self.format_cell_data(key, getattr(d, key, ''))
                 item = QTableWidgetItem(cell_value)
                 widgets.tableWidget.setItem(row, col, item)
+
+    # def populate_table(self):
+    #     for d in self.d_list:
+    #         # Insert a new row at the top
+    #         widgets.tableWidget.insertRow(0)
+
+    #         # Add the ID column (adjusted for the reversed order)
+    #         id_item = QTableWidgetItem(str(len(self.d_list)))  # IDs are 1-based
+    #         id_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Non-editable
+    #         widgets.tableWidget.setItem(0, 0, id_item)
+
+    #         # Fill the remaining columns based on the d_headers
+    #         for col, key in enumerate(self.d_headers[1:], 1):  # Skip 'id', already handled
+    #             cell_value = self.format_cell_data(key, getattr(d, key, ''))
+    #             item = QTableWidgetItem(cell_value)
+    #             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Non-editable
+    #             widgets.tableWidget.setItem(0, col, item)
+
+
+
+
         
 
     # endregion
