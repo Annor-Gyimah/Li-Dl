@@ -602,67 +602,67 @@ def clipboard_write(value):
     clipboard.copy(value)
 
 
-# def compare_versions(x, y):
-#     """it will compare 2 version numbers and return the higher value
-#     example compare_versions('2020.10.6', '2020.3.7') will return '2020.10.6'
-#     return None if 2 versions are equal
-#     """
-#     try:
-#         a = [int(x) for x in x.split('.')[:3]]
-#         b = [int(x) for x in y.split('.')[:3]]
-
-#         for i in range(3):
-#             if a[i] > b[i]:
-#                 return x
-#             elif a[i] < b[i]:
-#                 return y
-#     except:
-#         pass
-
-#     return None
-
-
-VERSION_MAPPING = {
-    "2025.1.25": "1.0.1",  # Map date-based versions to semantic versions
-    #"2025.1.30": "1.0.2",
-}
-
-def compare_versions(version1, version2):
+def compare_versions(x, y):
+    """it will compare 2 version numbers and return the higher value
+    example compare_versions('2020.10.6', '2020.3.7') will return '2020.10.6'
+    return None if 2 versions are equal
     """
-    Compare two versions (date or semantic).
-    Supports mapping date-based versions to semantic equivalents.
-    Returns the higher version or None if versions are equal.
-    """
-    def map_version(version):
-        # Map date-based versions to semantic versions if present
-        return VERSION_MAPPING.get(version, version)
-
     try:
-        # Map versions to their semantic equivalents
-        v1_mapped = map_version(version1)
-        v2_mapped = map_version(version2)
+        a = [int(x) for x in x.split('.')[:3]]
+        b = [int(x) for x in y.split('.')[:3]]
 
-        # Split versions into parts
-        v1_parts = [int(part) for part in v1_mapped.split('.')]
-        v2_parts = [int(part) for part in v2_mapped.split('.')]
+        for i in range(3):
+            if a[i] > b[i]:
+                return x
+            elif a[i] < b[i]:
+                return y
+    except:
+        pass
 
-        # Compare each part
-        for v1, v2 in zip(v1_parts, v2_parts):
-            if v1 > v2:
-                return version1
-            elif v1 < v2:
-                return version2
+    return None
 
-        # Compare lengths if versions have different lengths
-        if len(v1_parts) > len(v2_parts):
-            return version1
-        elif len(v1_parts) < len(v2_parts):
-            return version2
 
-        # Versions are equal
-        return None
-    except ValueError:
-        raise ValueError("Invalid version format. Ensure valid numeric components or mapping.")
+# VERSION_MAPPING = {
+#     "2025.1.25": "1.0.1",  # Map date-based versions to semantic versions
+#     #"2025.1.30": "1.0.2",
+# }
+
+# def compare_versions(version1, version2):
+#     """
+#     Compare two versions (date or semantic).
+#     Supports mapping date-based versions to semantic equivalents.
+#     Returns the higher version or None if versions are equal.
+#     """
+#     def map_version(version):
+#         # Map date-based versions to semantic versions if present
+#         return VERSION_MAPPING.get(version, version)
+
+#     try:
+#         # Map versions to their semantic equivalents
+#         v1_mapped = map_version(version1)
+#         v2_mapped = map_version(version2)
+
+#         # Split versions into parts
+#         v1_parts = [int(part) for part in v1_mapped.split('.')]
+#         v2_parts = [int(part) for part in v2_mapped.split('.')]
+
+#         # Compare each part
+#         for v1, v2 in zip(v1_parts, v2_parts):
+#             if v1 > v2:
+#                 return version1
+#             elif v1 < v2:
+#                 return version2
+
+#         # Compare lengths if versions have different lengths
+#         if len(v1_parts) > len(v2_parts):
+#             return version1
+#         elif len(v1_parts) < len(v2_parts):
+#             return version2
+
+#         # Versions are equal
+#         return None
+#     except ValueError:
+#         raise ValueError("Invalid version format. Ensure valid numeric components or mapping.")
 
 
 

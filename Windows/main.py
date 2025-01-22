@@ -35,13 +35,14 @@ from modules.video import (Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffm
                            get_ytdl_options, get_ytdl_options)
 from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
+from PySide6 import QtCore
 from typing import Optional
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, 
                                QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
                                QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
-from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 
 
 
@@ -73,6 +74,26 @@ class InternetChecker(QThread):
             self.internet_status_changed.emit(False)
 
 
+class SingleInstanceApp:
+    def __init__(self, app_id):
+        self.app_id = app_id
+        self.server = QLocalServer()
+
+    def is_running(self):
+        socket = QLocalSocket()
+        socket.connectToServer(self.app_id)
+        is_running = socket.waitForConnected(500)
+        socket.close()
+        return is_running
+
+    def start_server(self):
+        if not self.server.listen(self.app_id):
+            # Clean up any leftover server instance if it wasn't closed properly
+            QLocalServer.removeServer(self.app_id)
+            self.server.listen(self.app_id)
+
+
+
 class YouTubeThread(QThread):
     """Thread to handle YouTube video extraction and downloading."""
     finished = Signal(object)  # Signal when the process is complete
@@ -99,6 +120,8 @@ class YouTubeThread(QThread):
                 while not video.ytdl:
                     time.sleep(0.1)
             widgets.DownloadButton.setEnabled(False)
+            widgets.refresh.setEnabled(False)
+            widgets.monitor_clipboard.setChecked(False)
             widgets.combo_setting_c.clear()
             widgets.stream_combo.clear()
 
@@ -129,6 +152,8 @@ class YouTubeThread(QThread):
                 self.finished.emit(result)
                 self.change_cursor('normal')
                 widgets.DownloadButton.setEnabled(True)
+                widgets.refresh.setEnabled(True)
+                widgets.monitor_clipboard.setChecked(True)
 
         except Exception as e:
             log('YouTubeThread error:', e)
@@ -435,7 +460,7 @@ class MainWindow(QMainWindow):
         widgets.delete.clicked.connect(self.delete_btn)
         widgets.resume.clicked.connect(self.resume_btn)
         widgets.resume_all.clicked.connect(self.resume_all_downloads)
-        widgets.cancel.clicked.connect(self.cancel_btn)
+        widgets.pause.clicked.connect(self.pause_btn)
         widgets.refresh.clicked.connect(self.refresh_link_btn)
         widgets.d_window.clicked.connect(self.download_window)
         widgets.schedule_all.clicked.connect(self.schedule_all)
@@ -448,6 +473,8 @@ class MainWindow(QMainWindow):
         widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
         widgets.clearButton.clicked.connect(self.clear_log)
         widgets.tableWidget.itemClicked.connect(self.update_item_label)
+        # Connect the combo box signal directly to the stream_OnChoice method
+        widgets.stream_combo.currentTextChanged.connect(self.stream_OnChoice)
 
         widgets.version.setText(f"{config.APP_VERSION}")
         widgets.version_label.setText(f"App Version: {config.APP_VERSION}")
@@ -571,53 +598,53 @@ class MainWindow(QMainWindow):
         base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
         return os.path.join(base_path, relative_path)
         
-    # def apply_language(self, language):
-    #     # Load and apply the selected language
-    #     if language == "French":
-    #         if self.translator.load(self.resource_path2("app_fr.qm")):
-    #             QCoreApplication.instance().installTranslator(self.translator)
-    #     elif language == "Spanish":
-    #         if self.translator.load(self.resource_path2("app_es.qm")):
-    #             QCoreApplication.instance().installTranslator(self.translator)
-    #     elif language == "Chinese":
-    #         if self.translator.load(self.resource_path2("app_zh.qm")):
-    #             QCoreApplication.instance().installTranslator(self.translator)
-    #     elif language == "Korean":
-    #         if self.translator.load(self.resource_path2("app_ko.qm")):
-    #             QCoreApplication.instance().installTranslator(self.translator)
-    #     elif language == "Japanese":
-    #         if self.translator.load(self.resource_path2("app_ja.qm")):
-    #             QCoreApplication.instance().installTranslator(self.translator)
-    #     else:
-    #         QCoreApplication.instance().removeTranslator(self.translator)
-
-    #     # Update the UI
-    #     self.retrans()
-
-    # This is used when running the application from an IDE
-
     def apply_language(self, language):
         # Load and apply the selected language
         if language == "French":
-            if self.translator.load("translations/app_fr.qm"):
+            if self.translator.load(self.resource_path2("app_fr.qm")):
                 QCoreApplication.instance().installTranslator(self.translator)
         elif language == "Spanish":
-            if self.translator.load("translations/app_es.qm"):
+            if self.translator.load(self.resource_path2("app_es.qm")):
                 QCoreApplication.instance().installTranslator(self.translator)
         elif language == "Chinese":
-            if self.translator.load("translations/app_zh.qm"):
+            if self.translator.load(self.resource_path2("app_zh.qm")):
                 QCoreApplication.instance().installTranslator(self.translator)
         elif language == "Korean":
-            if self.translator.load("translations/app_ko.qm"):
+            if self.translator.load(self.resource_path2("app_ko.qm")):
                 QCoreApplication.instance().installTranslator(self.translator)
         elif language == "Japanese":
-            if self.translator.load("translations/app_ja.qm"):
+            if self.translator.load(self.resource_path2("app_ja.qm")):
                 QCoreApplication.instance().installTranslator(self.translator)
         else:
             QCoreApplication.instance().removeTranslator(self.translator)
 
         # Update the UI
         self.retrans()
+
+    # This is used when running the application from an IDE
+
+    # def apply_language(self, language):
+    #     # Load and apply the selected language
+    #     if language == "French":
+    #         if self.translator.load("translations/app_fr.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Spanish":
+    #         if self.translator.load("translations/app_es.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Chinese":
+    #         if self.translator.load("translations/app_zh.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Korean":
+    #         if self.translator.load("translations/app_ko.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     elif language == "Japanese":
+    #         if self.translator.load("translations/app_ja.qm"):
+    #             QCoreApplication.instance().installTranslator(self.translator)
+    #     else:
+    #         QCoreApplication.instance().removeTranslator(self.translator)
+
+    #     # Update the UI
+    #     self.retrans()
 
     def retrans(self):
         # Home Translations
@@ -637,7 +664,7 @@ class MainWindow(QMainWindow):
 
         # Download Translations
         widgets.resume.setText(self.tr("Resume"))
-        widgets.cancel.setText(self.tr("Cancel"))
+        widgets.pause.setText(self.tr("Pause"))
         widgets.refresh.setText(self.tr("Refresh"))
         widgets.d_window.setText(self.tr("D. Window"))
         widgets.resume_all.setText(self.tr("Resume All"))
@@ -716,12 +743,40 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         """
-        Quit the application and put it at the system's tray.
+        Quit the application completely.
         """
+
+        reply = QMessageBox.question(
+            self,
+            "Confirm Exit",
+            "Are you sure you want to close the application?",
+            QMessageBox.Yes | QMessageBox.No,
+            QMessageBox.No
+        )
+
+        if reply == QMessageBox.Yes:
+            # Run the function from utils.py
+            config.terminate = True
+            self.log_recorder_thread.wait()
+            self.log_recorder_thread.quit()
+            
+            super().closeEvent(event)
+            # Accept the event to close the application
+            event.accept()
+        else:
+            # Ignore the event to keep the application running
+            event.ignore()
+
+    
+    # def closeEvent(self, event):
+    #     """
+    #     Quit the application and put it at the system's tray.
+    #     """
         
-        event.ignore()  # Prevent the window from closing
-        self.hide()
-        config.terminate = False
+    #     event.ignore()  # Prevent the window from closing
+    #     self.hide()
+    #     config.terminate = False
+        
         
 
 
@@ -1066,8 +1121,9 @@ class MainWindow(QMainWindow):
                     self.switch_language()
                 elif key == 'on_startup':
                     self.on_startup()
-                elif key == 'selecting_stream':
-                    self.selecting_stream()
+                # elif key == 'selecting_stream':
+                #     self.selecting_stream()
+                
                 
                
                
@@ -1109,7 +1165,8 @@ class MainWindow(QMainWindow):
         self.queue_update('switch_language', None)
         self.queue_update('current_lang', None)
         self.queue_update('on_startup', None)
-        self.queue_update('selecting_stream', None)
+        # self.queue_update('selecting_stream', None)
+        
         
         #self.queue_update('thumbnail', None)
     
@@ -1414,6 +1471,8 @@ class MainWindow(QMainWindow):
         default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
         widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
         log("Reset to default thumbnail due to error")
+        widgets.monitor_clipboard.setChecked(True)
+        widgets.refresh.setEnabled(True)
 
 
     
@@ -1794,14 +1853,19 @@ class MainWindow(QMainWindow):
             
             # Set the ID column
             id_item = QTableWidgetItem(str(row + 1))
+            # Make the ID column non-editable
+            id_item.setFlags(id_item.flags() & ~QtCore.Qt.ItemIsEditable)
             widgets.tableWidget.setItem(row, 0, id_item)  # First column is ID
             
             # Fill the remaining columns based on the d_headers
             for col, key in enumerate(self.d_headers[1:], 1):  # Skip 'id', already handled
                 cell_value = self.format_cell_data(key, getattr(d, key, ''))
                 item = QTableWidgetItem(cell_value)
+                # Make the item non-editable
+                item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
                 widgets.tableWidget.setItem(row, col, item)
-        
+
+
 
     # endregion
 
@@ -1894,7 +1958,7 @@ class MainWindow(QMainWindow):
 
 
         
-    def cancel_btn(self):
+    def pause_btn(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
            self.show_warning(self.tr("Error"),self.tr("No download item selected"))
@@ -1968,6 +2032,8 @@ class MainWindow(QMainWindow):
         for d in self.d_list:
             if d.status == config.Status.cancelled:
                 self.start_download(d, silent=True)
+
+    
 
     
     def delete_btn(self):
@@ -2108,7 +2174,7 @@ class MainWindow(QMainWindow):
         action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-clock.png"), self.tr('Schedule download'), context_menu)
         action_cancel_schedule = QAction(QIcon(":/icons/images/icons/cil-x.png"), self.tr('Cancel schedule!'), context_menu)
         action_file_properties = QAction(QIcon(":/icons/images/icons/cil-info.png"), self.tr('File Properties'), context_menu)
-        # action_ytdl_download = QAction(self.tr('Re-download'), context_menu) # Not implemented yet
+        action_ytdl_download = QAction(self.tr('Re-download'), context_menu) # Not implemented yet
 
 
         # Add actions to the context menu
@@ -2118,7 +2184,7 @@ class MainWindow(QMainWindow):
         context_menu.addAction(action_schedule_download)
         context_menu.addAction(action_cancel_schedule)
         context_menu.addAction(action_file_properties)
-        # context_menu.addAction(action_ytdl_download) # Not implemented yet
+        context_menu.addAction(action_ytdl_download) # Not implemented yet
 
         # Connect actions to methods
         action_open_file.triggered.connect(self.open_item)
@@ -2127,7 +2193,7 @@ class MainWindow(QMainWindow):
         action_schedule_download.triggered.connect(self.schedule_download)
         action_cancel_schedule.triggered.connect(self.cancel_schedule)
         action_file_properties.triggered.connect(self.file_properties)
-        # action_ytdl_download.triggered.connect(self.ytdl_downloader) # not implemented yet
+        action_ytdl_download.triggered.connect(self.ytdl_downloader) # Not implemented yet
         
 
         # Show the context menu at the cursor position
@@ -3003,37 +3069,51 @@ def ask_for_sched_time(msg=''):
 
 
 if __name__ == "__main__":
+    #app = QApplication(sys.argv)
+
+
+    app_id = "main.exe"  # Replace with a unique identifier for your app
     app = QApplication(sys.argv)
 
-    app.setWindowIcon(QIcon(resource_path("images/images/Dynamite.png")))
-    tray = QSystemTrayIcon(QIcon(resource_path("images/images/Dynamite.png")))
-    tray.setVisible(True)
+    single_instance = SingleInstanceApp(app_id)
 
-    # Create the menu for the tray icon
-    menu = QMenu()
+    if single_instance.is_running():
+        QMessageBox.warning(None, "Warning", "Another instance of this application is already running.")
+        sys.exit(0)
 
-    # Create the exit action that quits the application
-    exit_action = QAction(QIcon(":/icons/images/icons/exit.svg"), f"Quit {config.APP_NAME}")
-    exit_action.triggered.connect(lambda: window.quit_app())
+    # Start the server to mark this instance as active
+    single_instance.start_server()
 
-    # Create the restore window action
-    restore_action = QAction(QIcon(":/icons/images/icons/window.svg"), f"Open {config.APP_NAME}")
-    restore_action.triggered.connect(lambda: window.restore_window())
 
-    # Create the minimize to tray action
-    minimize_action = QAction(QIcon(":/icons/images/icons/minimize.svg"), f"Minimize to Tray")
-    minimize_action.triggered.connect(lambda: window.minimize_to_tray())
+    # app.setWindowIcon(QIcon(resource_path("images/images/Dynamite.png")))
+    # tray = QSystemTrayIcon(QIcon(resource_path("images/images/Dynamite.png")))
+    # tray.setVisible(True)
 
-    # Add actions to the tray menu
-    menu.addAction(restore_action)
-    menu.addAction(minimize_action)
-    menu.addAction(exit_action)
+    # # Create the menu for the tray icon
+    # menu = QMenu()
 
-    # Set the context menu for the tray icon
-    tray.setContextMenu(menu)
+    # # Create the exit action that quits the application
+    # exit_action = QAction(QIcon(":/icons/images/icons/exit.svg"), f"Quit {config.APP_NAME}")
+    # exit_action.triggered.connect(lambda: window.quit_app())
 
-    # Connect the left-click (activated signal) to restore the window
-    tray.activated.connect(lambda reason: window.restore_window() if reason == QSystemTrayIcon.Trigger else None)
+    # # Create the restore window action
+    # restore_action = QAction(QIcon(":/icons/images/icons/window.svg"), f"Open {config.APP_NAME}")
+    # restore_action.triggered.connect(lambda: window.restore_window())
+
+    # # Create the minimize to tray action
+    # minimize_action = QAction(QIcon(":/icons/images/icons/minimize.svg"), f"Minimize to Tray")
+    # minimize_action.triggered.connect(lambda: window.minimize_to_tray())
+
+    # # Add actions to the tray menu
+    # menu.addAction(restore_action)
+    # menu.addAction(minimize_action)
+    # menu.addAction(exit_action)
+
+    # # Set the context menu for the tray icon
+    # tray.setContextMenu(menu)
+
+    # # Connect the left-click (activated signal) to restore the window
+    # tray.activated.connect(lambda reason: window.restore_window() if reason == QSystemTrayIcon.Trigger else None)
 
     # Create the main window
     window = MainWindow(config.d_list)
@@ -3041,18 +3121,18 @@ if __name__ == "__main__":
     # Show the window initially
     window.show()
 
-    # Function to update the tray menu based on window state (minimized or not)
-    def update_tray_menu():
-        if window.isHidden():  # If the window is hidden (minimized to tray)
-            restore_action.setEnabled(True)  # Enable restore action
-            minimize_action.setEnabled(False)  # Disable minimize action
-        else:
-            restore_action.setEnabled(False)  # Disable restore action
-            minimize_action.setEnabled(True)  # Enable minimize action
+    # # Function to update the tray menu based on window state (minimized or not)
+    # def update_tray_menu():
+    #     if window.isHidden():  # If the window is hidden (minimized to tray)
+    #         restore_action.setEnabled(True)  # Enable restore action
+    #         minimize_action.setEnabled(False)  # Disable minimize action
+    #     else:
+    #         restore_action.setEnabled(False)  # Disable restore action
+    #         minimize_action.setEnabled(True)  # Enable minimize action
 
-    # Connect to the window's state change signals
-    window.showEvent = lambda event: update_tray_menu()  # Window is shown
-    window.hideEvent = lambda event: update_tray_menu()  # Window is hidden
+    # # Connect to the window's state change signals
+    # window.showEvent = lambda event: update_tray_menu()  # Window is shown
+    # window.hideEvent = lambda event: update_tray_menu()  # Window is hidden
 
     # Optionally, run a method after the main window is initialized
     QTimer.singleShot(0, video.import_ytdl)
