@@ -1604,8 +1604,8 @@ class Ui_MainWindow(object):
         self.tableWidget.setHorizontalHeaderLabels(headers)
         # Enable row selection
         self.tableWidget.setSelectionBehavior(QTableView.SelectRows)
-        # self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
-        self.tableWidget.setSelectionMode(QAbstractItemView.MultiSelection)
+        self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
+        
 
 
         # # Set the table widget's size policy to expand
@@ -2226,14 +2226,10 @@ class Ui_MainWindow(object):
         self.horizontalLayout_statusSpeed.addWidget(self.totalSpeedValue)
 
         # Network widget
-        # self.wifi = QLabel(self.statusSpeedFrame)
+        self.wifi = QLabel(self.statusSpeedFrame)
         # self.wifi.setFixedSize(15, 10)
-        # self.wifi.setPixmap(QPixmap(":/icons/images/icons/cil-wifi-signal-0.png").scaled(15, 15, Qt.KeepAspectRatio))
-        # self.horizontalLayout_statusSpeed.addWidget(self.wifi)
-
-        # self.home_video_thumbnail_label = QLabel(self.home_row_6)
-        # self.home_video_thumbnail_label.setFixedSize(150, 100)  # Fixed size for thumbnail
-        # self.home_video_thumbnail_label.setPixmap(QPixmap(":/icons/images/icons/thumbnail-default.png").scaled(150, 150, Qt.KeepAspectRatio))
+        self.wifi.setPixmap(QPixmap(":/icons/images/icons/cil-wifi-signal-0.png").scaled(15, 15, Qt.KeepAspectRatio))
+        self.horizontalLayout_statusSpeed.addWidget(self.wifi)
 
         # Add the statusSpeedFrame to the bottom bar's layout
         self.horizontalLayout_5.addWidget(self.statusSpeedFrame)

@@ -1,10 +1,9 @@
 1.0.2
 - Change cancel button to pause button
-- Remove wifi icon responsible for slow gui responsible
-- Add multiple table item selection
 - Yt-dlp updated to latest version
 - Fixed GUI crashes for multiple URL processing
-- Made only one instance of the app runs at a time
+- Made only one instance of the app run at a time
+- Table items are not editable
 
 2025.1.25
 - Support for multiple languages such as French, Spanish, Japanese, Chinese, Korean.
