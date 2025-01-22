@@ -2174,7 +2174,7 @@ class MainWindow(QMainWindow):
         action_schedule_download = QAction(QIcon(":/icons/images/icons/cil-clock.png"), self.tr('Schedule download'), context_menu)
         action_cancel_schedule = QAction(QIcon(":/icons/images/icons/cil-x.png"), self.tr('Cancel schedule!'), context_menu)
         action_file_properties = QAction(QIcon(":/icons/images/icons/cil-info.png"), self.tr('File Properties'), context_menu)
-        action_ytdl_download = QAction(self.tr('Re-download'), context_menu) # Not implemented yet
+        # action_ytdl_download = QAction(self.tr('Re-download'), context_menu) # Not implemented yet
 
 
         # Add actions to the context menu
@@ -2184,7 +2184,7 @@ class MainWindow(QMainWindow):
         context_menu.addAction(action_schedule_download)
         context_menu.addAction(action_cancel_schedule)
         context_menu.addAction(action_file_properties)
-        context_menu.addAction(action_ytdl_download) # Not implemented yet
+        # context_menu.addAction(action_ytdl_download) # Not implemented yet
 
         # Connect actions to methods
         action_open_file.triggered.connect(self.open_item)
@@ -2193,7 +2193,7 @@ class MainWindow(QMainWindow):
         action_schedule_download.triggered.connect(self.schedule_download)
         action_cancel_schedule.triggered.connect(self.cancel_schedule)
         action_file_properties.triggered.connect(self.file_properties)
-        action_ytdl_download.triggered.connect(self.ytdl_downloader) # Not implemented yet
+        # action_ytdl_download.triggered.connect(self.ytdl_downloader) # Not implemented yet
         
 
         # Show the context menu at the cursor position
