@@ -1462,12 +1462,12 @@ class Ui_MainWindow(object):
         icon9.addFile(u":/icons/images/icons/cil-reload.png", QSize(), QIcon.Normal, QIcon.Off)
         self.resume.setIcon(icon9)
         ###################################################################################################
-        self.cancel = QPushButton("Cancel", self.frame1)
-        self.cancel.setMinimumSize(QSize(150, 50))
-        self.cancel.setStyleSheet(u"background-color: rgb(52, 59, 72);")
+        self.pause = QPushButton("Pause", self.frame1)
+        self.pause.setMinimumSize(QSize(150, 50))
+        self.pause.setStyleSheet(u"background-color: rgb(52, 59, 72);")
         icon10 = QIcon()
-        icon10.addFile(u":/icons/images/icons/cil-cancel.png", QSize(), QIcon.Normal, QIcon.Off)
-        self.cancel.setIcon(icon10)
+        icon10.addFile(u":/icons/images/icons/cil-media-pause.png", QSize(), QIcon.Normal, QIcon.Off)
+        self.pause.setIcon(icon10)
         ###################################################################################################
         self.refresh = QPushButton("Refresh", self.frame1)
         self.refresh.setMinimumSize(QSize(150, 50))
@@ -1493,7 +1493,7 @@ class Ui_MainWindow(object):
 
         # Add first 5 buttons to the first row
         self.row1Layout.addWidget(self.resume)
-        self.row1Layout.addWidget(self.cancel)
+        self.row1Layout.addWidget(self.pause)
         self.row1Layout.addWidget(self.refresh)
         #self.row1Layout.addWidget(self.folder)
         self.row1Layout.addWidget(self.d_window)
@@ -1595,25 +1595,22 @@ class Ui_MainWindow(object):
         self.tableWidget = QTableWidget(self.frame2)
         self.tableWidget.setObjectName(u"tableWidget")
 
-        # Set 8 columns and 3 rows
+        # Set 9 columns and 90 rows
         self.tableWidget.setColumnCount(9)
         self.tableWidget.setRowCount(90)
 
         # Set the horizontal header labels
         headers = ["ID", "Name", "Progress", "Speed", "Left", "Done", "Size", "Status", "I"]
         self.tableWidget.setHorizontalHeaderLabels(headers)
+
         # Enable row selection
         self.tableWidget.setSelectionBehavior(QTableView.SelectRows)
         self.tableWidget.setSelectionMode(QAbstractItemView.SingleSelection)  # or MultiSelection for multiple rows
 
-        # # Set the table widget's size policy to expand
+        # Set the table widget's size policy to expand
         self.tableWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-       
-
-        
 
         # Make the horizontal header visible and ensure columns resize appropriately
-        #self.tableWidget.horizontalHeader().setVisible(True)
         self.tableWidget.horizontalHeader().setCascadingSectionResizes(True)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setDefaultSectionSize(150)  # Adjust column size if needed
@@ -1625,6 +1622,7 @@ class Ui_MainWindow(object):
 
         # Add the table widget to the frame's layout
         self.horizontalLayout_12.addWidget(self.tableWidget)
+
 
         # Add the second frame (table frame) to the main vertical layout
         self.verticalLayout.addWidget(self.frame2)

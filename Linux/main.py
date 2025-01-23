@@ -36,37 +36,58 @@ from modules.video import (Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffm
                            get_ytdl_options, get_ytdl_options)
 from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
+from PySide6 import QtCore
 from typing import Optional
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, 
                                QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
                                QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
-from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply
+from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
 
 
 
 
-# class InternetChecker(QThread):
-#     # Define a signal to send the result back to the main thread
-#     internet_status_changed = Signal(bool)
 
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-#         self.is_connected = False  # Add a flag to store the connection status
+class InternetChecker(QThread):
+    # Define a signal to send the result back to the main thread
+    internet_status_changed = Signal(bool)
 
-#     def run(self):
-#         """Runs the internet check in the background."""
-#         url = "https://www.google.com"
-#         timeout = 10
-#         try:
-#             # Requesting URL to check for internet connectivity
-#             request = requests.get(url, timeout=timeout)
-#             self.is_connected = True  # Update the connection status
-#             self.internet_status_changed.emit(True)
-#         except (requests.ConnectionError, requests.Timeout):
-#             self.is_connected = False  # Update the connection status
-#             self.internet_status_changed.emit(False)
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.is_connected = False  # Add a flag to store the connection status
+
+    def run(self):
+        """Runs the internet check in the background."""
+        url = "https://www.google.com"
+        timeout = 10
+        try:
+            # Requesting URL to check for internet connectivity
+            request = requests.get(url, timeout=timeout)
+            self.is_connected = True  # Update the connection status
+            self.internet_status_changed.emit(True)
+        except (requests.ConnectionError, requests.Timeout):
+            self.is_connected = False  # Update the connection status
+            self.internet_status_changed.emit(False)
+
+
+class SingleInstanceApp:
+    def __init__(self, app_id):
+        self.app_id = app_id
+        self.server = QLocalServer()
+
+    def is_running(self):
+        socket = QLocalSocket()
+        socket.connectToServer(self.app_id)
+        is_running = socket.waitForConnected(500)
+        socket.close()
+        return is_running
+
+    def start_server(self):
+        if not self.server.listen(self.app_id):
+            # Clean up any leftover server instance if it wasn't closed properly
+            QLocalServer.removeServer(self.app_id)
+            self.server.listen(self.app_id)
 
 
 class YouTubeThread(QThread):
@@ -446,6 +467,7 @@ class MainWindow(QMainWindow):
         widgets.tableWidget.customContextMenuRequested.connect(self.show_table_context_menu)
         widgets.clearButton.clicked.connect(self.clear_log)
         widgets.tableWidget.itemClicked.connect(self.update_item_label)
+        widgets.stream_combo.currentTextChanged.connect(self.stream_OnChoice)
 
         widgets.version.setText(f"{config.APP_VERSION}")
         widgets.version_label.setText(f"App Version: {config.APP_VERSION}")
@@ -516,13 +538,13 @@ class MainWindow(QMainWindow):
         self.apply_language(self.current_language)
 
         # Initialize the InternetChecker thread
-        # self.internet_checker = InternetChecker()
-        # self.internet_checker.internet_status_changed.connect(self.update_wifi_icon)
+        self.internet_checker = InternetChecker()
+        self.internet_checker.internet_status_changed.connect(self.update_wifi_icon)
 
-        # # Set up a QTimer to periodically check the internet connection
-        # self.timer = QTimer(self)
-        # self.timer.timeout.connect(self.check_internet)
-        # self.timer.start(5000)  # 5 seconds interval (can be adjusted)
+        # Set up a QTimer to periodically check the internet connection
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.check_internet)
+        self.timer.start(5000)  # 5 seconds interval (can be adjusted)
         
 
         
@@ -595,7 +617,6 @@ class MainWindow(QMainWindow):
         self.retrans()
 
     # This is used when running the application from an IDE
-
     # def apply_language(self, language):
     #     # Load and apply the selected language
     #     if language == "French":
@@ -823,7 +844,8 @@ class MainWindow(QMainWindow):
                 self.start_download(*v)
             elif k == "monitor":
                 widgets.monitor_clipboard.setChecked(v)
-            
+
+                        
             elif k == 'show_update_gui':  # show update gui
                 self.show_update_gui()
             
@@ -861,7 +883,7 @@ class MainWindow(QMainWindow):
 
                     if days_since_last_update >= config.update_frequency:
                         Thread(target=self.update_available, daemon=True).start()
-                        Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                        # Thread(target=self.check_for_ytdl_update, daemon=True).start()
                         config.last_update_check = today
                 except Exception as e:
                     log('MainWindow.run()>', e)
@@ -1067,10 +1089,7 @@ class MainWindow(QMainWindow):
                     self.switch_language()
                 elif key == 'on_startup':
                     self.on_startup()
-                elif key == 'selecting_stream':
-                    self.selecting_stream()
-                elif key == 'button_state_table':
-                    self.button_state_table()
+                
                 
                
                
@@ -1112,8 +1131,6 @@ class MainWindow(QMainWindow):
         self.queue_update('switch_language', None)
         self.queue_update('current_lang', None)
         self.queue_update('on_startup', None)
-        self.queue_update('selecting_stream', None)
-        self.queue_update('button_state_table', None)
         
         #self.queue_update('thumbnail', None)
     
@@ -1417,6 +1434,7 @@ class MainWindow(QMainWindow):
         default_pixmap = QPixmap(":/icons/images/icons/thumbnail-default.png")
         widgets.home_video_thumbnail_label.setPixmap(default_pixmap.scaled(150, 150, Qt.KeepAspectRatio))
         log("Reset to default thumbnail due to error")
+        widgets.monitor_clipboard.setChecked(True)
 
 
     def ytdl_downloader(self):
@@ -1594,9 +1612,9 @@ class MainWindow(QMainWindow):
         log(f"Stream '{selected_stream}' selected for video {self.video.title}")
 
 
-    def selecting_stream(self):
-        # Connect the stream combo box signal to the handler
-        widgets.stream_combo.currentTextChanged.connect(self.stream_OnChoice)
+    # def selecting_stream(self):
+    #     # Connect the stream combo box signal to the handler
+    #     widgets.stream_combo.currentTextChanged.connect(self.stream_OnChoice)
 
     
     # def stream_OnChoice(self, selected_stream):
@@ -1872,13 +1890,39 @@ class MainWindow(QMainWindow):
             
             # Set the ID column
             id_item = QTableWidgetItem(str(row + 1))
+            # Make the ID column non-editable
+            id_item.setFlags(id_item.flags() & ~QtCore.Qt.ItemIsEditable)
             widgets.tableWidget.setItem(row, 0, id_item)  # First column is ID
             
             # Fill the remaining columns based on the d_headers
             for col, key in enumerate(self.d_headers[1:], 1):  # Skip 'id', already handled
                 cell_value = self.format_cell_data(key, getattr(d, key, ''))
                 item = QTableWidgetItem(cell_value)
+                # Make the item non-editable
+                item.setFlags(item.flags() & ~QtCore.Qt.ItemIsEditable)
                 widgets.tableWidget.setItem(row, col, item)
+
+
+    # def populate_table(self):
+    #     for d in self.d_list:
+    #         # Insert a new row at the top
+    #         widgets.tableWidget.insertRow(0)
+
+    #         # Add the ID column (adjusted for the reversed order)
+    #         id_item = QTableWidgetItem(str(len(self.d_list)))  # IDs are 1-based
+    #         id_item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Non-editable
+    #         widgets.tableWidget.setItem(0, 0, id_item)
+
+    #         # Fill the remaining columns based on the d_headers
+    #         for col, key in enumerate(self.d_headers[1:], 1):  # Skip 'id', already handled
+    #             cell_value = self.format_cell_data(key, getattr(d, key, ''))
+    #             item = QTableWidgetItem(cell_value)
+    #             item.setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)  # Non-editable
+    #             widgets.tableWidget.setItem(0, col, item)
+
+
+
+
         
 
     # endregion
@@ -1925,43 +1969,43 @@ class MainWindow(QMainWindow):
             return
         
         # If internet is available, resume the download
-        self.start_download(self.selected_d, silent=True)
+       
 
         # Check if the internet_checker is already running
-        # if not self.internet_checker.isRunning():
-        #     # Start the internet check if it's not running
-        #     self.internet_checker.internet_status_changed.connect(self.on_internet_check_done)
-        #     self.internet_checker.start()  # Start the thread to check internet status
-        # else:
-        #     # If the thread is already running, proceed directly with the result from the last check
-        #     self.on_internet_check_done(self.internet_checker.is_connected)
+        if not self.internet_checker.isRunning():
+            # Start the internet check if it's not running
+            self.internet_checker.internet_status_changed.connect(self.on_internet_check_done)
+            self.internet_checker.start()  # Start the thread to check internet status
+        else:
+            # If the thread is already running, proceed directly with the result from the last check
+            self.on_internet_check_done(self.internet_checker.is_connected)
 
-    # def on_internet_check_done(self, is_connected):
-    #     """This method is triggered when the internet check is done."""
-    #     # Disconnect the signal to avoid multiple connections
-    #     self.internet_checker.internet_status_changed.disconnect(self.on_internet_check_done)
+    def on_internet_check_done(self, is_connected):
+        """This method is triggered when the internet check is done."""
+        # Disconnect the signal to avoid multiple connections
+        self.internet_checker.internet_status_changed.disconnect(self.on_internet_check_done)
 
-    #     # Check if the internet is available
-    #     if not is_connected:
-    #         self.show_warning(self.tr("No Internet"), self.tr("Please check your internet connection and try again"))
-    #         #return
+        # Check if the internet is available
+        if not is_connected:
+            self.show_warning(self.tr("No Internet"), self.tr("Please check your internet connection and try again"))
+            #return
 
-    #     # If internet is available, resume the download
-    #     self.start_download(self.selected_d, silent=True)
+        # If internet is available, resume the download
+        self.start_download(self.selected_d, silent=True)
 
-    # def check_internet(self):
-    #     """Start the internet checker thread every time the timer times out."""
-    #     self.internet_checker.start()
+    def check_internet(self):
+        """Start the internet checker thread every time the timer times out."""
+        self.internet_checker.start()
 
-    # def update_wifi_icon(self, is_connected):
-    #     """Update the wifi icon based on internet connectivity."""
-    #     if is_connected:
-    #         default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-4.png")
-    #     else:
-    #         default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-0.png")
+    def update_wifi_icon(self, is_connected):
+        """Update the wifi icon based on internet connectivity."""
+        if is_connected:
+            default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-4.png")
+        else:
+            default_pixmap = QPixmap(":/icons/images/icons/cil-wifi-signal-0.png")
         
-    #     # Update the wifi icon in the UI
-    #     widgets.wifi.setPixmap(default_pixmap.scaled(15, 15, Qt.KeepAspectRatio))
+        # Update the wifi icon in the UI
+        widgets.wifi.setPixmap(default_pixmap.scaled(15, 15, Qt.KeepAspectRatio))
 
 
         
@@ -3086,7 +3130,20 @@ def ask_for_sched_time(msg=''):
 
 
 if __name__ == "__main__":
+
+    app_id = "main.exe"  # Replace with a unique identifier for your app
     app = QApplication(sys.argv)
+
+    single_instance = SingleInstanceApp(app_id)
+
+    if single_instance.is_running():
+        QMessageBox.warning(None, "Warning", "Another instance of this application is already running.")
+        sys.exit(0)
+
+    # Start the server to mark this instance as active
+    single_instance.start_server()
+
+    #app = QApplication(sys.argv)
     app.setWindowIcon(QIcon("images/images/Dynamite.png"))
 
     # Create the system tray icon and set it visible
