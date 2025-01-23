@@ -883,7 +883,7 @@ class MainWindow(QMainWindow):
 
                     if days_since_last_update >= config.update_frequency:
                         Thread(target=self.update_available, daemon=True).start()
-                        Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                        # Thread(target=self.check_for_ytdl_update, daemon=True).start()
                         config.last_update_check = today
                 except Exception as e:
                     log('MainWindow.run()>', e)
