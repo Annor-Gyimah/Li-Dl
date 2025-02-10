@@ -1206,7 +1206,7 @@ class MainWindow(QMainWindow):
         
         if self.check_time:
             self.check_time = False
-            server_check = update.SoftwareUpdateChecker(api_url="http://localhost:8000/api/licenses", software_version=config.APP_VERSION)
+            server_check = update.SoftwareUpdateChecker(api_url="https://dynamite0.pythonanywhere.com/api/licenses", software_version=config.APP_VERSION)
             server_check.server_check_update() 
 
 
