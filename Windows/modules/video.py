@@ -58,6 +58,7 @@ def get_ytdl_options():
             'key': 'FFmpegVideoConvertor',
             'preferedformat': 'mp4',  # You can change this to your preferred format (e.g., 'mkv', 'webm', etc.)
         }],
+        'extractor_args': {'youtube': {'po_token': 'ios+XXX'}},
     }
     if config.proxy:
         ydl_opts['proxy'] = config.proxy
