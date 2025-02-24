@@ -43,7 +43,22 @@ class Logger(object):
 
 
 def get_ytdl_options():
-    ydl_opts = {'prefer_insecure': True, 'no_warnings': False, 'logger': Logger()}
+    ydl_opts = {
+        'prefer_insecure': True, 
+        'no_warnings': False, 
+        'logger': Logger(),
+        'format': 'bestvideo+bestaudio',  # Ensures video and audio are downloaded separately but combined later
+        'preferredcodec': 'mkv',
+        #'preferredquality': '192',
+        'listformats': True,  # List available formats
+        'quiet': True,
+        'format': "(bv*+ba/b)[protocol^=http][protocol!*=dash] / (bv*+ba/b)",
+        'merge_output_format': 'mp4',
+        'postprocessors': [{  # Postprocessor to combine video and audio after download
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4',  # You can change this to your preferred format (e.g., 'mkv', 'webm', etc.)
+        }],
+    }
     if config.proxy:
         ydl_opts['proxy'] = config.proxy
 
@@ -57,6 +72,29 @@ def get_ytdl_options():
     #     ydl_opts['quiet'] = True  # it doesn't work
 
     return ydl_opts
+
+# def get_ytdl_options():
+#     ydl_opts = {
+#         'prefer_insecure': True,
+#         'no_warnings': False,
+#         'logger': Logger(),
+#         # Prefer direct HTTP/HTTPS formats and avoid problematic DASH formats if possible
+#         'format': "(bv*+ba/b)[protocol^=http][protocol!*=dash] / (bv*+ba/b)",
+#         'merge_output_format': 'mp4',  # This instructs yt-dlp to merge streams into MP4 automatically
+#         'quiet': True,
+#         # Optionally, if you want to use native HLS downloading:
+#         'hls_prefer_native': True,
+#         'audio-multistreams': True,
+#         'merge-output-format': 'mp4/mkv',
+#         'extractor_args': {'youtube': {'po_token': 'ios+XXX'}}
+#     }
+#     if config.proxy:
+#         ydl_opts['proxy'] = config.proxy
+
+#     return ydl_opts
+
+
+
 
 
 class Video(DownloadItem):
@@ -72,6 +110,7 @@ class Video(DownloadItem):
         if self.vid_info is None:
             with ytdl.YoutubeDL(get_ytdl_options()) as ydl:
                 self.vid_info = ydl.extract_info(self.url, download=False, process=True)
+
 
         self.webpage_url = url  # self.vid_info.get('webpage_url')
         self.title = validate_file_name(self.vid_info.get('title', f'video{int(time.time())}'))
@@ -114,6 +153,8 @@ class Video(DownloadItem):
         # except Exception as e:
         #     log(f"Error creating Stream objects: {e}")
         #     return
+        # log(f"vid_info: {self.vid_info}")
+
         all_streams = [Stream(x) for x in self.vid_info['formats']]
 
         # prepare some categories

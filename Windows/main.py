@@ -129,7 +129,7 @@ class YouTubeThread(QThread):
             self.change_cursor('busy')
 
             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                info = ydl.extract_info(self.url, download=False, process=False)
+                info = ydl.extract_info(self.url, download=False, process=True)
                 log('Media info:', info, log_level=3)
 
                 if info.get('_type') == 'playlist' or 'entries' in info:
@@ -138,13 +138,13 @@ class YouTubeThread(QThread):
                     for index, item in enumerate(pl_info):
                         url = item.get('url') or item.get('webpage_url') or item.get('id')
                         if url:
-                            playlist.append(Video(url))
+                            playlist.append(Video(url, vid_info=item))
                         # Emit progress as we process each playlist entry
                         self.progress.emit(int((index + 1) * 100 / len(pl_info)))
                     result = playlist
                 else:
                     # For a single video, update progress on extraction
-                    result = Video(self.url, vid_info=None)
+                    result = Video(self.url, vid_info=info)
                     self.progress.emit(50)  # Just after extracting the info
                     time.sleep(1)  # Simulating some processing
                     self.progress.emit(100)  # Video info extraction complete
