@@ -7,18 +7,23 @@
 
 import sys
 import webbrowser
-import requests
-import copy
 import os
-import re
-import time
 import subprocess
-import json
-from threading import Thread, Timer, Lock
+import time
+import re
+from threading import Thread, Timer
+import copy
+import requests
 from collections import deque
 from modules.downloaditem import DownloadItem
 # IMPORT / GUI AND MODULES AND WIDGETS
 # ///////////////////////////////////////////////////////////////
+
+from modules.video import (Video, check_ffmpeg, download_ffmpeg, get_ytdl_options)
+from modules.utils import (size_format, validate_file_name, compare_versions, 
+                           log, delete_file, time_format, truncate, 
+                           notify, run_command, handle_exceptions)
+from modules import config, brain, setting, video, update, startup
 from modules import *
 from widgets import *
 os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100%
@@ -27,29 +32,27 @@ os.environ["QT_FONT_DPI"] = "96"  # FIX Problem for High DPI and Scale above 100
 # ///////////////////////////////////////////////////////////////
 widgets = None
 
-from modules.utils import (size_format, validate_file_name, compare_versions, 
-                           log, delete_file, time_format, truncate, 
-                           notify, popup, run_command, handle_exceptions)
-from modules import config, brain, setting, video, update, startup
+
 #from modules.startup import(checkStartUp)
-from modules.video import (Video, ytdl, check_ffmpeg, download_ffmpeg, unzip_ffmpeg, 
-                           get_ytdl_options, get_ytdl_options)
-from PySide6.QtCore import QTimer, Qt, QSize, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication
+
+from PySide6.QtCore import QTimer, QPoint, QThread, Signal, Slot, QUrl, QTranslator, QCoreApplication
 from PySide6.QtGui import QAction, QIcon, QPixmap, QImage, QClipboard
 from PySide6 import QtCore
-from typing import Optional
 from PySide6.QtWidgets import (QMainWindow, QApplication, QFileDialog, QMessageBox, 
                                QVBoxLayout, QLabel, QProgressBar, QPushButton, QTextEdit, 
                                QHBoxLayout, QWidget, QFrame, QTableWidgetItem, QDialog, 
                                QComboBox, QInputDialog, QMenu, QRadioButton, QButtonGroup, 
                                QHeaderView, QScrollArea, QCheckBox, QSystemTrayIcon)
 from PySide6.QtNetwork import QNetworkAccessManager, QNetworkRequest, QNetworkReply, QLocalServer, QLocalSocket
-
+from yt_dlp.utils import DownloadError, ExtractorError
 
 
 
 
 class InternetChecker(QThread):
+    """
+    This class for checking the internet
+    """
     # Define a signal to send the result back to the main thread
     internet_status_changed = Signal(bool)
 
@@ -63,7 +66,7 @@ class InternetChecker(QThread):
         timeout = 10
         try:
             # Requesting URL to check for internet connectivity
-            request = requests.get(url, timeout=timeout)
+            requests.get(url, timeout=timeout)
             self.is_connected = True  # Update the connection status
             self.internet_status_changed.emit(True)
         except (requests.ConnectionError, requests.Timeout):
@@ -149,8 +152,14 @@ class YouTubeThread(QThread):
                 widgets.DownloadButton.setEnabled(True)
                 widgets.monitor_clipboard.setChecked(True)
 
+        except DownloadError as e:
+            log('DownloadError:', e)
+            self.finished.emit(None)
+        except ExtractorError as e:
+            log('ExtractorError:', e)
+            self.finished.emit(None)
         except Exception as e:
-            log('YouTubeThread error:', e)
+            log('Unexpected error:', e)
             self.finished.emit(None)
 
             
@@ -232,9 +241,7 @@ class FileOpenThread(QThread):
         try:
             if not os.path.exists(self.file_path):
                 # Emit the signal if the file doesn't exist
-                self.critical_signal.emit(
-                    'File Not Found', f"The file '{self.file_path}' could not be found or has been deleted."
-                )
+                self.critical_signal.emit('File Not Found', f"The file '{self.file_path}' could not be found or has been deleted.")
                 return  # Exit the thread if the file doesn't exist
 
             # Opening the file
@@ -245,8 +252,24 @@ class FileOpenThread(QThread):
             elif config.operating_system == 'Darwin':
                 run_command(f'open "{self.file_path}"', verbose=False)
 
-        except Exception as e:
-            log(f'Error opening file: {e}')
+        except FileNotFoundError:
+            log(f"File not found: {self.file_path}")
+            self.critical_signal.emit(
+                'File Not Found', 
+                f"The file '{self.file_path}' could not be found."
+            )
+        except PermissionError:
+            log(f"Permission error accessing: {self.file_path}")
+            self.critical_signal.emit(
+                'Permission Error', 
+                f"Permission denied while trying to access '{self.file_path}'."
+            )
+        except OSError as e:
+            log(f"OS error occurred while opening file: {e}")
+            self.critical_signal.emit(
+                'OS Error', 
+                f"An OS error occurred while opening the file: {e}"
+            )
 
 
 class LogRecorderThread(QThread):
@@ -309,8 +332,6 @@ class MainWindow(QMainWindow):
         self.bad_headers = [0, range(400, 404), range(405, 418), range(500, 506)]  # response codes
 
         # youtube specific
-        
-
         # download
         self.pending = deque()
         self.disabled = True  # for download button
@@ -335,7 +356,6 @@ class MainWindow(QMainWindow):
         self._stream_menu = []
         self.stream_menu_selection = ''
 
-        
         # thumbnail
         self.current_thumbnail = None
 
@@ -386,10 +406,7 @@ class MainWindow(QMainWindow):
         widgets.btn_home.clicked.connect(self.buttonClick)
         widgets.btn_widgets.clicked.connect(self.buttonClick)
         widgets.btn_new.clicked.connect(self.buttonClick)
-        #widgets.btn_save.clicked.connect(self.buttonClick)
-
-        
-        
+        #widgets.btn_save.clicked.connect(self.buttonClick) 
 
         # EXTRA LEFT BOX
         def openCloseLeftBox():
@@ -512,20 +529,16 @@ class MainWindow(QMainWindow):
         widgets.combo_max_downloads.setCurrentText(str(config.max_concurrent_downloads))
         widgets.combo_max_connections.setCurrentText(str(config.max_connections))
         widgets.checkBox_proxy.setChecked(True if config.enable_proxy else False)
-        widgets.lineEdit_proxy.setText(config.proxy if config.enable_proxy == True else "")
+        widgets.lineEdit_proxy.setText(config.proxy if config.enable_proxy is True else "")
         widgets.combo_proxy_type.setCurrentText(config.proxy_type)
         widgets.combo_check_update.setCurrentText(str(config.update_frequency))
         widgets.logLevelComboBox.setCurrentText(str(config.log_level))
         #widgets.label_proxy_info.setText(config.proxy == '' if config.enable_proxy)
-        
-
         self.update_gui_signal.connect(self.process_gui_updates)
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self.check_for_updates)
         self.update_timer.start(100)  # Check for updates every 100ms
-
         self.pending_updates = {}
-        
         self.network_manager = QNetworkAccessManager()
         self.network_manager.finished.connect(self.on_thumbnail_downloaded)
         self.one_time, self.check_time = True, True
@@ -545,9 +558,6 @@ class MainWindow(QMainWindow):
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.check_internet)
         self.timer.start(5000)  # 5 seconds interval (can be adjusted)
-        
-
-        
 
     # BUTTONS CLICK
     # ///////////////////////////////////////////////////////////////
@@ -594,6 +604,9 @@ class MainWindow(QMainWindow):
         return os.path.join(base_path, relative_path)
         
     def apply_language(self, language):
+        """
+        Applying the type of language selected by the user
+        """
         # Load and apply the selected language
         if language == "French":
             if self.translator.load(self.resource_path2("app_fr.qm")):
@@ -641,6 +654,9 @@ class MainWindow(QMainWindow):
     #     self.retrans()
 
     def retrans(self):
+        """
+        Texts, objects, buttons, etc to translate
+        """
         # Home Translations
         widgets.home_link_label.setText(self.tr("LINK"))
         widgets.home_retry_pushbutton.setText(self.tr("Retry"))
@@ -674,8 +690,6 @@ class MainWindow(QMainWindow):
         widgets.btn_new.setText(self.tr("Logs"))
         widgets.toggleButton.setText(self.tr("Hide"))
         widgets.toggleLeftBox.setText(self.tr("About"))
-        # widgets.combo_language.addItems([self.tr("English"), self.tr("Spanish"), self.tr("French"), self.tr("Japanese"), self.tr("Chinese"), self.tr("Korean")])
-
         # Settings Translations
         widgets.label_general.setText(self.tr("General"))
         widgets.label_language.setText(self.tr("Choose Language:"))
@@ -700,33 +714,32 @@ class MainWindow(QMainWindow):
         widgets.logLevelLabel.setText(self.tr("Log Level"))
         widgets.detailedEventsLabel.setText(self.tr("Detailed events"))
         widgets.clearButton.setText(self.tr("Clear"))
-
-
         widgets.tableWidget.setHorizontalHeaderLabels([("ID"), self.tr("Name"), self.tr("Progress"), self.tr("Speed"), self.tr("Left"), self.tr("Done"), self.tr("Size"), self.tr("Status"), "I"])
 
 
     def on_clipboard_change(self):
+        """
+        Monitors the clipboard for changes.
+        """
         try:
             new_data = self.clipboard.text()
-            
+
             # Check for instance message
             if new_data == 'any one there?':
                 self.clipboard.setText('yes')
                 self.show()
                 self.raise_()
                 return
-            
+
             # Check for URLs if monitoring is active
             if config.monitor_clipboard and new_data != self.old_clipboard_data:
                 if new_data.startswith('http') and ' ' not in new_data:
-                    config.main_window_q.put(('url', new_data))
-                
+                    config.main_window_q.put(('url', new_data))                    
                 self.old_clipboard_data = new_data
-                
-        except Exception as e:
-            log(f'Clipboard error: {str(e)}')
-    
-    
+
+        except (AttributeError, TypeError) as e:
+            log(f"Clipboard error due to incorrect data type or attribute access: {str(e)}")
+        
     def handle_clipboard_error(self, error_msg: str):
         """Handle clipboard errors"""
         log(error_msg)
@@ -739,13 +752,9 @@ class MainWindow(QMainWindow):
         """
         Quit the application and put it at the system's tray.
         """
-        
         event.ignore()  # Prevent the window from closing
         self.hide()
         config.terminate = False
-        
-
-
     def restore_window(self):
         """
         Show the main window again when clicking the tray icon.
@@ -776,27 +785,19 @@ class MainWindow(QMainWindow):
             config.terminate = True
             self.log_recorder_thread.wait()
             self.log_recorder_thread.quit()
-            
             QApplication.quit()
-            
         else:
             pass
-
     def minimize_to_tray(self):
         """
         Minimize the main window to the system tray.
         """
         self.hide()
-        
-
-
     def setup(self):
-        """initial setup"""
-        
+        """initial setup"""     
         # download folder
         if not self.d.folder:
             self.d.folder = config.download_folder
-
     def read_q(self):
         """Read from the queue and update the GUI."""
         while not config.main_window_q.empty():
@@ -805,9 +806,6 @@ class MainWindow(QMainWindow):
             if k == 'log':
                 try:
                     contents = widgets.logDisplay.toPlainText()
-
-                    
-                   
                     if len(contents) > config.max_log_size:
                         # delete 20% of contents to keep size under max_log_size
                         slice_size = int(config.max_log_size * 0.2)
@@ -815,80 +813,75 @@ class MainWindow(QMainWindow):
 
                     # parse youtube output while fetching playlist info with option "process=True"
                     if '[download]' in v:  # "[download] Downloading video 3 of 30"
-                        try:
-                            b = v.rsplit(maxsplit=3)  # ['[download] Downloading video', '3', 'of', '30']
-                            total_num = int(b[-1])
-                            num = int(b[-3])
-
-                            # get 50% of this value and the remaining 50% will be for other processing
-                            percent = int(num * 100 / total_num)
-                            percent = percent // 2
-
-                        except:
-                            pass
-                        
-
+                        b = v.rsplit(maxsplit=3)  # ['[download] Downloading video','3','of','30']
+                        total_num = int(b[-1])
+                        num = int(b[-3])
+                        # get 50% of this value and the remaining 50% will be for other process
+                        percent = int(num * 100 / total_num)
+                        percent = percent // 2    
                     widgets.logDisplay.append(v)
                 except Exception as e:
                     log(f"{e}")
-
-                
 
             elif k == 'url':
                 # Update the QLineEdit with the new URL
                 widgets.home_link_lineEdit.setText(v)
                 self.url_text_change()
-                #self.update_progress_bar()
-            
+                #self.update_progress_bar()   
             elif k == "download":
                 self.start_download(*v)
             elif k == "monitor":
-                widgets.monitor_clipboard.setChecked(v)
-
-                        
+                widgets.monitor_clipboard.setChecked(v)               
             elif k == 'show_update_gui':  # show update gui
-                self.show_update_gui()
-            
+                self.show_update_gui()    
             elif k == "restore_window":
                 config.terminate = False
                 self.restore_window()
-
             elif k == 'popup':
                 type_ = v['type_']
                 if type_ == 'info':
                     self.show_information(title=v['title'], inform="", msg=v['msg'])
                 else:
                     self.show_critical(title=v['title'], msg=v['msg'])
-                
-            
+
 
     def run(self):
         """Handle the event loop."""
         try:
-
-            self.read_q()
-            self.queue_updates()  # You can also update the GUI components based on certain conditions
-            if self.one_time:
-                self.one_time = False
-                # check availability of ffmpeg in the system or in same folder with this script
-                
-                # check_for_update
+            self.read_q()  # Handle queue read operation
+        except (AttributeError, TypeError) as e:
+            log(f"Error reading queue: {e}")
+        
+        try:
+            self.queue_updates()  # Update the GUI components
+        except (AttributeError, RuntimeError) as e:
+            log(f"Error updating GUI components: {e}")
+        
+        if self.one_time:
+            self.one_time = False
+            
+            try:
+                # Check availability of ffmpeg in the system or in the same folder as this script
                 t = time.localtime()
-                today = t.tm_yday  # today number in the year range (1 to 366)
+                today = t.tm_yday  # Today number in the year range (1 to 366)
+            except (ValueError, TypeError) as e:
+                log(f"Error with date/time operation: {e}")
+                return
+            
+            try:
+                days_since_last_update = today - config.last_update_check
+                log('Days since last check for update:', days_since_last_update, 'day(s).')
                 
+                if days_since_last_update >= config.update_frequency:
+                    Thread(target=self.update_available, daemon=True).start()
+                    # Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                    config.last_update_check = today
+            except (TypeError, ValueError) as e:
+                log(f"Error in update check calculations: {e}")
+            except Exception as e:
+                log(f"Error in run loop: {e}")
 
-                try:
-                    days_since_last_update = today - config.last_update_check
-                    log('days since last check for update:', days_since_last_update, 'day(s).')
 
-                    if days_since_last_update >= config.update_frequency:
-                        Thread(target=self.update_available, daemon=True).start()
-                        # Thread(target=self.check_for_ytdl_update, daemon=True).start()
-                        config.last_update_check = today
-                except Exception as e:
-                    log('MainWindow.run()>', e)
-        except Exception as e:
-            log(f"Error in run loop: {e}")
 
     # region Url stuffs
     def url_text_change(self):
@@ -901,10 +894,7 @@ class MainWindow(QMainWindow):
         try:
             self.d.eff_url = self.d.url = url
             log(f"New URL set: {url}")
-             
             # Update the DownloadItem with the new URL
-            #self.d.update(url)
-            
             # schedule refresh header func
             if isinstance(self.url_timer, Timer):
                 self.url_timer.cancel()  # cancel previous timer
@@ -912,30 +902,20 @@ class MainWindow(QMainWindow):
             self.url_timer = Timer(0.5, self.refresh_headers, args=[url])
             self.url_timer.start()
             # Trigger the progress bar update and GUI refresh
-            #self.update_progress_bar()
-        except Exception as e:
-            log(f"Error in url_text_change: {e}")
+        except AttributeError as e:
+            log(f"Error setting URLs in the object 'self.d': {e}")
+            return  # Early return if we can't set URLs properly
 
     def process_url(self):
-        """Simulate processing the URL and update the progress bar."""
-        
-            
+        """Simulate processing the URL and update the progress bar.""" 
         progress_steps = [10, 50, 100]  # Define the progress steps
         for step in progress_steps:
             time.sleep(1)  # Simulate processing time
             # Update the progress bar in the main thread
-            self.update_progress_bar_value(step)
-            
-
-
+            self.update_progress_bar_value(step)       
     def update_progress_bar_value(self, value):
         """Update the progress bar value in the GUI."""
-        try:
-            widgets.progressBar.setValue(value)
-            
-        except Exception as e:
-            log(f"Error updating progress bar: {e}")
-
+        widgets.progressBar.setValue(value)       
 
     def retry(self):
         self.d.url = ''
@@ -948,8 +928,6 @@ class MainWindow(QMainWindow):
         # reset some values
         self.playlist = []
         self.video = None
-
-
 
     def update_progress_bar(self):
         """Update the progress bar based on URL processing."""
@@ -1091,8 +1069,6 @@ class MainWindow(QMainWindow):
                     self.on_startup()
                 
                 
-               
-               
             # Save settings 
             setting.save_setting()
             setting.save_d_list(self.d_list)
@@ -1138,7 +1114,7 @@ class MainWindow(QMainWindow):
     
 
         
-     # Clear Log
+    # Clear Log
     def clear_log(self):
         widgets.logDisplay.clear()
 
@@ -1175,7 +1151,7 @@ class MainWindow(QMainWindow):
         if d is None:
             return
         
-         # check for ffmpeg availability in case this is a dash video
+        # check for ffmpeg availability in case this is a dash video
         if d.type == 'dash' or 'm3u8' in d.protocol:
             # log('Dash video detected')
             if not self.ffmpeg_check():
@@ -1203,7 +1179,7 @@ class MainWindow(QMainWindow):
             ydh = self.tr("you don't have enough permission for destination folder")
             self.show_information(f'{fe}', f"{ydh} {folder}", "")
             return
-           
+        
         except Exception as e:
             pidf = self.tr("problem in destination folder")
             self.show_warning(f'{fe}',f'{pidf} {repr(e)}')
@@ -1625,7 +1601,7 @@ class MainWindow(QMainWindow):
     #     #     selected_stream = widgets.stream_combo.setCurrentText(self.video.stream_names)
 
     #     self.video.selected_stream = self.video.streams[selected_stream]  # Set the selected stream
-      
+
 
     def download_playlist(self):
         """Download playlist with video stream selection using PyQt."""
@@ -1969,7 +1945,6 @@ class MainWindow(QMainWindow):
             return
         
         # If internet is available, resume the download
-       
 
         # Check if the internet_checker is already running
         if not self.internet_checker.isRunning():
@@ -2012,7 +1987,7 @@ class MainWindow(QMainWindow):
     def pause_btn(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-           self.show_warning(self.tr("Error"),self.tr("No download item selected"))
+            self.show_warning(self.tr("Error"),self.tr("No download item selected"))
 
         # Set selected_row_num to the selected row
         self.selected_row_num = selected_row
@@ -2032,7 +2007,7 @@ class MainWindow(QMainWindow):
     def refresh_link_btn(self):
         selected_row = widgets.tableWidget.currentRow()
         if selected_row < 0 or selected_row >= len(self.d_list):
-           self.show_warning(self.tr("Error"),self.tr("No download item selected"))
+            self.show_warning(self.tr("Error"),self.tr("No download item selected"))
 
         # Set selected_row_num to the selected row
         self.selected_row_num = selected_row
@@ -2053,7 +2028,7 @@ class MainWindow(QMainWindow):
         selected_row = widgets.tableWidget.currentRow()
         
         if selected_row < 0 or selected_row >= len(self.d_list):
-           self.show_warning(self.tr("Error"),self.tr("No download item selected"))
+            self.show_warning(self.tr("Error"),self.tr("No download item selected"))
         # Set selected_row_num to the selected row
         self.selected_row_num = selected_row
 
@@ -2115,7 +2090,6 @@ class MainWindow(QMainWindow):
             widgets.schedule_all.setEnabled(False)
             widgets.delete_all.setEnabled(False)
 
-           
     def delete_btn(self):
         # Get all selected rows
         selected_rows = [index.row() for index in widgets.tableWidget.selectedIndexes()]
@@ -2352,12 +2326,12 @@ class MainWindow(QMainWindow):
         except Exception as e:
             log(f"Error opening file: {e}")
 
-           
+
 
 
     def watch_downloading(self):
         selected_row = widgets.tableWidget.currentRow()
-       
+
 
         self.selected_row_num = selected_row
         try:
@@ -2416,7 +2390,7 @@ class MainWindow(QMainWindow):
         
         self.selected_d.sched = None
 
-     # Updating `self.itemLabel` text when an item in the table is clicked
+    # Updating `self.itemLabel` text when an item in the table is clicked
     def update_item_label(self):
         selected_row = widgets.tableWidget.currentRow()
         self.selected_row_num = selected_row
@@ -2516,7 +2490,7 @@ class MainWindow(QMainWindow):
         except:
             pass
     
-     # SWITCH LANGUAGE
+    # SWITCH LANGUAGE
     def switch_language(self):
         selected = widgets.combo_language.currentText()
         if selected == "French":
@@ -2799,8 +2773,6 @@ class MainWindow(QMainWindow):
 
     def on_update_finished(self):
         self.show_information(title=config.APP_NAME, inform=self.tr("Update scheduled to run on the next reboot."), msg=self.tr("Please you can reboot now to install updates."))
-        
-
     def check_for_ytdl_update(self):
         config.ytdl_LATEST_VERSION = update.check_for_ytdl_update()
 
@@ -2832,11 +2804,8 @@ class MainWindow(QMainWindow):
                     except Exception as e:
                         log('failed to update youtube-dl module:', e)
             else:
-                self.show_information('YT-DLP', msg=f'yt-dlp is up-to-date, current version = {current_version}')
-              
+                self.show_information('YT-DLP', msg=f'yt-dlp is up-to-date, current version = {current_version}')       
     # endregion
-
-   
 
 class DownloadWindow(QWidget):
     def __init__(self, d=None):
@@ -2936,12 +2905,11 @@ class DownloadWindow(QWidget):
         name = truncate(self.d.name, 50)
 
         out = (f"\n File: {name} \n"
-               
-               f"\n Downloaded: {size_format(self.d.downloaded)} out of {size_format(self.d.total_size)} \n"
+            f"\n Downloaded: {size_format(self.d.downloaded)} out of {size_format(self.d.total_size)} \n"
 
-               f"\n Speed: {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} left \n"
+            f"\n Speed: {size_format(self.d.speed, '/s')}  {time_format(self.d.time_left)} left \n"
 
-               f"\n Live connections: {self.d.live_connections} - Remaining parts: {self.d.remaining_parts} \n")
+            f"\n Live connections: {self.d.live_connections} - Remaining parts: {self.d.remaining_parts} \n")
 
         self.out_label.setText(out)
 
@@ -3149,7 +3117,7 @@ if __name__ == "__main__":
     # Create the system tray icon and set it visible
     tray = QSystemTrayIcon()
     tray.setIcon(
-            QIcon.fromTheme('Dynamite', QIcon(':images/images/Dynamite.png')))
+        QIcon.fromTheme('Dynamite', QIcon(':images/images/Dynamite.png')))
     tray.setVisible(True)
 
     # Create the menu for the tray icon
