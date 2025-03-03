@@ -14,6 +14,7 @@ import re
 from threading import Thread, Timer
 import copy
 import requests
+import json
 from collections import deque
 from modules.downloaditem import DownloadItem
 # IMPORT / GUI AND MODULES AND WIDGETS
@@ -127,7 +128,7 @@ class YouTubeThread(QThread):
             self.change_cursor('busy')
 
             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                info = ydl.extract_info(self.url, download=False, process=False)
+                info = ydl.extract_info(self.url, download=False, process=True)
                 log('Media info:', info, log_level=3)
 
                 if info.get('_type') == 'playlist' or 'entries' in info:
@@ -136,7 +137,7 @@ class YouTubeThread(QThread):
                     for index, item in enumerate(pl_info):
                         url = item.get('url') or item.get('webpage_url') or item.get('id')
                         if url:
-                            playlist.append(Video(url))
+                            playlist.append(Video(url, vid_info=item))
                         # Emit progress as we process each playlist entry
                         self.progress.emit(int((index + 1) * 100 / len(pl_info)))
                     result = playlist
@@ -1303,7 +1304,7 @@ class MainWindow(QMainWindow):
             self.download_windows[d.id] = DownloadWindow(d)
             self.download_windows[d.id].show()  
 
-        # Using this will not the progress bar work for resuming downloads.
+        # Using this will not make the progress bar work for resuming downloads.
         # if config.show_download_window and not silent:
         #     # create download window
         #     self.download_windows[d.id] = DownloadWindow(d)
@@ -2240,13 +2241,56 @@ class MainWindow(QMainWindow):
         widgets.tableWidget.setRowCount(0)
 
 
+    # def check_scheduled(self):
+    #     t = time.localtime()
+    #     c_t = (t.tm_hour, t.tm_min)
+    #     for d in self.d_list:
+    #         if d.sched and d.sched[0] <= c_t[0] and d.sched[1] <= c_t[1]:
+    #             self.start_download(d, silent=True)  # send for download
+    #             d.sched = None  # cancel schedule time
+
+
     def check_scheduled(self):
         t = time.localtime()
         c_t = (t.tm_hour, t.tm_min)
+
         for d in self.d_list:
-            if d.sched and d.sched[0] <= c_t[0] and d.sched[1] <= c_t[1]:
-                self.start_download(d, silent=True)  # send for download
-                d.sched = None  # cancel schedule time
+            if d.sched:
+                sched_hour, sched_min = d.sched
+
+                # Check if the scheduled time has passed
+                if sched_hour <= c_t[0] and sched_min <= c_t[1]:
+                    log(f"THIS IS THE STATUS {d.status}")
+                    if d.status in [config.Status.error]:
+                        # Extend by 24 hours (same time next day)
+                        d.sched = (sched_hour, sched_min)
+                        log(f"Rescheduled {d.name} for the same time tomorrow due to error/cancellation.")
+                    else:
+                        
+                        # Start the download
+                        log(f"Starting scheduled download: {d.name}")
+                        self.start_download(d, silent=True)
+                        d.sched = None  # Cancel the schedule time
+                    
+                    # Save changes
+                    self.save_reschedule()
+
+
+    def save_reschedule(self):
+        """Save the updated download list to 'downloads.cfg'"""
+        file = os.path.join(config.sett_folder, 'downloads.cfg')
+        try:
+            with open(file, 'w') as f:
+                data = [d.get_persistent_properties() for d in self.d_list]
+                json.dump(data, f, indent=4)
+            log("Downloads saved successfully.")
+        except Exception as e:
+            log(f"Error saving downloads: {e}")
+
+    # def start_scheduler(self):
+    #     self.check_scheduled()
+    #     QtCore.QTimer.singleShot(10000, self.start_scheduler)  # Check every 60 seconds
+
 
     def schedule_all(self):
         try:
@@ -2379,7 +2423,9 @@ class MainWindow(QMainWindow):
 
         response = ask_for_sched_time(msg=self.selected_d.name)
         if response:
+            setting.save_d_list(self.d_list)
             self.selected_d.sched = response
+            print(f"THIS IS {self.selected_d.sched}")
 
     
     def cancel_schedule(self):
