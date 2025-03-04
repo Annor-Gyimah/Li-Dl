@@ -2241,55 +2241,44 @@ class MainWindow(QMainWindow):
         widgets.tableWidget.setRowCount(0)
 
 
-    # def check_scheduled(self):
-    #     t = time.localtime()
-    #     c_t = (t.tm_hour, t.tm_min)
-    #     for d in self.d_list:
-    #         if d.sched and d.sched[0] <= c_t[0] and d.sched[1] <= c_t[1]:
-    #             self.start_download(d, silent=True)  # send for download
-    #             d.sched = None  # cancel schedule time
-
-
     def check_scheduled(self):
         t = time.localtime()
         c_t = (t.tm_hour, t.tm_min)
-
         for d in self.d_list:
-            if d.sched:
-                sched_hour, sched_min = d.sched
+            if d.sched and d.sched[0] <= c_t[0] and d.sched[1] <= c_t[1]:
+                self.start_download(d, silent=True)  # send for download
+                d.sched = None  # cancel schedule time
+                d.status = config.Status.cancelled
 
-                # Check if the scheduled time has passed
-                if sched_hour <= c_t[0] and sched_min <= c_t[1]:
-                    log(f"THIS IS THE STATUS {d.status}")
-                    if d.status in [config.Status.error]:
-                        # Extend by 24 hours (same time next day)
-                        d.sched = (sched_hour, sched_min)
-                        log(f"Rescheduled {d.name} for the same time tomorrow due to error/cancellation.")
-                    else:
+
+    # def check_scheduled(self):
+    #     t = time.localtime()
+    #     c_t = (t.tm_hour, t.tm_min)
+        
+
+    #     for d in self.d_list:
+    #         if d.sched:
+    #             sched_hour, sched_min = d.sched
+
+    #             # Check if the scheduled time has passed
+    #             if sched_hour <= c_t[0] and sched_min <= c_t[1] and d.status in [config.Status.scheduled]:
+    #                 log(f"THIS IS THE STATUS {d.status}")
+    #                 if  d.sched_next:
+    #                     # Extend by 24 hours (same time next day)
+    #                     d.sched = (sched_hour, sched_min)
+    #                     d.status = config.Status.scheduled
+    #                     log(f"Rescheduled {d.name} for the same time tomorrow due to error/cancellation.")
+    #                     d.sched_next = False
+    #                 else:
                         
-                        # Start the download
-                        log(f"Starting scheduled download: {d.name}")
-                        self.start_download(d, silent=True)
-                        d.sched = None  # Cancel the schedule time
+    #                     # Start the download
+    #                     log(f"Starting scheduled download: {d.name}")
+    #                     self.start_download(d, silent=True)
+    #                     d.sched = None  # Cancel the schedule time
+    #                     d.sched_next = True
                     
-                    # Save changes
-                    self.save_reschedule()
-
-
-    def save_reschedule(self):
-        """Save the updated download list to 'downloads.cfg'"""
-        file = os.path.join(config.sett_folder, 'downloads.cfg')
-        try:
-            with open(file, 'w') as f:
-                data = [d.get_persistent_properties() for d in self.d_list]
-                json.dump(data, f, indent=4)
-            log("Downloads saved successfully.")
-        except Exception as e:
-            log(f"Error saving downloads: {e}")
-
-    # def start_scheduler(self):
-    #     self.check_scheduled()
-    #     QtCore.QTimer.singleShot(10000, self.start_scheduler)  # Check every 60 seconds
+    #                 # Save changes
+    #                 #self.save_reschedule()
 
 
     def schedule_all(self):
@@ -2424,6 +2413,7 @@ class MainWindow(QMainWindow):
         response = ask_for_sched_time(msg=self.selected_d.name)
         if response:
             setting.save_d_list(self.d_list)
+            self.selected_d.status = config.Status.scheduled
             self.selected_d.sched = response
             print(f"THIS IS {self.selected_d.sched}")
 
@@ -2435,6 +2425,7 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         
         self.selected_d.sched = None
+        self.selected_d.status = config.Status.cancelled
 
     # Updating `self.itemLabel` text when an item in the table is clicked
     def update_item_label(self):

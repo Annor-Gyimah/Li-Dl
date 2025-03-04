@@ -129,3 +129,4 @@ class Status:
     pending = 'pending'
     merging_audio = 'merging_audio'
     error = 'error'
+    scheduled = 'scheduled'

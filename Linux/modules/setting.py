@@ -78,13 +78,20 @@ def load_d_list():
         # converting list of dictionaries to list of DownloadItem() objects
         for dict_ in data:
             d = update_object(downloaditem.DownloadItem(), dict_)
-            d.sched = dict_.get('scheduled', None)  
+            d.sched = dict_.get('scheduled', None) 
             if d:  # if update_object() returned an updated object not None
                 d_list.append(d)
 
         # clean d_list
         for d in d_list:
-            status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
+            status = None
+            if d.progress >=100:
+                status = config.Status.completed
+            elif d.progress <= 100 and d.sched != None:
+                status = config.Status.scheduled
+            else:
+                status=config.Status.cancelled
+            # status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
             d.status = status
             d.live_connections = 0
 
