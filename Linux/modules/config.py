@@ -55,7 +55,7 @@ show_download_window = True
 auto_close_download_window = True
 segment_size = DEFAULT_SEGMENT_SIZE  # in bytes
 show_thumbnail = True  # auto preview video thumbnail at main tab
-on_startup = True
+on_startup = False
 
 # connection / network
 speed_limit = 0  # in kbytes, zero == no limit  todo: make it in bytes instead of kb

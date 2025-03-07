@@ -2134,6 +2134,7 @@ class MainWindow(QMainWindow):
             if d.sched and d.sched[0] <= c_t[0] and d.sched[1] <= c_t[1]:
                 self.start_download(d, silent=True)  # send for download
                 d.sched = None  # cancel schedule time
+                d.status = config.Status.cancelled
 
     def schedule_all(self):
         try:
@@ -2272,6 +2273,8 @@ class MainWindow(QMainWindow):
 
         response = ask_for_sched_time(msg=self.selected_d.name)
         if response:
+            setting.save_d_list(self.d_list)
+            self.selected_d.status = config.Status.scheduled
             self.selected_d.sched = response
 
     
@@ -2282,6 +2285,7 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         
         self.selected_d.sched = None
+        self.selected_d.status = config.Status.cancelled
 
      # Updating `self.itemLabel` text when an item in the table is clicked
     def update_item_label(self):
