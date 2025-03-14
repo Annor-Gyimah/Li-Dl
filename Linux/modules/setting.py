@@ -78,12 +78,20 @@ def load_d_list():
         # converting list of dictionaries to list of DownloadItem() objects
         for dict_ in data:
             d = update_object(downloaditem.DownloadItem(), dict_)
+            d.sched = dict_.get('scheduled', None) 
             if d:  # if update_object() returned an updated object not None
                 d_list.append(d)
 
         # clean d_list
         for d in d_list:
-            status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
+            status = None
+            if d.progress >=100:
+                status = config.Status.completed
+            elif d.progress <= 100 and d.sched != None:
+                status = config.Status.scheduled
+            else:
+                status=config.Status.cancelled
+            # status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
             d.status = status
             d.live_connections = 0
 
@@ -95,6 +103,41 @@ def load_d_list():
         if not isinstance(d_list, list):
             d_list = []
         return d_list
+
+# def load_d_list():
+#     """Create and return a list of 'DownloadItem' objects based on data extracted from 'downloads.cfg' file"""
+#     d_list = []
+#     try:
+#         log('Load previous download items from', config.sett_folder)
+#         file = os.path.join(config.sett_folder, 'downloads.cfg')
+
+#         with open(file, 'r') as f:
+#             # Expecting a list of dictionaries
+#             data = json.load(f)
+
+#         # Converting list of dictionaries to list of DownloadItem objects
+#         for dict_ in data:
+#             d = downloaditem.DownloadItem()  # Create an instance first
+#             d = update_object(d, dict_)  # Update with stored values
+            
+#             # Ensure `self.sched` is explicitly assigned
+#             d.sched = dict_.get('scheduled', None)  
+
+#             if d:  # If update_object() returned an updated object
+#                 d_list.append(d)
+
+#         # Clean `d_list`
+#         for d in d_list:
+#             status = config.Status.completed if d.progress >= 100 else config.Status.cancelled
+#             d.status = status
+#             d.live_connections = 0
+
+#         return d_list
+
+#     except Exception as e:
+#         log(f"Error loading downloads: {e}")
+#         return []
+
 
 
 def save_d_list(d_list):

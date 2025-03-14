@@ -183,7 +183,7 @@ class DownloadItem:
 
         self.animation_timer = 0
 
-        self.manifest_url = ''
+        self.manifest_url = '' 
 
     def get_persistent_properties(self):
         """return a dict of important parameters to be saved in file"""
@@ -194,7 +194,7 @@ class DownloadItem:
                  type=self.type, fragments=self.fragments, fragment_base_url=self.fragment_base_url,
                  audio_fragments=self.audio_fragments, audio_fragment_base_url=self.audio_fragment_base_url,
                  last_known_size=self.last_known_size, last_known_progress=self.last_known_progress,
-                 protocol=self.protocol, manifest_url=self.manifest_url
+                 protocol=self.protocol, manifest_url=self.manifest_url, scheduled=self.sched
                  )
         return a
 

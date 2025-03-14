@@ -129,7 +129,7 @@ class YouTubeThread(QThread):
             self.change_cursor('busy')
 
             with video.ytdl.YoutubeDL(get_ytdl_options()) as ydl:
-                info = ydl.extract_info(self.url, download=False, process=False)
+                info = ydl.extract_info(self.url, download=False, process=True)
                 log('Media info:', info, log_level=3)
 
                 if info.get('_type') == 'playlist' or 'entries' in info:
@@ -138,13 +138,13 @@ class YouTubeThread(QThread):
                     for index, item in enumerate(pl_info):
                         url = item.get('url') or item.get('webpage_url') or item.get('id')
                         if url:
-                            playlist.append(Video(url))
+                            playlist.append(Video(url, vid_info=item))
                         # Emit progress as we process each playlist entry
                         self.progress.emit(int((index + 1) * 100 / len(pl_info)))
                     result = playlist
                 else:
                     # For a single video, update progress on extraction
-                    result = Video(self.url, vid_info=None)
+                    result = Video(self.url, vid_info=info)
                     self.progress.emit(50)  # Just after extracting the info
                     time.sleep(1)  # Simulating some processing
                     self.progress.emit(100)  # Video info extraction complete
@@ -915,7 +915,7 @@ class MainWindow(QMainWindow):
 
                     if days_since_last_update >= config.update_frequency:
                         Thread(target=self.update_available, daemon=True).start()
-                        Thread(target=self.check_for_ytdl_update, daemon=True).start()
+                       # Thread(target=self.check_for_ytdl_update, daemon=True).start()
                         config.last_update_check = today
                 except Exception as e:
                     log('MainWindow.run()>', e)
@@ -2134,6 +2134,7 @@ class MainWindow(QMainWindow):
             if d.sched and d.sched[0] <= c_t[0] and d.sched[1] <= c_t[1]:
                 self.start_download(d, silent=True)  # send for download
                 d.sched = None  # cancel schedule time
+                d.status = config.Status.cancelled
 
     def schedule_all(self):
         try:
@@ -2272,6 +2273,8 @@ class MainWindow(QMainWindow):
 
         response = ask_for_sched_time(msg=self.selected_d.name)
         if response:
+            setting.save_d_list(self.d_list)
+            self.selected_d.status = config.Status.scheduled
             self.selected_d.sched = response
 
     
@@ -2282,6 +2285,7 @@ class MainWindow(QMainWindow):
         self.selected_row_num = selected_row
         
         self.selected_d.sched = None
+        self.selected_d.status = config.Status.cancelled
 
      # Updating `self.itemLabel` text when an item in the table is clicked
     def update_item_label(self):
