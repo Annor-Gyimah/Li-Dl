@@ -16,6 +16,7 @@ import subprocess
 from threading import Thread, Timer
 from collections import deque
 from modules.downloaditem import DownloadItem
+import datetime
 # IMPORT / GUI AND MODULES AND WIDGETS
 # ///////////////////////////////////////////////////////////////
 from modules import *
@@ -3124,6 +3125,66 @@ if __name__ == "__main__":
 
     # Show the window initially
     window.show()
+
+   # To show the user a pop up that this version and brand of the app have been discontinued.
+    # Grace period settings
+    GRACE_PERIOD_DAYS = 7
+    LAST_CHECK_FILE = os.path.join(config.sett_folder, "omnipull_last_check.txt")
+
+    def get_days_left():
+        today = datetime.date.today()
+        # Try to read the last check date and days left from file
+        if os.path.exists(LAST_CHECK_FILE):
+            try:
+                with open(LAST_CHECK_FILE, "r") as f:
+                    lines = f.readlines()
+                    last_date_str = lines[0].strip()
+                    days_left = int(lines[1].strip())
+                    last_date = datetime.datetime.strptime(last_date_str, "%Y-%m-%d").date()
+                    # If a new day, subtract one day from grace period
+                    if today > last_date:
+                        days_left = max(0, days_left - (today - last_date).days)
+            except Exception:
+                days_left = GRACE_PERIOD_DAYS
+        else:
+            days_left = GRACE_PERIOD_DAYS
+
+        # Save today's date and updated days_left
+        with open(LAST_CHECK_FILE, "w") as f:
+            f.write(f"{today.isoformat()}\n{days_left}\n")
+        return days_left
+
+    if not getattr(config, "omnipull_yet", False):
+        config.omnipull_yet = True
+        days_left = get_days_left()
+        # Show discontinued message with link
+        discontinued_msg = (
+            "This version and brand of the app have been discontinued.\n"
+            "Please visit the new official website to download the latest version and rebrand of your favourite downloader app."
+        )
+        dialog = QDialog(window)
+        dialog.setWindowTitle("App Discontinued")
+        dialog.setStyleSheet("background-color: rgb(33, 37, 43); color: white;")
+        layout = QVBoxLayout(dialog)
+        label = QLabel(discontinued_msg)
+        label.setWordWrap(True)
+        layout.addWidget(label)
+        link_btn = QPushButton("Open Website")
+        layout.addWidget(link_btn)
+        days_label = QLabel(f"You have {days_left} days left to use this version before it stops working.")
+        layout.addWidget(days_label)
+        def open_site():
+            webbrowser.open("https://omnipull.pythonanywhere.com")
+        link_btn.clicked.connect(open_site)
+        ok_btn = QPushButton("OK")
+        ok_btn.clicked.connect(dialog.accept)
+        layout.addWidget(ok_btn)
+        dialog.setLayout(layout)
+        dialog.exec()
+        
+        if days_left == 0:
+            QMessageBox.critical(window, "Grace Period Ended", f"Your grace period has ended. Your {config.APP_NAME_2} version {config.APP_VERSION} is now expired. Please make sure to uninstall this version when installing the new version.")
+            sys.exit(0)
 
     # # Function to update the tray menu based on window state (minimized or not)
     # def update_tray_menu():
